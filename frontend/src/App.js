@@ -378,7 +378,7 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
                 className={`h-16 ${getStatusColor(machine?.status || "verde")} 
                   text-white font-bold text-sm flex items-center justify-center 
                   border-2 border-gray-800 cursor-pointer transition-all duration-200 
-                  hover:scale-105 active:scale-95`}
+                  hover:scale-105 active:scale-95 machine-box`}
                 onClick={() => handleMachineClick(machine)}
               >
                 {num}

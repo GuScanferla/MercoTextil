@@ -78,6 +78,7 @@ class Order(BaseModel):
     started_at: Optional[datetime] = None
     finished_at: Optional[datetime] = None
     observacao_liberacao: str = ""
+    laudo_final: str = ""  # New field for final report
 
 class OrderCreate(BaseModel):
     machine_number: int
@@ -91,6 +92,7 @@ class OrderCreate(BaseModel):
 class OrderUpdate(BaseModel):
     status: str
     observacao_liberacao: str = ""
+    laudo_final: str = ""  # New field for final report
 
 class StatusHistory(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -137,7 +139,7 @@ async def init_data():
     if not admin_exists:
         admin_user = User(
             username="admin",
-            email="admin@fusosmanager.com",
+            email="admin@mercotextil.com",
             role="admin"
         )
         admin_dict = admin_user.dict()
@@ -148,7 +150,7 @@ async def init_data():
     if not interno_exists:
         interno_user = User(
             username="interno",
-            email="interno@fusosmanager.com",
+            email="interno@mercotextil.com",
             role="operador_interno"
         )
         interno_dict = interno_user.dict()
@@ -159,7 +161,7 @@ async def init_data():
     if not externo_exists:
         externo_user = User(
             username="externo",
-            email="externo@fusosmanager.com",
+            email="externo@mercotextil.com",
             role="operador_externo"
         )
         externo_dict = externo_user.dict()
@@ -221,6 +223,21 @@ async def get_users(current_user: User = Depends(get_current_user)):
     
     users = await db.users.find().to_list(1000)
     return [User(**user) for user in users]
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Don't allow admin to delete themselves
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User deleted successfully"}
 
 # Machine routes
 @api_router.get("/machines/{layout_type}", response_model=List[Machine])
@@ -325,7 +342,10 @@ async def update_order(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     
-    update_data = {"observacao_liberacao": order_update.observacao_liberacao}
+    update_data = {
+        "observacao_liberacao": order_update.observacao_liberacao,
+        "laudo_final": order_update.laudo_final
+    }
     machine_status = "amarelo"
     
     if order_update.status == "em_producao":

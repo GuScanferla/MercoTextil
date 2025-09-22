@@ -45,39 +45,93 @@ body {
   background: var(--merco-accent);
 }
 
+/* Merco Logo Styles */
+.merco-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.merco-logo-bg {
+  background: #000000;
+  padding: 20px 30px;
+  border-radius: 8px;
+  border: 2px solid var(--merco-red);
+  display: flex;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(200, 16, 46, 0.3);
+}
+
+.merco-text {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--merco-gray);
+  margin-right: 8px;
+}
+
+.merco-t-line {
+  width: 40px;
+  height: 4px;
+  background: var(--merco-red);
+  margin: 0 4px;
+  position: relative;
+  top: -2px;
+}
+
+.merco-textil {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--merco-red);
+  margin-left: 4px;
+}
+
+/* Header Logo */
+.merco-logo-header {
+  display: flex;
+  align-items: center;
+}
+
+.merco-logo-bg-small {
+  background: #000000;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--merco-red);
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.merco-text-small {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--merco-gray);
+  margin-right: 4px;
+}
+
+.merco-t-line-small {
+  width: 20px;
+  height: 2px;
+  background: var(--merco-red);
+  margin: 0 2px;
+  position: relative;
+  top: -1px;
+}
+
+.merco-textil-small {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--merco-red);
+  margin-left: 2px;
+}
+
 /* Header styles */
 .merco-header {
   background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
   border-bottom: 3px solid var(--merco-red);
   color: white;
   box-shadow: 0 4px 20px rgba(200, 16, 46, 0.3);
-}
-
-.merco-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.merco-logo-text {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--merco-gray);
-}
-
-.merco-logo-accent {
-  color: var(--merco-red);
-  position: relative;
-}
-
-.merco-logo-accent::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--merco-red);
 }
 
 /* Login page */
@@ -296,7 +350,7 @@ body {
   box-shadow: 0 8px 20px rgba(200, 16, 46, 0.4);
 }
 
-/* Fusos grid layouts */
+/* Fusos container */
 .fusos-container {
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(20px);
@@ -306,98 +360,101 @@ body {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-.layout-16-grid {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(6, 1fr);
-  gap: 8px;
+/* 16 Fusos Layout - Exact replication */
+.layout-16-exact {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
   max-width: 1000px;
   margin: 0 auto;
-  height: 480px;
 }
 
-/* 16 Fusos specific positioning */
-.machine-1 { grid-column: 1; grid-row: 1; }
-.machine-2 { grid-column: 2; grid-row: 1; }
-.machine-3 { grid-column: 1; grid-row: 2; }
-.machine-4 { grid-column: 2; grid-row: 2; }
+.layout-16-top,
+.layout-16-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 60px;
+}
 
-.machine-5 { grid-column: 4; grid-row: 1; }
-.machine-6 { grid-column: 5; grid-row: 1; }
-.machine-7 { grid-column: 4; grid-row: 2; }
-.machine-8 { grid-column: 5; grid-row: 2; }
+.layout-16-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-.machine-9 { grid-column: 1; grid-row: 4; }
-.machine-10 { grid-column: 2; grid-row: 4; }
-.machine-11 { grid-column: 1; grid-row: 5; }
-.machine-12 { grid-column: 2; grid-row: 5; }
+.group-row {
+  display: flex;
+  gap: 4px;
+}
 
-.machine-13 { grid-column: 4; grid-row: 4; }
-.machine-14 { grid-column: 5; grid-row: 4; }
-.machine-15 { grid-column: 4; grid-row: 5; }
-.machine-16 { grid-column: 5; grid-row: 5; }
+.layout-16-group .machine-box {
+  width: 80px;
+  height: 60px;
+  font-size: 14px;
+}
 
-.machine-17 { grid-column: 7; grid-row: 1; }
-.machine-18 { grid-column: 8; grid-row: 1; }
-.machine-19 { grid-column: 7; grid-row: 2; }
-.machine-20 { grid-column: 8; grid-row: 2; }
+.group-17-24 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-.machine-21 { grid-column: 7; grid-row: 3; }
-.machine-22 { grid-column: 8; grid-row: 3; }
-.machine-23 { grid-column: 7; grid-row: 4; }
-.machine-24 { grid-column: 8; grid-row: 4; }
-
-/* 32 Fusos layout */
-.layout-32-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 6px;
-  max-width: 1400px;
+/* 32 Fusos Layout - Exact replication */
+.layout-32-exact {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.layout-32-row-1 {
-  grid-column: 1 / -1;
+.layout-32-top-row {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 6px;
-  margin-bottom: 16px;
 }
 
-.layout-32-row-2 {
-  grid-column: 4 / 10;
+.layout-32-second-row {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 6px;
-  margin: 16px 0;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.layout-32-groups {
+.layout-32-vertical-groups {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 40px;
   margin: 20px 0;
 }
 
-.layout-32-group {
+.layout-32-vertical-group {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(5, 1fr);
   gap: 4px;
 }
 
-.layout-32-bottom {
+.layout-32-bottom-row {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 6px;
-  margin: 16px 0;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .layout-32-final {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 20px;
+}
+
+.layout-32-exact .machine-box {
+  min-height: 50px;
+  font-size: 14px;
 }
 
 /* Status indicators */
@@ -579,13 +636,16 @@ body {
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .layout-16-grid {
-    grid-template-columns: repeat(4, 1fr);
-    height: auto;
+  .layout-16-top,
+  .layout-16-bottom {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
   }
   
-  .layout-32-groups {
+  .layout-32-vertical-groups {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   
   .machine-box {
@@ -593,7 +653,11 @@ body {
     font-size: 14px;
   }
   
-  .merco-logo-text {
+  .merco-text, .merco-textil {
+    font-size: 24px;
+  }
+
+  .login-title {
     font-size: 24px;
   }
 }
@@ -611,6 +675,12 @@ body {
   .status-legend {
     flex-wrap: wrap;
     gap: 10px;
+  }
+
+  .layout-16-group .machine-box {
+    width: 60px;
+    height: 50px;
+    font-size: 12px;
   }
 }
 

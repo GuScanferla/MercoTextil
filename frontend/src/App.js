@@ -13,7 +13,7 @@ import { Textarea } from "./components/ui/textarea";
 import { Badge } from "./components/ui/badge";
 import { toast } from "sonner";
 import { Toaster } from "./components/ui/sonner";
-import { LogOut, Users, Download, Settings, Factory } from "lucide-react";
+import { LogOut, Users, Download, Settings, Factory, Trash2 } from "lucide-react";
 import * as XLSX from 'xlsx';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -106,14 +106,17 @@ const LoginPage = ({ onLogin }) => {
     <div className="login-container">
       <Card className="w-full max-w-md login-card">
         <CardHeader className="text-center pb-8">
-          <div className="merco-logo mb-4">
-            <Factory className="h-12 w-12 text-red-500 mx-auto mb-2" />
-            <div className="merco-logo-text">
-              Merco <span className="merco-logo-accent">Têxtil</span>
+          <div className="merco-logo mb-6">
+            <div className="merco-logo-container">
+              <div className="merco-logo-bg">
+                <span className="merco-text">Merco</span>
+                <div className="merco-t-line"></div>
+                <span className="merco-textil">êxtil</span>
+              </div>
             </div>
           </div>
-          <h1 className="login-title">Sistema de Fusos</h1>
-          <p className="login-subtitle">Controle de Produção Industrial</p>
+          <h1 className="login-title">Controle de Produção</h1>
+          <p className="login-subtitle">Sistema Industrial Merco Têxtil</p>
         </CardHeader>
         <CardContent className="form-merco">
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -220,14 +223,15 @@ const Dashboard = ({ user, onLogout }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-6">
-              <div className="merco-logo">
-                <Factory className="h-8 w-8 text-red-500" />
-                <div className="merco-logo-text">
-                  Merco <span className="merco-logo-accent">Têxtil</span>
+              <div className="merco-logo-header">
+                <div className="merco-logo-bg-small">
+                  <span className="merco-text-small">Merco</span>
+                  <div className="merco-t-line-small"></div>
+                  <span className="merco-textil-small">êxtil</span>
                 </div>
               </div>
               <div className="h-6 w-px bg-gray-600"></div>
-              <span className="text-lg font-medium text-gray-300">Sistema de Fusos</span>
+              <span className="text-lg font-medium text-gray-300">Controle de Produção</span>
               <Badge className={`${badge.class} badge-merco`}>
                 {badge.text}
               </Badge>
@@ -281,7 +285,7 @@ const Dashboard = ({ user, onLogout }) => {
           </TabsContent>
 
           <TabsContent value="orders">
-            <OrdersPanel orders={orders} user={user} onOrderUpdate={loadOrders} />
+            <OrdersPanel orders={orders} user={user} onOrderUpdate={loadOrders} onMachineUpdate={loadMachines} />
           </TabsContent>
 
           {user.role === "admin" && (
@@ -343,104 +347,163 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
     }
   };
 
+  // 16 Fusos Layout - Exact replication of the image
   const renderLayout16 = () => {
+    const machineMap = {};
+    machines.forEach(machine => {
+      machineMap[machine.number] = machine;
+    });
+
     return (
-      <div className="layout-16-grid">
-        {machines.map((machine) => (
-          <div
-            key={machine.id}
-            className={`machine-box machine-${machine.number} ${getStatusColor(machine.status)}`}
-            onClick={() => handleMachineClick(machine)}
-          >
-            {machine.number}
+      <div className="layout-16-exact">
+        {/* Top section - Groups 1-8 and 17-20 */}
+        <div className="layout-16-top">
+          {/* Group 1-4 */}
+          <div className="layout-16-group group-1-4">
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[1]?.status)}`} onClick={() => handleMachineClick(machineMap[1])}>1</div>
+              <div className={`machine-box ${getStatusColor(machineMap[2]?.status)}`} onClick={() => handleMachineClick(machineMap[2])}>2</div>
+            </div>
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[3]?.status)}`} onClick={() => handleMachineClick(machineMap[3])}>3</div>
+              <div className={`machine-box ${getStatusColor(machineMap[4]?.status)}`} onClick={() => handleMachineClick(machineMap[4])}>4</div>
+            </div>
           </div>
-        ))}
+
+          {/* Group 5-8 */}
+          <div className="layout-16-group group-5-8">
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[5]?.status)}`} onClick={() => handleMachineClick(machineMap[5])}>5</div>
+              <div className={`machine-box ${getStatusColor(machineMap[6]?.status)}`} onClick={() => handleMachineClick(machineMap[6])}>6</div>
+            </div>
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[7]?.status)}`} onClick={() => handleMachineClick(machineMap[7])}>7</div>
+              <div className={`machine-box ${getStatusColor(machineMap[8]?.status)}`} onClick={() => handleMachineClick(machineMap[8])}>8</div>
+            </div>
+          </div>
+
+          {/* Group 17-24 (right side) */}
+          <div className="layout-16-group group-17-24">
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[17]?.status)}`} onClick={() => handleMachineClick(machineMap[17])}>17</div>
+              <div className={`machine-box ${getStatusColor(machineMap[18]?.status)}`} onClick={() => handleMachineClick(machineMap[18])}>18</div>
+            </div>
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[19]?.status)}`} onClick={() => handleMachineClick(machineMap[19])}>19</div>
+              <div className={`machine-box ${getStatusColor(machineMap[20]?.status)}`} onClick={() => handleMachineClick(machineMap[20])}>20</div>
+            </div>
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[21]?.status)}`} onClick={() => handleMachineClick(machineMap[21])}>21</div>
+              <div className={`machine-box ${getStatusColor(machineMap[22]?.status)}`} onClick={() => handleMachineClick(machineMap[22])}>22</div>
+            </div>
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[23]?.status)}`} onClick={() => handleMachineClick(machineMap[23])}>23</div>
+              <div className={`machine-box ${getStatusColor(machineMap[24]?.status)}`} onClick={() => handleMachineClick(machineMap[24])}>24</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom section - Groups 9-16 */}
+        <div className="layout-16-bottom">
+          {/* Group 9-12 */}
+          <div className="layout-16-group group-9-12">
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[9]?.status)}`} onClick={() => handleMachineClick(machineMap[9])}>9</div>
+              <div className={`machine-box ${getStatusColor(machineMap[10]?.status)}`} onClick={() => handleMachineClick(machineMap[10])}>10</div>
+            </div>
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[11]?.status)}`} onClick={() => handleMachineClick(machineMap[11])}>11</div>
+              <div className={`machine-box ${getStatusColor(machineMap[12]?.status)}`} onClick={() => handleMachineClick(machineMap[12])}>12</div>
+            </div>
+          </div>
+
+          {/* Group 13-16 */}
+          <div className="layout-16-group group-13-16">
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[13]?.status)}`} onClick={() => handleMachineClick(machineMap[13])}>13</div>
+              <div className={`machine-box ${getStatusColor(machineMap[14]?.status)}`} onClick={() => handleMachineClick(machineMap[14])}>14</div>
+            </div>
+            <div className="group-row">
+              <div className={`machine-box ${getStatusColor(machineMap[15]?.status)}`} onClick={() => handleMachineClick(machineMap[15])}>15</div>
+              <div className={`machine-box ${getStatusColor(machineMap[16]?.status)}`} onClick={() => handleMachineClick(machineMap[16])}>16</div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
 
+  // 32 Fusos Layout - Exact replication of the image
   const renderLayout32 = () => {
-    const topRow = machines.filter(m => m.number >= 1 && m.number <= 12);
-    const middleRow = machines.filter(m => m.number >= 15 && m.number <= 20);
-    const group1 = machines.filter(m => m.number >= 1 && m.number <= 10);
-    const group2 = machines.filter(m => m.number >= 11 && m.number <= 20);
-    const group3 = machines.filter(m => m.number >= 21 && m.number <= 30);
-    const bottomRow = machines.filter(m => m.number >= 1 && m.number <= 6);
-    const finalBoxes = machines.filter(m => [31, 32, 33].includes(m.number));
+    const machineMap = {};
+    machines.forEach(machine => {
+      machineMap[machine.number] = machine;
+    });
 
     return (
-      <div className="space-y-6">
-        {/* Top row - 12 boxes */}
-        <div className="layout-32-row-1">
-          {topRow.map((machine) => (
-            <div
-              key={machine.id}
-              className={`machine-box ${getStatusColor(machine.status)}`}
-              onClick={() => handleMachineClick(machine)}
-            >
-              {machine.number}
+      <div className="layout-32-exact">
+        {/* Top row - 12 machines (1-12) */}
+        <div className="layout-32-top-row">
+          {[1,2,3,4,5,6,7,8,9,10,11,12].map(num => (
+            <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
+              {num}
             </div>
           ))}
         </div>
 
-        {/* Middle row - 6 boxes (15-20) */}
-        <div className="flex justify-center">
-          <div className="layout-32-row-2">
-            {middleRow.map((machine) => (
-              <div
-                key={machine.id}
-                className={`machine-box ${getStatusColor(machine.status)}`}
-                onClick={() => handleMachineClick(machine)}
-              >
-                {machine.number}
-              </div>
-            ))}
-          </div>
+        {/* Second row - 6 machines (15-20) */}
+        <div className="layout-32-second-row">
+          {[15,16,17,18,19,20].map(num => (
+            <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
+              {num}
+            </div>
+          ))}
         </div>
 
         {/* Three vertical groups */}
-        <div className="layout-32-groups">
-          {[group1, group2, group3].map((group, groupIndex) => (
-            <div key={groupIndex} className="layout-32-group">
-              {group.map((machine) => (
-                <div
-                  key={machine.id}
-                  className={`machine-box ${getStatusColor(machine.status)}`}
-                  onClick={() => handleMachineClick(machine)}
-                >
-                  {machine.number}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+        <div className="layout-32-vertical-groups">
+          {/* Group 1 (1-10) */}
+          <div className="layout-32-vertical-group">
+            {[1,3,5,7,9,2,4,6,8,10].map(num => (
+              <div key={`group1-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
+                {num}
+              </div>
+            ))}
+          </div>
 
-        {/* Bottom row - 6 boxes */}
-        <div className="flex justify-center">
-          <div className="layout-32-bottom">
-            {bottomRow.map((machine) => (
-              <div
-                key={machine.id}
-                className={`machine-box ${getStatusColor(machine.status)}`}
-                onClick={() => handleMachineClick(machine)}
-              >
-                {machine.number}
+          {/* Group 2 (11-20) */}
+          <div className="layout-32-vertical-group">
+            {[11,13,15,17,19,12,14,16,18,20].map(num => (
+              <div key={`group2-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
+                {num}
+              </div>
+            ))}
+          </div>
+
+          {/* Group 3 (21-30) */}
+          <div className="layout-32-vertical-group">
+            {[21,23,25,27,29,22,24,26,28,30].map(num => (
+              <div key={`group3-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
+                {num}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Final 3 boxes */}
-        <div className="layout-32-final">
-          {finalBoxes.map((machine) => (
-            <div
-              key={machine.id}
-              className={`machine-box ${getStatusColor(machine.status)}`}
-              onClick={() => handleMachineClick(machine)}
-            >
-              {machine.number}
+        {/* Bottom row - 6 machines (1-6) */}
+        <div className="layout-32-bottom-row">
+          {[1,2,3,4,5,6].map(num => (
+            <div key={`bottom-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
+              {num}
             </div>
           ))}
+        </div>
+
+        {/* Final 3 machines (31-33) */}
+        <div className="layout-32-final">
+          <div className={`machine-box ${getStatusColor(machineMap[32]?.status)}`} onClick={() => handleMachineClick(machineMap[32])}>32</div>
+          <div className={`machine-box ${getStatusColor(machineMap[31]?.status)}`} onClick={() => handleMachineClick(machineMap[31])}>31</div>
+          <div className={`machine-box ${getStatusColor(machineMap[33]?.status)}`} onClick={() => handleMachineClick(machineMap[33])}>33</div>
         </div>
       </div>
     );
@@ -537,21 +600,35 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
   );
 };
 
-const OrdersPanel = ({ orders, user, onOrderUpdate }) => {
-  const updateOrder = async (orderId, status, observacao = "") => {
+const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [finishData, setFinishData] = useState({
+    observacao_liberacao: "",
+    laudo_final: ""
+  });
+
+  const updateOrder = async (orderId, status, observacao = "", laudo = "") => {
     try {
       await axios.put(`${API}/orders/${orderId}`, {
         status,
-        observacao_liberacao: observacao
+        observacao_liberacao: observacao,
+        laudo_final: laudo
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
       
       toast.success("Pedido atualizado com sucesso!");
       onOrderUpdate();
+      onMachineUpdate(); // Real-time machine status update
     } catch (error) {
       toast.error("Erro ao atualizar pedido");
     }
+  };
+
+  const handleFinish = async () => {
+    await updateOrder(selectedOrder.id, "finalizado", finishData.observacao_liberacao, finishData.laudo_final);
+    setSelectedOrder(null);
+    setFinishData({ observacao_liberacao: "", laudo_final: "" });
   };
 
   const getStatusBadge = (status) => {
@@ -606,6 +683,12 @@ const OrdersPanel = ({ orders, user, onOrderUpdate }) => {
                   <span className="font-medium">Observação:</span> {order.observacao}
                 </p>
               )}
+
+              {order.laudo_final && (
+                <p className="text-sm text-green-400 mb-4 p-3 bg-green-900/20 rounded border border-green-700">
+                  <span className="font-medium">Laudo Final:</span> {order.laudo_final}
+                </p>
+              )}
               
               {(user.role === "admin" || user.role === "operador_externo") && order.status !== "finalizado" && (
                 <div className="flex space-x-2">
@@ -622,9 +705,9 @@ const OrdersPanel = ({ orders, user, onOrderUpdate }) => {
                     <Button
                       size="sm"
                       className="bg-green-600 hover:bg-green-700"
-                      onClick={() => updateOrder(order.id, "finalizado")}
+                      onClick={() => setSelectedOrder(order)}
                     >
-                      Finalizar
+                      Finalizar Produção
                     </Button>
                   )}
                 </div>
@@ -633,6 +716,46 @@ const OrdersPanel = ({ orders, user, onOrderUpdate }) => {
           </Card>
         ))}
       </div>
+
+      {/* Finish Order Dialog */}
+      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent className="dialog-merco">
+          <DialogHeader className="dialog-header">
+            <DialogTitle className="dialog-title">
+              Finalizar Produção - Máquina {selectedOrder?.machine_number}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 p-6 form-merco">
+            <div>
+              <Label htmlFor="observacao_liberacao">Observação de Liberação</Label>
+              <Textarea
+                id="observacao_liberacao"
+                value={finishData.observacao_liberacao}
+                onChange={(e) => setFinishData({...finishData, observacao_liberacao: e.target.value})}
+                placeholder="Observações sobre a liberação"
+              />
+            </div>
+            <div>
+              <Label htmlFor="laudo_final">Laudo Final</Label>
+              <Textarea
+                id="laudo_final"
+                value={finishData.laudo_final}
+                onChange={(e) => setFinishData({...finishData, laudo_final: e.target.value})}
+                placeholder="Laudo final da produção"
+                required
+              />
+            </div>
+            <div className="flex space-x-2">
+              <Button onClick={handleFinish} className="flex-1 btn-merco">
+                Finalizar Produção
+              </Button>
+              <Button variant="outline" onClick={() => setSelectedOrder(null)} className="flex-1">
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -656,6 +779,21 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       onUserUpdate();
     } catch (error) {
       toast.error("Erro ao criar usuário");
+    }
+  };
+
+  const deleteUser = async (userId) => {
+    if (window.confirm("Tem certeza que deseja excluir este usuário?")) {
+      try {
+        await axios.delete(`${API}/users/${userId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        
+        toast.success("Usuário excluído com sucesso!");
+        onUserUpdate();
+      } catch (error) {
+        toast.error("Erro ao excluir usuário");
+      }
     }
   };
 
@@ -685,7 +823,8 @@ const AdminPanel = ({ users, onUserUpdate }) => {
         'Iniciado em': order.started_at ? new Date(order.started_at).toLocaleString('pt-BR') : '',
         'Finalizado em': order.finished_at ? new Date(order.finished_at).toLocaleString('pt-BR') : '',
         'Observação': order.observacao,
-        'Obs. Liberação': order.observacao_liberacao
+        'Obs. Liberação': order.observacao_liberacao,
+        'Laudo Final': order.laudo_final
       }));
       
       const ordersWS = XLSX.utils.json_to_sheet(ordersData);
@@ -725,8 +864,8 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       
       toast.success("Relatório exportado com sucesso!");
     } catch (error) {
-      toast.error("Erro ao exportar relatório");
-      console.error('Export error:', error);
+      console.error('Export error details:', error.response?.data || error.message);
+      toast.error(`Erro ao exportar relatório: ${error.response?.data?.detail || error.message}`);
     }
   };
 
@@ -791,15 +930,25 @@ const AdminPanel = ({ users, onUserUpdate }) => {
               <div className="space-y-2">
                 {users.map((user) => (
                   <div key={user.id} className="flex justify-between items-center p-3 bg-black/40 rounded border border-gray-700">
-                    <span className="text-white">{user.username}</span>
-                    <Badge className={`${
-                      user.role === "admin" ? "badge-admin" : 
-                      user.role === "operador_interno" ? "badge-interno" : 
-                      "badge-externo"
-                    } badge-merco`}>
-                      {user.role === "admin" ? "Admin" : 
-                       user.role === "operador_interno" ? "Interno" : "Externo"}
-                    </Badge>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-white">{user.username}</span>
+                      <Badge className={`${
+                        user.role === "admin" ? "badge-admin" : 
+                        user.role === "operador_interno" ? "badge-interno" : 
+                        "badge-externo"
+                      } badge-merco`}>
+                        {user.role === "admin" ? "Admin" : 
+                         user.role === "operador_interno" ? "Interno" : "Externo"}
+                      </Badge>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => deleteUser(user.id)}
+                      className="text-red-400 border-red-600 hover:bg-red-600 hover:text-white"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -839,7 +988,7 @@ const AdminPanel = ({ users, onUserUpdate }) => {
               <div className="mt-4 p-3 bg-blue-500/20 rounded border border-blue-500/30">
                 <p className="text-blue-300 text-sm">
                   <strong>Relatórios incluem:</strong> Pedidos completos, histórico de status, 
-                  resumo estatístico e dados organizados em planilhas separadas.
+                  laudos finais e dados organizados em planilhas separadas.
                 </p>
               </div>
             </div>

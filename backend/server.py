@@ -33,6 +33,29 @@ security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 JWT_SECRET = "fusosmanager_secret_key_2024"
 
+# Helper function to convert MongoDB documents
+def serialize_doc(doc):
+    """Convert MongoDB document to JSON serializable format"""
+    if doc is None:
+        return None
+    
+    # Convert ObjectId to string
+    if '_id' in doc:
+        doc['_id'] = str(doc['_id'])
+    
+    # Convert datetime objects to ISO format
+    for key, value in doc.items():
+        if isinstance(value, datetime):
+            doc[key] = value.isoformat()
+    
+    return doc
+
+def serialize_docs(docs):
+    """Convert list of MongoDB documents to JSON serializable format"""
+    if not docs:
+        return []
+    return [serialize_doc(doc) for doc in docs]
+
 # Models
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -385,23 +408,31 @@ async def get_status_history(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Not authorized")
     
     history = await db.status_history.find().sort("changed_at", -1).to_list(1000)
-    return history
+    return serialize_docs(history)
 
 @api_router.get("/reports/export")
 async def export_report(layout_type: str, current_user: User = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Get all data for the report
-    orders = await db.orders.find({"layout_type": layout_type}).to_list(1000)
-    history = await db.status_history.find({"layout_type": layout_type}).to_list(1000)
-    
-    return {
-        "orders": orders,
-        "status_history": history,
-        "generated_at": datetime.now(timezone.utc),
-        "layout_type": layout_type
-    }
+    try:
+        # Get all data for the report
+        orders = await db.orders.find({"layout_type": layout_type}).to_list(1000)
+        history = await db.status_history.find({"layout_type": layout_type}).to_list(1000)
+        
+        # Serialize the data to make it JSON compatible
+        serialized_orders = serialize_docs(orders)
+        serialized_history = serialize_docs(history)
+        
+        return {
+            "orders": serialized_orders,
+            "status_history": serialized_history,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "layout_type": layout_type
+        }
+    except Exception as e:
+        logger.error(f"Error exporting report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
 
 # Include the router in the main app
 app.include_router(api_router)

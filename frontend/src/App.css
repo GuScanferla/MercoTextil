@@ -400,7 +400,7 @@ body {
   gap: 4px;
 }
 
-/* 32 Fusos Layout - Exact replication */
+/* 32 Fusos Layout - Exact replication with consistent styling */
 .layout-32-exact {
   display: flex;
   flex-direction: column;
@@ -409,12 +409,19 @@ body {
   margin: 0 auto;
 }
 
+/* Top row - 12 machines */
 .layout-32-top-row {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 6px;
 }
 
+.layout-32-top-row .machine-box {
+  min-height: 60px;
+  font-size: 14px;
+}
+
+/* Second row - 6 machines (15-20) with consistent styling */
 .layout-32-second-row {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -423,6 +430,13 @@ body {
   margin: 0 auto;
 }
 
+.layout-32-second-row .machine-box {
+  min-height: 60px;
+  font-size: 14px;
+  width: 80px;
+}
+
+/* Three vertical groups - consistent with image layout */
 .layout-32-vertical-groups {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -437,6 +451,13 @@ body {
   gap: 4px;
 }
 
+.layout-32-vertical-group .machine-box {
+  min-height: 60px;
+  font-size: 14px;
+  width: 80px;
+}
+
+/* Bottom row - 6 machines (1-6) with consistent styling */
 .layout-32-bottom-row {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -445,6 +466,13 @@ body {
   margin: 0 auto;
 }
 
+.layout-32-bottom-row .machine-box {
+  min-height: 60px;
+  font-size: 14px;
+  width: 80px;
+}
+
+/* Final 3 machines (31-33) with consistent styling */
 .layout-32-final {
   display: flex;
   justify-content: center;
@@ -452,9 +480,10 @@ body {
   margin-top: 20px;
 }
 
-.layout-32-exact .machine-box {
-  min-height: 50px;
+.layout-32-final .machine-box {
+  min-height: 60px;
   font-size: 14px;
+  width: 80px;
 }
 
 /* Status indicators */
@@ -660,6 +689,10 @@ body {
   .login-title {
     font-size: 24px;
   }
+
+  .layout-32-top-row {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 
 @media (max-width: 480px) {
@@ -681,6 +714,22 @@ body {
     width: 60px;
     height: 50px;
     font-size: 12px;
+  }
+
+  .layout-32-top-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .layout-32-second-row,
+  .layout-32-bottom-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .layout-32-vertical-group .machine-box,
+  .layout-32-final .machine-box,
+  .layout-32-second-row .machine-box,
+  .layout-32-bottom-row .machine-box {
+    width: 60px;
   }
 }
 

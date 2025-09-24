@@ -13,7 +13,7 @@ import { Textarea } from "./components/ui/textarea";
 import { Badge } from "./components/ui/badge";
 import { toast } from "sonner";
 import { Toaster } from "./components/ui/sonner";
-import { LogOut, Users, Download, Settings, Factory, Trash2 } from "lucide-react";
+import { LogOut, Users, Download, Settings, Factory, Trash2, Wrench, Clock } from "lucide-react";
 import * as XLSX from 'xlsx';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -163,14 +163,22 @@ const Dashboard = ({ user, onLogout }) => {
   const [machines, setMachines] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  const [maintenances, setMaintenances] = useState([]);
 
   useEffect(() => {
-    loadMachines();
-    loadOrders();
-    if (user.role === "admin") {
-      loadUsers();
-    }
+    loadData();
+    const interval = setInterval(loadData, 5000); // Auto-refresh every 5 seconds
+    return () => clearInterval(interval);
   }, [activeLayout, user.role]);
+
+  const loadData = async () => {
+    await Promise.all([
+      loadMachines(),
+      loadOrders(),
+      loadMaintenances(),
+      user.role === "admin" ? loadUsers() : Promise.resolve()
+    ]);
+  };
 
   const loadMachines = async () => {
     try {
@@ -202,6 +210,17 @@ const Dashboard = ({ user, onLogout }) => {
       setUsers(response.data);
     } catch (error) {
       toast.error("Erro ao carregar usuários");
+    }
+  };
+
+  const loadMaintenances = async () => {
+    try {
+      const response = await axios.get(`${API}/maintenance`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setMaintenances(response.data);
+    } catch (error) {
+      toast.error("Erro ao carregar manutenções");
     }
   };
 
@@ -253,6 +272,7 @@ const Dashboard = ({ user, onLogout }) => {
           <TabsList className="tabs-merco">
             <TabsTrigger value="dashboard" className="tab-merco">Dashboard</TabsTrigger>
             <TabsTrigger value="orders" className="tab-merco">Pedidos</TabsTrigger>
+            <TabsTrigger value="maintenance" className="tab-merco">Manutenção</TabsTrigger>
             {user.role === "admin" && <TabsTrigger value="admin" className="tab-merco">Administração</TabsTrigger>}
           </TabsList>
 
@@ -281,11 +301,16 @@ const Dashboard = ({ user, onLogout }) => {
               user={user}
               onMachineUpdate={loadMachines}
               onOrderUpdate={loadOrders}
+              onMaintenanceUpdate={loadMaintenances}
             />
           </TabsContent>
 
           <TabsContent value="orders">
             <OrdersPanel orders={orders} user={user} onOrderUpdate={loadOrders} onMachineUpdate={loadMachines} />
+          </TabsContent>
+
+          <TabsContent value="maintenance">
+            <MaintenancePanel maintenances={maintenances} user={user} onMaintenanceUpdate={loadMaintenances} onMachineUpdate={loadMachines} />
           </TabsContent>
 
           {user.role === "admin" && (
@@ -299,8 +324,9 @@ const Dashboard = ({ user, onLogout }) => {
   );
 };
 
-const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) => {
+const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, onMaintenanceUpdate }) => {
   const [selectedMachine, setSelectedMachine] = useState(null);
+  const [maintenanceMachine, setMaintenanceMachine] = useState(null);
   const [orderData, setOrderData] = useState({
     cliente: "",
     artigo: "",
@@ -308,12 +334,16 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
     quantidade: "",
     observacao: ""
   });
+  const [maintenanceData, setMaintenanceData] = useState({
+    motivo: ""
+  });
 
   const getStatusColor = (status) => {
     switch (status) {
       case "verde": return "status-verde";
       case "amarelo": return "status-amarelo";
       case "vermelho": return "status-vermelho";
+      case "azul": return "status-azul";
       default: return "status-verde";
     }
   };
@@ -323,6 +353,12 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
       if (machine.status === "verde") {
         setSelectedMachine(machine);
       }
+    }
+  };
+
+  const handleMaintenanceClick = (machine) => {
+    if (machine.status === "verde") {
+      setMaintenanceMachine(machine);
     }
   };
 
@@ -347,7 +383,27 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
     }
   };
 
-  // 16 Fusos Layout - Exact replication of the image
+  const handleMaintenanceSubmit = async () => {
+    try {
+      await axios.post(`${API}/maintenance`, {
+        machine_number: maintenanceMachine.number,
+        layout_type: layout,
+        motivo: maintenanceData.motivo
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Máquina colocada em manutenção!");
+      setMaintenanceMachine(null);
+      setMaintenanceData({ motivo: "" });
+      onMachineUpdate();
+      onMaintenanceUpdate();
+    } catch (error) {
+      toast.error("Erro ao colocar máquina em manutenção");
+    }
+  };
+
+  // New 16 Fusos Layout exactly as requested
   const renderLayout16 = () => {
     const machineMap = {};
     machines.forEach(machine => {
@@ -355,85 +411,137 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
     });
 
     return (
-      <div className="layout-16-exact">
-        {/* Top section - Groups 1-8 and 17-20 */}
-        <div className="layout-16-top">
+      <div className="layout-16-new">
+        {/* Top section with 4 groups */}
+        <div className="layout-16-top-section">
           {/* Group 1-4 */}
-          <div className="layout-16-group group-1-4">
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[1]?.status)}`} onClick={() => handleMachineClick(machineMap[1])}>1</div>
-              <div className={`machine-box ${getStatusColor(machineMap[2]?.status)}`} onClick={() => handleMachineClick(machineMap[2])}>2</div>
-            </div>
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[3]?.status)}`} onClick={() => handleMachineClick(machineMap[3])}>3</div>
-              <div className={`machine-box ${getStatusColor(machineMap[4]?.status)}`} onClick={() => handleMachineClick(machineMap[4])}>4</div>
-            </div>
+          <div className="layout-16-group-4">
+            {[1,2,3,4].map(num => (
+              <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                  <Wrench className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
+
+          {/* Space */}
+          <div className="layout-spacer"></div>
 
           {/* Group 5-8 */}
-          <div className="layout-16-group group-5-8">
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[5]?.status)}`} onClick={() => handleMachineClick(machineMap[5])}>5</div>
-              <div className={`machine-box ${getStatusColor(machineMap[6]?.status)}`} onClick={() => handleMachineClick(machineMap[6])}>6</div>
-            </div>
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[7]?.status)}`} onClick={() => handleMachineClick(machineMap[7])}>7</div>
-              <div className={`machine-box ${getStatusColor(machineMap[8]?.status)}`} onClick={() => handleMachineClick(machineMap[8])}>8</div>
-            </div>
+          <div className="layout-16-group-4">
+            {[5,6,7,8].map(num => (
+              <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                  <Wrench className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Middle section with 4 groups */}
+        <div className="layout-16-middle-section">
+          {/* Group 9-12 */}
+          <div className="layout-16-group-4">
+            {[9,10,11,12].map(num => (
+              <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                  <Wrench className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
 
-          {/* Group 17-24 (right side) */}
-          <div className="layout-16-group group-17-24">
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[17]?.status)}`} onClick={() => handleMachineClick(machineMap[17])}>17</div>
-              <div className={`machine-box ${getStatusColor(machineMap[18]?.status)}`} onClick={() => handleMachineClick(machineMap[18])}>18</div>
+          {/* Space */}
+          <div className="layout-spacer"></div>
+
+          {/* Group 13-16 */}
+          <div className="layout-16-group-4">
+            {[13,14,15,16].map(num => (
+              <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                  <Wrench className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Side section - 3 lines */}
+          <div className="layout-16-side-section">
+            {/* Line 1: 17-20 */}
+            <div className="layout-16-line">
+              {[17,18,19,20].map(num => (
+                <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                  <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                  <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                    <Wrench className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
             </div>
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[19]?.status)}`} onClick={() => handleMachineClick(machineMap[19])}>19</div>
-              <div className={`machine-box ${getStatusColor(machineMap[20]?.status)}`} onClick={() => handleMachineClick(machineMap[20])}>20</div>
+
+            {/* Line 2: 21-24 */}
+            <div className="layout-16-line">
+              {[21,22,23,24].map(num => (
+                <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                  <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                  <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                    <Wrench className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
             </div>
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[21]?.status)}`} onClick={() => handleMachineClick(machineMap[21])}>21</div>
-              <div className={`machine-box ${getStatusColor(machineMap[22]?.status)}`} onClick={() => handleMachineClick(machineMap[22])}>22</div>
-            </div>
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[23]?.status)}`} onClick={() => handleMachineClick(machineMap[23])}>23</div>
-              <div className={`machine-box ${getStatusColor(machineMap[24]?.status)}`} onClick={() => handleMachineClick(machineMap[24])}>24</div>
+
+            {/* Line 3: 1-4 */}
+            <div className="layout-16-line">
+              {[1,2,3,4].map(num => (
+                <div key={`side-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                  <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                  <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                    <Wrench className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Bottom section - Groups 9-16 */}
-        <div className="layout-16-bottom">
-          {/* Group 9-12 */}
-          <div className="layout-16-group group-9-12">
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[9]?.status)}`} onClick={() => handleMachineClick(machineMap[9])}>9</div>
-              <div className={`machine-box ${getStatusColor(machineMap[10]?.status)}`} onClick={() => handleMachineClick(machineMap[10])}>10</div>
-            </div>
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[11]?.status)}`} onClick={() => handleMachineClick(machineMap[11])}>11</div>
-              <div className={`machine-box ${getStatusColor(machineMap[12]?.status)}`} onClick={() => handleMachineClick(machineMap[12])}>12</div>
-            </div>
+        {/* Bottom section - 2 lines from right to left */}
+        <div className="layout-16-bottom-section">
+          {/* Top line - odd numbers (1,3,5,7,9,11,13,15,17,19,21,23) */}
+          <div className="layout-16-bottom-line">
+            {[23,21,19,17,15,13,11,9,7,5,3,1].map(num => (
+              <div key={`bottom-odd-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                  <Wrench className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
 
-          {/* Group 13-16 */}
-          <div className="layout-16-group group-13-16">
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[13]?.status)}`} onClick={() => handleMachineClick(machineMap[13])}>13</div>
-              <div className={`machine-box ${getStatusColor(machineMap[14]?.status)}`} onClick={() => handleMachineClick(machineMap[14])}>14</div>
-            </div>
-            <div className="group-row">
-              <div className={`machine-box ${getStatusColor(machineMap[15]?.status)}`} onClick={() => handleMachineClick(machineMap[15])}>15</div>
-              <div className={`machine-box ${getStatusColor(machineMap[16]?.status)}`} onClick={() => handleMachineClick(machineMap[16])}>16</div>
-            </div>
+          {/* Bottom line - even numbers (2,4,6,8,10,12,14,16,18,20,22,24) */}
+          <div className="layout-16-bottom-line">
+            {[24,22,20,18,16,14,12,10,8,6,4,2].map(num => (
+              <div key={`bottom-even-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                  <Wrench className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     );
   };
 
-  // 32 Fusos Layout - Exact replication of the image
+  // 32 Fusos Layout - keeping existing structure
   const renderLayout32 = () => {
     const machineMap = {};
     machines.forEach(machine => {
@@ -442,11 +550,14 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
 
     return (
       <div className="layout-32-exact">
-        {/* Top row - 12 machines (1-12) */}
+        {/* Top row - 12 machines */}
         <div className="layout-32-top-row">
           {[1,2,3,4,5,6,7,8,9,10,11,12].map(num => (
-            <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
-              {num}
+            <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+              <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+              <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                <Wrench className="h-3 w-3" />
+              </button>
             </div>
           ))}
         </div>
@@ -454,8 +565,11 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
         {/* Second row - 6 machines (15-20) */}
         <div className="layout-32-second-row">
           {[15,16,17,18,19,20].map(num => (
-            <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
-              {num}
+            <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+              <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+              <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                <Wrench className="h-3 w-3" />
+              </button>
             </div>
           ))}
         </div>
@@ -465,8 +579,11 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
           {/* Group 1 (1-10) */}
           <div className="layout-32-vertical-group">
             {[1,3,5,7,9,2,4,6,8,10].map(num => (
-              <div key={`group1-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
-                {num}
+              <div key={`group1-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                  <Wrench className="h-3 w-3" />
+                </button>
               </div>
             ))}
           </div>
@@ -474,8 +591,11 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
           {/* Group 2 (11-20) */}
           <div className="layout-32-vertical-group">
             {[11,13,15,17,19,12,14,16,18,20].map(num => (
-              <div key={`group2-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
-                {num}
+              <div key={`group2-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                  <Wrench className="h-3 w-3" />
+                </button>
               </div>
             ))}
           </div>
@@ -483,8 +603,11 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
           {/* Group 3 (21-30) */}
           <div className="layout-32-vertical-group">
             {[21,23,25,27,29,22,24,26,28,30].map(num => (
-              <div key={`group3-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
-                {num}
+              <div key={`group3-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                  <Wrench className="h-3 w-3" />
+                </button>
               </div>
             ))}
           </div>
@@ -493,17 +616,35 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
         {/* Bottom row - 6 machines (1-6) */}
         <div className="layout-32-bottom-row">
           {[1,2,3,4,5,6].map(num => (
-            <div key={`bottom-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`} onClick={() => handleMachineClick(machineMap[num])}>
-              {num}
+            <div key={`bottom-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
+              <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
+              <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
+                <Wrench className="h-3 w-3" />
+              </button>
             </div>
           ))}
         </div>
 
         {/* Final 3 machines (31-33) */}
         <div className="layout-32-final">
-          <div className={`machine-box ${getStatusColor(machineMap[32]?.status)}`} onClick={() => handleMachineClick(machineMap[32])}>32</div>
-          <div className={`machine-box ${getStatusColor(machineMap[31]?.status)}`} onClick={() => handleMachineClick(machineMap[31])}>31</div>
-          <div className={`machine-box ${getStatusColor(machineMap[33]?.status)}`} onClick={() => handleMachineClick(machineMap[33])}>33</div>
+          <div className={`machine-box ${getStatusColor(machineMap[32]?.status)}`}>
+            <span onClick={() => handleMachineClick(machineMap[32])}>32</span>
+            <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[32])}>
+              <Wrench className="h-3 w-3" />
+            </button>
+          </div>
+          <div className={`machine-box ${getStatusColor(machineMap[31]?.status)}`}>
+            <span onClick={() => handleMachineClick(machineMap[31])}>31</span>
+            <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[31])}>
+              <Wrench className="h-3 w-3" />
+            </button>
+          </div>
+          <div className={`machine-box ${getStatusColor(machineMap[33]?.status)}`}>
+            <span onClick={() => handleMachineClick(machineMap[33])}>33</span>
+            <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[33])}>
+              <Wrench className="h-3 w-3" />
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -528,6 +669,10 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
             <div className="status-item">
               <div className="status-dot vermelho"></div>
               <span>Em Uso</span>
+            </div>
+            <div className="status-item">
+              <div className="status-dot azul"></div>
+              <span>Manutenção</span>
             </div>
           </div>
         </div>
@@ -596,6 +741,32 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate }) 
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Maintenance Dialog */}
+      <Dialog open={!!maintenanceMachine} onOpenChange={() => setMaintenanceMachine(null)}>
+        <DialogContent className="dialog-merco">
+          <DialogHeader className="dialog-header">
+            <DialogTitle className="dialog-title">
+              Colocar em Manutenção - Máquina {maintenanceMachine?.number}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 p-6 form-merco">
+            <div>
+              <Label htmlFor="motivo">Motivo da Manutenção</Label>
+              <Textarea
+                id="motivo"
+                value={maintenanceData.motivo}
+                onChange={(e) => setMaintenanceData({...maintenanceData, motivo: e.target.value})}
+                placeholder="Descreva o motivo da manutenção"
+                required
+              />
+            </div>
+            <Button onClick={handleMaintenanceSubmit} className="w-full btn-merco">
+              Colocar em Manutenção
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -619,7 +790,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
       
       toast.success("Pedido atualizado com sucesso!");
       onOrderUpdate();
-      onMachineUpdate(); // Real-time machine status update
+      onMachineUpdate();
     } catch (error) {
       toast.error("Erro ao atualizar pedido");
     }
@@ -638,6 +809,11 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
       case "finalizado": return "bg-green-600 text-green-100";
       default: return "bg-gray-600 text-gray-100";
     }
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleString('pt-BR');
   };
 
   return (
@@ -675,6 +851,31 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
                 <div>
                   <span className="font-medium text-gray-400">Criado por:</span>
                   <p className="text-white">{order.created_by}</p>
+                </div>
+              </div>
+
+              {/* Time information */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4 p-3 bg-gray-900/50 rounded">
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-4 w-4 text-blue-400" />
+                  <div>
+                    <span className="font-medium text-gray-400">Criado:</span>
+                    <p className="text-white">{formatDateTime(order.created_at)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-4 w-4 text-orange-400" />
+                  <div>
+                    <span className="font-medium text-gray-400">Iniciado:</span>
+                    <p className="text-white">{formatDateTime(order.started_at)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-4 w-4 text-green-400" />
+                  <div>
+                    <span className="font-medium text-gray-400">Finalizado:</span>
+                    <p className="text-white">{formatDateTime(order.finished_at)}</p>
+                  </div>
                 </div>
               </div>
               
@@ -736,7 +937,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
               />
             </div>
             <div>
-              <Label htmlFor="laudo_final">Laudo Final</Label>
+              <Label htmlFor="laudo_final">Laudo Final *</Label>
               <Textarea
                 id="laudo_final"
                 value={finishData.laudo_final}
@@ -746,7 +947,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
               />
             </div>
             <div className="flex space-x-2">
-              <Button onClick={handleFinish} className="flex-1 btn-merco">
+              <Button onClick={handleFinish} className="flex-1 btn-merco" disabled={!finishData.laudo_final}>
                 Finalizar Produção
               </Button>
               <Button variant="outline" onClick={() => setSelectedOrder(null)} className="flex-1">
@@ -756,6 +957,97 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+};
+
+const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUpdate }) => {
+  const finishMaintenance = async (maintenanceId) => {
+    try {
+      await axios.put(`${API}/maintenance/${maintenanceId}/finish`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Manutenção finalizada com sucesso!");
+      onMaintenanceUpdate();
+      onMachineUpdate();
+    } catch (error) {
+      toast.error("Erro ao finalizar manutenção");
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "em_manutencao": return "bg-blue-600 text-blue-100";
+      case "finalizada": return "bg-green-600 text-green-100";
+      default: return "bg-gray-600 text-gray-100";
+    }
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleString('pt-BR');
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-white">Gerenciamento de Manutenção</h2>
+      <div className="grid gap-4">
+        {maintenances.map((maintenance) => (
+          <Card key={maintenance.id} className="card-merco">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="font-bold text-white text-lg">
+                    Máquina {maintenance.machine_number} - {maintenance.layout_type.replace('_', ' ')}
+                  </h3>
+                  <p className="text-gray-400">Criado por: <span className="text-white">{maintenance.created_by}</span></p>
+                </div>
+                <Badge className={`${getStatusBadge(maintenance.status)} font-semibold`}>
+                  {maintenance.status.replace("_", " ").toUpperCase()}
+                </Badge>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4 p-3 bg-gray-900/50 rounded">
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-4 w-4 text-blue-400" />
+                  <div>
+                    <span className="font-medium text-gray-400">Iniciado:</span>
+                    <p className="text-white">{formatDateTime(maintenance.created_at)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-4 w-4 text-green-400" />
+                  <div>
+                    <span className="font-medium text-gray-400">Finalizado:</span>
+                    <p className="text-white">{formatDateTime(maintenance.finished_at)}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-sm text-blue-400 mb-4 p-3 bg-blue-900/20 rounded border border-blue-700">
+                <span className="font-medium">Motivo:</span> {maintenance.motivo}
+              </p>
+
+              {maintenance.finished_by && (
+                <p className="text-sm text-gray-400 mb-4">
+                  <span className="font-medium">Finalizado por:</span> {maintenance.finished_by}
+                </p>
+              )}
+              
+              {maintenance.status === "em_manutencao" && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => finishMaintenance(maintenance.id)}
+                >
+                  Liberar da Manutenção
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
@@ -869,6 +1161,59 @@ const AdminPanel = ({ users, onUserUpdate }) => {
     }
   };
 
+  const exportMaintenanceReport = async (layoutType) => {
+    try {
+      const response = await axios.get(`${API}/reports/maintenance?layout_type=${layoutType}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      const data = response.data;
+      
+      // Create Excel workbook
+      const wb = XLSX.utils.book_new();
+      
+      // Maintenance sheet
+      const maintenanceData = data.maintenance.map(maint => ({
+        'ID': maint.id,
+        'Máquina': maint.machine_number,
+        'Layout': maint.layout_type,
+        'Motivo': maint.motivo,
+        'Status': maint.status,
+        'Criado por': maint.created_by,
+        'Iniciado em': new Date(maint.created_at).toLocaleString('pt-BR'),
+        'Finalizado em': maint.finished_at ? new Date(maint.finished_at).toLocaleString('pt-BR') : '',
+        'Finalizado por': maint.finished_by || ''
+      }));
+      
+      const maintenanceWS = XLSX.utils.json_to_sheet(maintenanceData);
+      XLSX.utils.book_append_sheet(wb, maintenanceWS, "Manutenções");
+      
+      // Status History sheet (maintenance related)
+      const historyData = data.status_history.map(hist => ({
+        'ID': hist.id,
+        'Máquina': hist.machine_number,
+        'Layout': hist.layout_type,
+        'Status Anterior': hist.old_status,
+        'Novo Status': hist.new_status,
+        'Alterado por': hist.changed_by,
+        'Data/Hora': new Date(hist.changed_at).toLocaleString('pt-BR'),
+        'ID Manutenção': hist.maintenance_id || ''
+      }));
+      
+      const historyWS = XLSX.utils.json_to_sheet(historyData);
+      XLSX.utils.book_append_sheet(wb, historyWS, "Histórico Manutenção");
+      
+      // Save file
+      const fileName = `relatorio_manutencao_${layoutType}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      
+      toast.success("Relatório de manutenção exportado com sucesso!");
+    } catch (error) {
+      console.error('Maintenance export error:', error.response?.data || error.message);
+      toast.error(`Erro ao exportar relatório de manutenção: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-white">Painel de Administração</h2>
@@ -966,29 +1311,46 @@ const AdminPanel = ({ users, onUserUpdate }) => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <p className="text-gray-400 mb-4">
-                Exporte relatórios completos em Excel com histórico de status das máquinas e pedidos.
-              </p>
-              <div className="space-y-3">
+              <h3 className="text-white font-medium mb-3">Relatórios de Produção</h3>
+              <div className="space-y-3 mb-6">
                 <Button
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                   onClick={() => exportReport("16_fusos")}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Exportar Relatório 16 Fusos
+                  Relatório Produção 16 Fusos
                 </Button>
                 <Button
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                   onClick={() => exportReport("32_fusos")}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Exportar Relatório 32 Fusos
+                  Relatório Produção 32 Fusos
                 </Button>
               </div>
+
+              <h3 className="text-white font-medium mb-3">Relatórios de Manutenção</h3>
+              <div className="space-y-3">
+                <Button
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => exportMaintenanceReport("16_fusos")}
+                >
+                  <Wrench className="h-4 w-4 mr-2" />
+                  Relatório Manutenção 16 Fusos
+                </Button>
+                <Button
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => exportMaintenanceReport("32_fusos")}
+                >
+                  <Wrench className="h-4 w-4 mr-2" />
+                  Relatório Manutenção 32 Fusos
+                </Button>
+              </div>
+
               <div className="mt-4 p-3 bg-blue-500/20 rounded border border-blue-500/30">
                 <p className="text-blue-300 text-sm">
-                  <strong>Relatórios incluem:</strong> Pedidos completos, histórico de status, 
-                  laudos finais e dados organizados em planilhas separadas.
+                  <strong>Relatórios incluem:</strong> Dados completos, histórico de status, 
+                  laudos finais e informações organizadas em planilhas separadas.
                 </p>
               </div>
             </div>

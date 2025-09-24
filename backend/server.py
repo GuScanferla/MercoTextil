@@ -82,9 +82,25 @@ class LoginResponse(BaseModel):
 class Machine(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     number: int
-    status: str = "verde"  # verde, amarelo, vermelho
+    status: str = "verde"  # verde, amarelo, vermelho, azul (manutenção)
     layout_type: str  # 16_fusos or 32_fusos
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Maintenance(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    machine_number: int
+    layout_type: str
+    motivo: str
+    status: str = "em_manutencao"  # em_manutencao, finalizada
+    created_by: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    finished_at: Optional[datetime] = None
+    finished_by: Optional[str] = None
+
+class MaintenanceCreate(BaseModel):
+    machine_number: int
+    layout_type: str
+    motivo: str
 
 class Order(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -101,7 +117,7 @@ class Order(BaseModel):
     started_at: Optional[datetime] = None
     finished_at: Optional[datetime] = None
     observacao_liberacao: str = ""
-    laudo_final: str = ""  # New field for final report
+    laudo_final: str = ""
 
 class OrderCreate(BaseModel):
     machine_number: int
@@ -115,7 +131,7 @@ class OrderCreate(BaseModel):
 class OrderUpdate(BaseModel):
     status: str
     observacao_liberacao: str = ""
-    laudo_final: str = ""  # New field for final report
+    laudo_final: str = ""
 
 class StatusHistory(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -126,6 +142,7 @@ class StatusHistory(BaseModel):
     changed_by: str
     changed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     order_id: Optional[str] = None
+    maintenance_id: Optional[str] = None
 
 # Helper functions
 def hash_password(password: str) -> str:
@@ -298,6 +315,93 @@ async def update_machine_status(
     
     return {"message": "Status updated successfully"}
 
+# Maintenance routes
+@api_router.post("/maintenance", response_model=Maintenance)
+async def create_maintenance(maintenance_data: MaintenanceCreate, current_user: User = Depends(get_current_user)):
+    # Check if machine exists and is available
+    machine = await db.machines.find_one({
+        "number": maintenance_data.machine_number,
+        "layout_type": maintenance_data.layout_type
+    })
+    if not machine:
+        raise HTTPException(status_code=404, detail="Machine not found")
+    
+    if machine["status"] != "verde":
+        raise HTTPException(status_code=400, detail="Machine must be available to enter maintenance")
+    
+    maintenance = Maintenance(
+        machine_number=maintenance_data.machine_number,
+        layout_type=maintenance_data.layout_type,
+        motivo=maintenance_data.motivo,
+        created_by=current_user.username
+    )
+    
+    await db.maintenance.insert_one(maintenance.dict())
+    
+    # Update machine status to azul (maintenance)
+    await db.machines.update_one(
+        {"number": maintenance_data.machine_number, "layout_type": maintenance_data.layout_type},
+        {"$set": {"status": "azul", "updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    # Record status history
+    history = StatusHistory(
+        machine_number=maintenance_data.machine_number,
+        layout_type=maintenance_data.layout_type,
+        old_status="verde",
+        new_status="azul",
+        changed_by=current_user.username,
+        maintenance_id=maintenance.id
+    )
+    await db.status_history.insert_one(history.dict())
+    
+    return maintenance
+
+@api_router.get("/maintenance", response_model=List[Maintenance])
+async def get_maintenance(current_user: User = Depends(get_current_user)):
+    maintenances = await db.maintenance.find().sort("created_at", -1).to_list(1000)
+    return [Maintenance(**m) for m in maintenances]
+
+@api_router.put("/maintenance/{maintenance_id}/finish")
+async def finish_maintenance(maintenance_id: str, current_user: User = Depends(get_current_user)):
+    maintenance = await db.maintenance.find_one({"id": maintenance_id})
+    if not maintenance:
+        raise HTTPException(status_code=404, detail="Maintenance not found")
+    
+    if maintenance["status"] == "finalizada":
+        raise HTTPException(status_code=400, detail="Maintenance already finished")
+    
+    # Update maintenance status
+    await db.maintenance.update_one(
+        {"id": maintenance_id},
+        {
+            "$set": {
+                "status": "finalizada",
+                "finished_at": datetime.now(timezone.utc),
+                "finished_by": current_user.username
+            }
+        }
+    )
+    
+    # Update machine status back to verde (available)
+    await db.machines.update_one(
+        {"number": maintenance["machine_number"], "layout_type": maintenance["layout_type"]},
+        {"$set": {"status": "verde", "updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    # Record status history
+    history = StatusHistory(
+        machine_number=maintenance["machine_number"],
+        layout_type=maintenance["layout_type"],
+        old_status="azul",
+        new_status="verde",
+        changed_by=current_user.username,
+        maintenance_id=maintenance_id
+    )
+    await db.status_history.insert_one(history.dict())
+    
+    return {"message": "Maintenance finished successfully"}
+
 # Order routes
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):
@@ -409,6 +513,33 @@ async def get_status_history(current_user: User = Depends(get_current_user)):
     
     history = await db.status_history.find().sort("changed_at", -1).to_list(1000)
     return serialize_docs(history)
+
+@api_router.get("/reports/maintenance")
+async def get_maintenance_report(layout_type: str, current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    try:
+        # Get maintenance data for the report
+        maintenance = await db.maintenance.find({"layout_type": layout_type}).to_list(1000)
+        history = await db.status_history.find({
+            "layout_type": layout_type,
+            "$or": [{"new_status": "azul"}, {"old_status": "azul"}]
+        }).to_list(1000)
+        
+        # Serialize the data to make it JSON compatible
+        serialized_maintenance = serialize_docs(maintenance)
+        serialized_history = serialize_docs(history)
+        
+        return {
+            "maintenance": serialized_maintenance,
+            "status_history": serialized_history,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "layout_type": layout_type
+        }
+    except Exception as e:
+        logger.error(f"Error exporting maintenance report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating maintenance report: {str(e)}")
 
 @api_router.get("/reports/export")
 async def export_report(layout_type: str, current_user: User = Depends(get_current_user)):

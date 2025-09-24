@@ -316,6 +316,34 @@ body {
   transform: scale(0.95);
 }
 
+.machine-box span {
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.maintenance-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  color: #D3D3D3;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+}
+
+.maintenance-btn:hover {
+  background: rgba(200, 16, 46, 0.8);
+  opacity: 1;
+}
+
 /* Status colors - Merco theme */
 .status-verde {
   background: linear-gradient(135deg, #2e7d2e, #4caf4c) !important;
@@ -350,6 +378,17 @@ body {
   box-shadow: 0 8px 20px rgba(200, 16, 46, 0.4);
 }
 
+.status-azul {
+  background: linear-gradient(135deg, #2196f3, #42a5f5) !important;
+  border-color: #42a5f5;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
+.status-azul:hover {
+  background: linear-gradient(135deg, #42a5f5, #64b5f6) !important;
+  box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+}
+
 /* Fusos container */
 .fusos-container {
   background: rgba(0, 0, 0, 0.6);
@@ -360,47 +399,77 @@ body {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-/* 16 Fusos Layout - Exact replication */
-.layout-16-exact {
+/* NEW 16 Fusos Layout - Exactly as requested */
+.layout-16-new {
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  max-width: 1000px;
+  gap: 30px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-.layout-16-top,
-.layout-16-bottom {
+.layout-16-top-section,
+.layout-16-middle-section {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  gap: 60px;
+  gap: 30px;
 }
 
-.layout-16-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.layout-16-group-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
 }
 
-.group-row {
-  display: flex;
-  gap: 4px;
-}
-
-.layout-16-group .machine-box {
+.layout-16-group-4 .machine-box {
   width: 80px;
   height: 60px;
   font-size: 14px;
 }
 
-.group-17-24 {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.layout-spacer {
+  width: 40px;
 }
 
-/* 32 Fusos Layout - Exact replication with consistent styling */
+.layout-16-side-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 40px;
+}
+
+.layout-16-line {
+  display: flex;
+  gap: 8px;
+}
+
+.layout-16-line .machine-box {
+  width: 60px;
+  height: 50px;
+  font-size: 12px;
+}
+
+.layout-16-bottom-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.layout-16-bottom-line {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.layout-16-bottom-line .machine-box {
+  width: 50px;
+  height: 40px;
+  font-size: 10px;
+}
+
+/* 32 Fusos Layout - keeping consistent styling */
 .layout-32-exact {
   display: flex;
   flex-direction: column;
@@ -519,6 +588,10 @@ body {
 
 .status-dot.vermelho {
   background: linear-gradient(135deg, var(--merco-red), var(--merco-accent));
+}
+
+.status-dot.azul {
+  background: linear-gradient(135deg, #2196f3, #42a5f5);
 }
 
 /* Tabs - Merco style */
@@ -665,11 +738,15 @@ body {
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .layout-16-top,
-  .layout-16-bottom {
+  .layout-16-top-section,
+  .layout-16-middle-section {
     flex-direction: column;
     gap: 20px;
     align-items: center;
+  }
+  
+  .layout-16-side-section {
+    margin-left: 0;
   }
   
   .layout-32-vertical-groups {
@@ -710,10 +787,22 @@ body {
     gap: 10px;
   }
 
-  .layout-16-group .machine-box {
+  .layout-16-group-4 .machine-box {
     width: 60px;
     height: 50px;
     font-size: 12px;
+  }
+
+  .layout-16-line .machine-box {
+    width: 50px;
+    height: 40px;
+    font-size: 10px;
+  }
+
+  .layout-16-bottom-line .machine-box {
+    width: 40px;
+    height: 35px;
+    font-size: 9px;
   }
 
   .layout-32-top-row {

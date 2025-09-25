@@ -244,7 +244,10 @@ async def init_data():
             machine_exists = await db.machines.find_one({"number": i, "layout_type": layout})
             if not machine_exists:
                 machine = Machine(number=i, layout_type=layout)
-                await db.machines.insert_one(machine.dict())
+                machine_dict = machine.dict()
+                # Create unique ID based on number and layout
+                machine_dict["id"] = f"{layout}_{i}_{str(uuid.uuid4())[:8]}"
+                await db.machines.insert_one(machine_dict)
 
 # Auth routes
 @api_router.post("/auth/login", response_model=LoginResponse)

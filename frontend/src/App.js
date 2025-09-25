@@ -421,139 +421,35 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     }
   };
 
-  // New 16 Fusos Layout exactly as requested
+  // New 16 Fusos Layout with 48 machines exactly as requested
   const renderLayout16 = () => {
     const machineMap = {};
     machines.forEach(machine => {
-      machineMap[machine.number] = machine;
+      machineMap[`${machine.number}-${machine.layout_type}`] = machine;
     });
 
+    const renderMachineBox = (num, key = null) => {
+      const machine = machineMap[`${num}-${layout}`];
+      const uniqueKey = key || `machine-${num}-${layout}`;
+      
+      return (
+        <div key={uniqueKey} className={`machine-box ${getStatusColor(machine?.status)}`}>
+          <span onClick={() => handleMachineClick(machine)}>{num}</span>
+          <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
+            <Wrench className="h-3 w-3" />
+          </button>
+        </div>
+      );
+    };
+
     return (
-      <div className="layout-16-new">
-        {/* Top section with 4 groups */}
-        <div className="layout-16-top-section">
-          {/* Group 1-4 */}
-          <div className="layout-16-group-4">
-            {[1,2,3,4].map(num => (
-              <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
-                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
-                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
-                  <Wrench className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Space */}
-          <div className="layout-spacer"></div>
-
-          {/* Group 5-8 */}
-          <div className="layout-16-group-4">
-            {[5,6,7,8].map(num => (
-              <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
-                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
-                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
-                  <Wrench className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Middle section with 4 groups */}
-        <div className="layout-16-middle-section">
-          {/* Group 9-12 */}
-          <div className="layout-16-group-4">
-            {[9,10,11,12].map(num => (
-              <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
-                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
-                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
-                  <Wrench className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Space */}
-          <div className="layout-spacer"></div>
-
-          {/* Group 13-16 */}
-          <div className="layout-16-group-4">
-            {[13,14,15,16].map(num => (
-              <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
-                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
-                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
-                  <Wrench className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Side section - 3 lines */}
-          <div className="layout-16-side-section">
-            {/* Line 1: 17-20 */}
-            <div className="layout-16-line">
-              {[17,18,19,20].map(num => (
-                <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
-                  <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
-                  <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
-                    <Wrench className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Line 2: 21-24 */}
-            <div className="layout-16-line">
-              {[21,22,23,24].map(num => (
-                <div key={num} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
-                  <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
-                  <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
-                    <Wrench className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Line 3: 1-4 */}
-            <div className="layout-16-line">
-              {[1,2,3,4].map(num => (
-                <div key={`side-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
-                  <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
-                  <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
-                    <Wrench className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom section - 2 lines from right to left */}
-        <div className="layout-16-bottom-section">
-          {/* Top line - odd numbers (1,3,5,7,9,11,13,15,17,19,21,23) */}
-          <div className="layout-16-bottom-line">
-            {[23,21,19,17,15,13,11,9,7,5,3,1].map(num => (
-              <div key={`bottom-odd-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
-                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
-                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
-                  <Wrench className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Bottom line - even numbers (2,4,6,8,10,12,14,16,18,20,22,24) */}
-          <div className="layout-16-bottom-line">
-            {[24,22,20,18,16,14,12,10,8,6,4,2].map(num => (
-              <div key={`bottom-even-${num}`} className={`machine-box ${getStatusColor(machineMap[num]?.status)}`}>
-                <span onClick={() => handleMachineClick(machineMap[num])}>{num}</span>
-                <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machineMap[num])}>
-                  <Wrench className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
+      <div className="layout-16-new-48">
+        {/* Grid of 48 machines organized in 6 rows x 8 columns */}
+        <div className="layout-16-grid-48">
+          {Array.from({ length: 48 }, (_, i) => {
+            const machineNum = i + 1;
+            return renderMachineBox(machineNum, `grid-${machineNum}`);
+          })}
         </div>
       </div>
     );

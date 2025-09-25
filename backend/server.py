@@ -235,8 +235,8 @@ async def init_data():
     # Initialize machines for both layouts
     for layout in ["16_fusos", "32_fusos"]:
         if layout == "16_fusos":
-            # 48 machines for 16 fusos layout as requested
-            max_machines = 48
+            # 24 machines for 16 fusos layout as per the image
+            max_machines = 24
         else:
             max_machines = 33
         

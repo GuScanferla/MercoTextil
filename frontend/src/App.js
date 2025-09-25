@@ -385,8 +385,7 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
       await axios.post(`${API}/orders`, {
         machine_number: selectedMachine.number,
         layout_type: layout,
-        ...orderData,
-        quantidade: parseInt(orderData.quantidade)
+        ...orderData
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });

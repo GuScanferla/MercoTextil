@@ -422,18 +422,15 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
 
   // New 16 Fusos Layout with 48 machines exactly as requested
   const renderLayout16 = () => {
-    const machineMap = {};
-    machines.forEach(machine => {
-      machineMap[`${machine.number}-${machine.layout_type}`] = machine;
-    });
-
-    const renderMachineBox = (num, key = null) => {
-      const machine = machineMap[`${num}-${layout}`];
-      const uniqueKey = key || `machine-${num}-${layout}`;
+    const renderMachineBox = (machineIndex, key = null) => {
+      const machine = machines[machineIndex];
+      const uniqueKey = key || `machine-${machine?.id || machineIndex}`;
+      
+      if (!machine) return null;
       
       return (
         <div key={uniqueKey} className={`machine-box ${getStatusColor(machine?.status)}`}>
-          <span onClick={() => handleMachineClick(machine)}>{num}</span>
+          <span onClick={() => handleMachineClick(machine)}>{machine.number}</span>
           <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
             <Wrench className="h-3 w-3" />
           </button>
@@ -446,8 +443,7 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
         {/* Grid of 48 machines organized in 6 rows x 8 columns */}
         <div className="layout-16-grid-48">
           {Array.from({ length: 48 }, (_, i) => {
-            const machineNum = i + 1;
-            return renderMachineBox(machineNum, `grid-${machineNum}`);
+            return renderMachineBox(i, `grid-${i}`);
           })}
         </div>
       </div>

@@ -950,6 +950,319 @@ const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUp
   );
 };
 
+const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
+  const [showForm, setShowForm] = useState(false);
+  const [espulaData, setEspulaData] = useState({
+    cliente: "",
+    artigo: "",
+    cor: "",
+    quantidade: "",
+    observacoes: "",
+    data_prevista_entrega: ""
+  });
+
+  const createEspula = async () => {
+    try {
+      await axios.post(`${API}/espulas`, espulaData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Espula lançada com sucesso!");
+      setEspulaData({
+        cliente: "",
+        artigo: "",
+        cor: "",
+        quantidade: "",
+        observacoes: "",
+        data_prevista_entrega: ""
+      });
+      setShowForm(false);
+      onEspulaUpdate();
+    } catch (error) {
+      toast.error("Erro ao lançar espula");
+    }
+  };
+
+  const updateEspulaStatus = async (espulaId, newStatus) => {
+    try {
+      await axios.put(`${API}/espulas/${espulaId}`, {
+        status: newStatus
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Status atualizado com sucesso!");
+      onEspulaUpdate();
+    } catch (error) {
+      toast.error("Erro ao atualizar status");
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "pendente": return "bg-yellow-600 text-yellow-100";
+      case "em_producao_aguardando": return "bg-red-600 text-red-100";
+      case "producao": return "bg-red-700 text-red-100";
+      case "finalizado": return "bg-green-600 text-green-100";
+      default: return "bg-gray-600 text-gray-100";
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case "pendente": return "Pendente";
+      case "em_producao_aguardando": return "Em Produção (Aguardando)";
+      case "producao": return "Produção";
+      case "finalizado": return "Finalizado";
+      default: return status;
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  const exportEspulasReport = async () => {
+    try {
+      const response = await axios.get(`${API}/espulas/report`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      const data = response.data;
+      
+      // Create Excel workbook
+      const wb = XLSX.utils.book_new();
+      
+      // Espulas sheet
+      const espulasData = data.espulas.map(espula => ({
+        'ID': espula.id,
+        'Cliente': espula.cliente,
+        'Artigo': espula.artigo,
+        'Cor': espula.cor,
+        'Quantidade': espula.quantidade,
+        'Observações': espula.observacoes,
+        'Data Lançamento': new Date(espula.data_lancamento).toLocaleString('pt-BR'),
+        'Data Prevista Entrega': new Date(espula.data_prevista_entrega).toLocaleDateString('pt-BR'),
+        'Status': getStatusText(espula.status),
+        'Criado por': espula.created_by,
+        'Finalizado em': espula.finished_at ? new Date(espula.finished_at).toLocaleString('pt-BR') : ''
+      }));
+      
+      const espulasWS = XLSX.utils.json_to_sheet(espulasData);
+      XLSX.utils.book_append_sheet(wb, espulasWS, "Espulas Finalizadas");
+      
+      // Save file
+      const fileName = `relatorio_espulas_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      
+      toast.success("Relatório de espulas exportado com sucesso!");
+    } catch (error) {
+      console.error('Espulas export error:', error.response?.data || error.message);
+      toast.error(`Erro ao exportar relatório de espulas: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
+  // Sort espulas by priority (delivery date) - closest dates first for em_producao status
+  const sortedEspulas = [...espulas].sort((a, b) => {
+    if (a.status === "em_producao_aguardando" || a.status === "producao") {
+      if (b.status === "em_producao_aguardando" || b.status === "producao") {
+        return new Date(a.data_prevista_entrega) - new Date(b.data_prevista_entrega);
+      }
+      return -1; // Production items first
+    }
+    if (b.status === "em_producao_aguardando" || b.status === "producao") {
+      return 1; // Production items first
+    }
+    return new Date(a.data_prevista_entrega) - new Date(b.data_prevista_entrega);
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-white">Gerenciamento de Espulas</h2>
+        <div className="flex space-x-2">
+          <Button onClick={() => setShowForm(!showForm)} className="btn-merco">
+            {showForm ? "Cancelar" : "+ LANÇAR"}
+          </Button>
+          {user.role === "admin" && (
+            <Button onClick={exportEspulasReport} className="bg-green-600 hover:bg-green-700">
+              <Download className="h-4 w-4 mr-2" />
+              Gerar Relatório
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Form for creating new Espula */}
+      {showForm && (
+        <Card className="card-merco">
+          <CardHeader>
+            <CardTitle className="text-white">Nova Ordem de Serviço - Espula</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 form-merco">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cliente">Cliente *</Label>
+                <Input
+                  id="cliente"
+                  value={espulaData.cliente}
+                  onChange={(e) => setEspulaData({...espulaData, cliente: e.target.value})}
+                  placeholder="Nome do cliente"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="artigo">Artigo *</Label>
+                <Input
+                  id="artigo"
+                  value={espulaData.artigo}
+                  onChange={(e) => setEspulaData({...espulaData, artigo: e.target.value})}
+                  placeholder="Artigo"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="cor">Cor *</Label>
+                <Input
+                  id="cor"
+                  value={espulaData.cor}
+                  onChange={(e) => setEspulaData({...espulaData, cor: e.target.value})}
+                  placeholder="Cor"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="quantidade">Quantidade (em espulas) *</Label>
+                <Input
+                  id="quantidade"
+                  value={espulaData.quantidade}
+                  onChange={(e) => setEspulaData({...espulaData, quantidade: e.target.value})}
+                  placeholder="Ex: 100, 50 caixas, etc"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="data_prevista_entrega">Data Prevista de Entrega *</Label>
+                <Input
+                  id="data_prevista_entrega"
+                  type="date"
+                  value={espulaData.data_prevista_entrega}
+                  onChange={(e) => setEspulaData({...espulaData, data_prevista_entrega: e.target.value})}
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="observacoes">Observações</Label>
+              <Textarea
+                id="observacoes"
+                value={espulaData.observacoes}
+                onChange={(e) => setEspulaData({...espulaData, observacoes: e.target.value})}
+                placeholder="Observações adicionais"
+              />
+            </div>
+            <Button 
+              onClick={createEspula} 
+              className="w-full btn-merco"
+              disabled={!espulaData.cliente || !espulaData.artigo || !espulaData.cor || !espulaData.quantidade || !espulaData.data_prevista_entrega}
+            >
+              + LANÇAR ESPULA
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Espulas Cards */}
+      <div className="grid gap-4">
+        {sortedEspulas.map((espula) => (
+          <Card key={espula.id} className="card-merco">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="font-bold text-white text-lg">
+                    OS #{espula.id.slice(-8)} - {espula.cliente}
+                  </h3>
+                  <p className="text-gray-400">Artigo: <span className="text-white">{espula.artigo}</span></p>
+                </div>
+                <Badge className={`${getStatusBadge(espula.status)} font-semibold`}>
+                  {getStatusText(espula.status)}
+                </Badge>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                <div>
+                  <span className="font-medium text-gray-400">Cor:</span>
+                  <p className="text-white">{espula.cor}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-400">Quantidade:</span>
+                  <p className="text-white">{espula.quantidade}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-400">Data Lançamento:</span>
+                  <p className="text-white">{formatDate(espula.data_lancamento)}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-400">Entrega Prevista:</span>
+                  <p className="text-white">{formatDate(espula.data_prevista_entrega)}</p>
+                </div>
+              </div>
+
+              {espula.observacoes && (
+                <p className="text-sm text-gray-400 mb-4">
+                  <span className="font-medium">Observações:</span> {espula.observacoes}
+                </p>
+              )}
+
+              {/* Status control buttons */}
+              {espula.status !== "finalizado" && (
+                <div className="flex space-x-2">
+                  {espula.status === "pendente" && (
+                    <Button
+                      size="sm"
+                      className="bg-red-600 hover:bg-red-700"
+                      onClick={() => updateEspulaStatus(espula.id, "em_producao_aguardando")}
+                    >
+                      Colocar em Produção
+                    </Button>
+                  )}
+                  {espula.status === "em_producao_aguardando" && (
+                    <Button
+                      size="sm"
+                      className="bg-red-700 hover:bg-red-800"
+                      onClick={() => updateEspulaStatus(espula.id, "producao")}
+                    >
+                      Iniciar Produção
+                    </Button>
+                  )}
+                  {espula.status === "producao" && (
+                    <Button
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700"
+                      onClick={() => updateEspulaStatus(espula.id, "finalizado")}
+                    >
+                      Finalizar
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+        
+        {sortedEspulas.length === 0 && (
+          <Card className="card-merco">
+            <CardContent className="p-6 text-center">
+              <p className="text-gray-400">Nenhuma espula encontrada. Clique em "+ LANÇAR" para criar a primeira.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const AdminPanel = ({ users, onUserUpdate }) => {
   const [newUser, setNewUser] = useState({
     username: "",

@@ -483,6 +483,10 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
 @api_router.get("/orders", response_model=List[Order])
 async def get_orders(current_user: User = Depends(get_current_user)):
     orders = await db.orders.find().sort("created_at", -1).to_list(1000)
+    # Convert quantidade to string if it's an integer (for backward compatibility)
+    for order in orders:
+        if isinstance(order.get('quantidade'), int):
+            order['quantidade'] = str(order['quantidade'])
     return [Order(**order) for order in orders]
 
 @api_router.put("/orders/{order_id}")

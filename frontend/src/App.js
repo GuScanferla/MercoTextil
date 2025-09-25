@@ -164,6 +164,7 @@ const Dashboard = ({ user, onLogout }) => {
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
   const [maintenances, setMaintenances] = useState([]);
+  const [espulas, setEspulas] = useState([]);
 
   useEffect(() => {
     loadData();

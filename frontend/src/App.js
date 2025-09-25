@@ -177,6 +177,7 @@ const Dashboard = ({ user, onLogout }) => {
       loadMachines(),
       loadOrders(),
       loadMaintenances(),
+      loadEspulas(),
       user.role === "admin" ? loadUsers() : Promise.resolve()
     ]);
   };

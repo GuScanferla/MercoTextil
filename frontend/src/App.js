@@ -323,6 +323,10 @@ const Dashboard = ({ user, onLogout }) => {
             <OrdersPanel orders={orders} user={user} onOrderUpdate={loadOrders} onMachineUpdate={loadMachines} />
           </TabsContent>
 
+          <TabsContent value="espulas">
+            <EspulasPanel espulas={espulas} user={user} onEspulaUpdate={loadEspulas} />
+          </TabsContent>
+
           <TabsContent value="maintenance">
             <MaintenancePanel maintenances={maintenances} user={user} onMaintenanceUpdate={loadMaintenances} onMachineUpdate={loadMachines} />
           </TabsContent>

@@ -422,7 +422,7 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
 
   // 16 Fusos Layout - Exact replication based on the provided image
   const renderLayout16 = () => {
-    const renderMachineBox = (machineIndex, key = null) => {
+    const renderMachineBox = (machineIndex, displayNumber, key = null) => {
       const machine = machines[machineIndex];
       const uniqueKey = key || `machine-${machine?.id || machineIndex}`;
       
@@ -430,7 +430,7 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
       
       return (
         <div key={uniqueKey} className={`machine-box ${getStatusColor(machine?.status)}`}>
-          <span onClick={() => handleMachineClick(machine)}>{machine.number}</span>
+          <span onClick={() => handleMachineClick(machine)}>{displayNumber}</span>
           <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
             <Wrench className="h-3 w-3" />
           </button>
@@ -440,55 +440,89 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
 
     return (
       <div className="layout-16-exact-photo">
-        {/* Top section with 6 blocks */}
+        {/* Top section */}
         <div className="layout-16-top-section-photo">
-          {/* Block 1: Numbers 1-4 */}
+          {/* Block 1: Numbers 1-4 (2x2) */}
           <div className="layout-16-block-2x2">
-            {[0, 1, 2, 3].map(index => renderMachineBox(index, `block1-${index}`))}
+            <div className="block-row">
+              {renderMachineBox(0, 1, 'top-1-1')}
+              {renderMachineBox(1, 2, 'top-1-2')}
+            </div>
+            <div className="block-row">
+              {renderMachineBox(2, 3, 'top-1-3')}
+              {renderMachineBox(3, 4, 'top-1-4')}
+            </div>
           </div>
           
-          {/* Block 2: Numbers 5-8 */}
+          {/* Block 2: Numbers 5-8 (2x2) */}
           <div className="layout-16-block-2x2">
-            {[4, 5, 6, 7].map(index => renderMachineBox(index, `block2-${index}`))}
+            <div className="block-row">
+              {renderMachineBox(4, 5, 'top-2-5')}
+              {renderMachineBox(5, 6, 'top-2-6')}
+            </div>
+            <div className="block-row">
+              {renderMachineBox(6, 7, 'top-2-7')}
+              {renderMachineBox(7, 8, 'top-2-8')}
+            </div>
           </div>
           
-          {/* Block 3: Numbers 17-20 (horizontal line) */}
-          <div className="layout-16-block-1x4">
-            {[16, 17, 18, 19].map(index => renderMachineBox(index, `block3-${index}`))}
+          {/* Block 3: Numbers 17-20 (4x1 vertical) */}
+          <div className="layout-16-block-4x1">
+            {renderMachineBox(16, 17, 'top-3-17')}
+            {renderMachineBox(17, 18, 'top-3-18')}
+            {renderMachineBox(18, 19, 'top-3-19')}
+            {renderMachineBox(19, 20, 'top-3-20')}
           </div>
         </div>
 
         {/* Middle section */}
         <div className="layout-16-middle-section-photo">
-          {/* Block 4: Numbers 9-12 */}
+          {/* Block 4: Numbers 9-12 (2x2) */}
           <div className="layout-16-block-2x2">
-            {[8, 9, 10, 11].map(index => renderMachineBox(index, `block4-${index}`))}
+            <div className="block-row">
+              {renderMachineBox(8, 9, 'mid-4-9')}
+              {renderMachineBox(9, 10, 'mid-4-10')}
+            </div>
+            <div className="block-row">
+              {renderMachineBox(10, 11, 'mid-4-11')}
+              {renderMachineBox(11, 12, 'mid-4-12')}
+            </div>
           </div>
           
-          {/* Block 5: Numbers 13-16 */}
+          {/* Block 5: Numbers 13-16 (2x2) */}
           <div className="layout-16-block-2x2">
-            {[12, 13, 14, 15].map(index => renderMachineBox(index, `block5-${index}`))}
+            <div className="block-row">
+              {renderMachineBox(12, 13, 'mid-5-13')}
+              {renderMachineBox(13, 14, 'mid-5-14')}
+            </div>
+            <div className="block-row">
+              {renderMachineBox(14, 15, 'mid-5-15')}
+              {renderMachineBox(15, 16, 'mid-5-16')}
+            </div>
           </div>
           
-          {/* Block 6: Numbers 21-24 (horizontal line) */}
-          <div className="layout-16-block-1x4">
-            {[20, 21, 22, 23].map(index => renderMachineBox(index, `block6-${index}`))}
+          {/* Block 6: Numbers 21-24 (4x1 vertical) */}
+          <div className="layout-16-block-4x1">
+            {renderMachineBox(20, 21, 'mid-6-21')}
+            {renderMachineBox(21, 22, 'mid-6-22')}
+            {renderMachineBox(22, 23, 'mid-6-23')}
+            {renderMachineBox(23, 24, 'mid-6-24')}
           </div>
         </div>
 
-        {/* Bottom section - Large mirrored block */}
+        {/* Bottom section - Large grid with all numbers in reverse order */}
         <div className="layout-16-bottom-section-photo">
-          {/* Top line of bottom block - odd numbers descending */}
+          {/* Top line of bottom grid - descending odd numbers */}
           <div className="layout-16-bottom-line">
-            {[22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0].map(index => 
-              renderMachineBox(index, `bottom-odd-${index}`)
+            {[23, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 1].map((machineIdx, i) => 
+              renderMachineBox(23, 24-i, `bottom-top-${i}`)
             )}
           </div>
           
-          {/* Bottom line of bottom block - even numbers descending */}
+          {/* Bottom line of bottom grid - descending even numbers */}
           <div className="layout-16-bottom-line">
-            {[23, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 1].map(index => 
-              renderMachineBox(index, `bottom-even-${index}`)
+            {[22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0].map((machineIdx, i) => 
+              renderMachineBox(22, 23-i, `bottom-bot-${i}`)
             )}
           </div>
         </div>

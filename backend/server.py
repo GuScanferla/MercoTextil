@@ -125,7 +125,7 @@ class OrderCreate(BaseModel):
     cliente: str
     artigo: str
     cor: str
-    quantidade: int
+    quantidade: str  # Changed to string to allow letters and numbers
     observacao: str = ""
 
 class OrderUpdate(BaseModel):

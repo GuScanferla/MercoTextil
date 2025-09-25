@@ -210,7 +210,12 @@ async def init_data():
 
     # Initialize machines for both layouts
     for layout in ["16_fusos", "32_fusos"]:
-        max_machines = 24 if layout == "16_fusos" else 33
+        if layout == "16_fusos":
+            # 48 machines for 16 fusos layout as requested
+            max_machines = 48
+        else:
+            max_machines = 33
+        
         for i in range(1, max_machines + 1):
             machine_exists = await db.machines.find_one({"number": i, "layout_type": layout})
             if not machine_exists:

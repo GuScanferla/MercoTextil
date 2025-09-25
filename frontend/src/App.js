@@ -603,10 +603,10 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
               <Label htmlFor="quantidade">Quantidade</Label>
               <Input
                 id="quantidade"
-                type="number"
+                type="text"
                 value={orderData.quantidade}
                 onChange={(e) => setOrderData({...orderData, quantidade: e.target.value})}
-                placeholder="Quantidade"
+                placeholder="Quantidade (ex: 100, 50kg, etc)"
               />
             </div>
             <div>

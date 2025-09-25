@@ -109,7 +109,7 @@ class Order(BaseModel):
     cliente: str
     artigo: str
     cor: str
-    quantidade: int
+    quantidade: str  # Changed to string to allow letters and numbers
     observacao: str = ""
     status: str = "pendente"  # pendente, em_producao, finalizado
     created_by: str

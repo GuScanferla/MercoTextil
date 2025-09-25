@@ -226,6 +226,17 @@ const Dashboard = ({ user, onLogout }) => {
     }
   };
 
+  const loadEspulas = async () => {
+    try {
+      const response = await axios.get(`${API}/espulas`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setEspulas(response.data);
+    } catch (error) {
+      toast.error("Erro ao carregar espulas");
+    }
+  };
+
   const getRoleBadge = (role) => {
     switch (role) {
       case "admin": return { text: "Administrador", class: "badge-admin" };

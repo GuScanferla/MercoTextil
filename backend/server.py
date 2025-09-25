@@ -534,6 +534,79 @@ async def update_order(
     
     return {"message": "Order updated successfully"}
 
+# Espulas routes
+@api_router.post("/espulas", response_model=Espula)
+async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(get_current_user)):
+    try:
+        # Convert string date to datetime
+        data_prevista = datetime.fromisoformat(espula_data.data_prevista_entrega.replace('Z', '+00:00'))
+        
+        espula = Espula(
+            cliente=espula_data.cliente,
+            artigo=espula_data.artigo,
+            cor=espula_data.cor,
+            quantidade=espula_data.quantidade,
+            observacoes=espula_data.observacoes,
+            data_prevista_entrega=data_prevista,
+            created_by=current_user.username
+        )
+        
+        await db.espulas.insert_one(espula.dict())
+        return espula
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error creating espula: {str(e)}")
+
+@api_router.get("/espulas", response_model=List[Espula])
+async def get_espulas(current_user: User = Depends(get_current_user)):
+    # Get only non-finished espulas, sorted by delivery date
+    espulas = await db.espulas.find({"status": {"$ne": "finalizado"}}).sort("data_prevista_entrega", 1).to_list(1000)
+    return [Espula(**espula) for espula in espulas]
+
+@api_router.get("/espulas/finished", response_model=List[Espula])
+async def get_finished_espulas(current_user: User = Depends(get_current_user)):
+    # Get finished espulas for reports
+    espulas = await db.espulas.find({"status": "finalizado"}).sort("finished_at", -1).to_list(1000)
+    return [Espula(**espula) for espula in espulas]
+
+@api_router.put("/espulas/{espula_id}")
+async def update_espula(
+    espula_id: str, 
+    espula_update: EspulaUpdate, 
+    current_user: User = Depends(get_current_user)
+):
+    espula = await db.espulas.find_one({"id": espula_id})
+    if not espula:
+        raise HTTPException(status_code=404, detail="Espula not found")
+    
+    update_data = {"status": espula_update.status}
+    
+    if espula_update.status == "finalizado":
+        update_data["finished_at"] = datetime.now(timezone.utc)
+    
+    await db.espulas.update_one({"id": espula_id}, {"$set": update_data})
+    
+    return {"message": "Espula updated successfully"}
+
+@api_router.get("/espulas/report")
+async def get_espulas_report(current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    try:
+        # Get finished espulas for report
+        espulas = await db.espulas.find({"status": "finalizado"}).to_list(1000)
+        
+        # Serialize the data to make it JSON compatible
+        serialized_espulas = serialize_docs(espulas)
+        
+        return {
+            "espulas": serialized_espulas,
+            "generated_at": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error exporting espulas report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating espulas report: {str(e)}")
+
 # Reports routes
 @api_router.get("/reports/status-history")
 async def get_status_history(current_user: User = Depends(get_current_user)):

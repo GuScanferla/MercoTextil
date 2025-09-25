@@ -144,6 +144,30 @@ class StatusHistory(BaseModel):
     order_id: Optional[str] = None
     maintenance_id: Optional[str] = None
 
+class Espula(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    cliente: str
+    artigo: str
+    cor: str
+    quantidade: str  # Changed to string to allow letters and numbers
+    observacoes: str = ""
+    data_lancamento: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    data_prevista_entrega: datetime
+    status: str = "pendente"  # pendente, em_producao_aguardando, producao, finalizado
+    created_by: str
+    finished_at: Optional[datetime] = None
+
+class EspulaCreate(BaseModel):
+    cliente: str
+    artigo: str
+    cor: str
+    quantidade: str
+    observacoes: str = ""
+    data_prevista_entrega: str  # Will be converted to datetime
+
+class EspulaUpdate(BaseModel):
+    status: str
+
 # Helper functions
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)

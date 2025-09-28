@@ -13,7 +13,7 @@ import { Textarea } from "./components/ui/textarea";
 import { Badge } from "./components/ui/badge";
 import { toast } from "sonner";
 import { Toaster } from "./components/ui/sonner";
-import { LogOut, Users, Download, Settings, Factory, Trash2, Wrench, Clock } from "lucide-react";
+import { LogOut, Users, Download, Settings, Factory, Trash2, Wrench, Clock, RefreshCw } from "lucide-react";
 import * as XLSX from 'xlsx';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -111,12 +111,12 @@ const LoginPage = ({ onLogin }) => {
               <div className="merco-logo-bg">
                 <span className="merco-text">Merco</span>
                 <div className="merco-t-line"></div>
-                <span className="merco-textil">êxtil</span>
+                <span className="merco-textil">Têxtil</span>
               </div>
             </div>
           </div>
-          <h1 className="login-title">Controle de Produção</h1>
-          <p className="login-subtitle">Sistema Industrial Merco Têxtil</p>
+          <h1 className="login-title">Merco Têxtil</h1>
+          <p className="login-subtitle">Sistema Industrial de Controle</p>
         </CardHeader>
         <CardContent className="form-merco">
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -237,6 +237,21 @@ const Dashboard = ({ user, onLogout }) => {
     }
   };
 
+  const resetDatabase = async () => {
+    if (window.confirm("Tem certeza que deseja resetar o banco de dados? Isso apagará todos os pedidos, espulas e manutenções.")) {
+      try {
+        await axios.post(`${API}/reset-database`, {}, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        
+        toast.success("Banco de dados resetado com sucesso!");
+        loadData();
+      } catch (error) {
+        toast.error("Erro ao resetar banco de dados");
+      }
+    }
+  };
+
   const getRoleBadge = (role) => {
     switch (role) {
       case "admin": return { text: "Administrador", class: "badge-admin" };
@@ -253,23 +268,29 @@ const Dashboard = ({ user, onLogout }) => {
       {/* Header */}
       <header className="merco-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-6">
               <div className="merco-logo-header">
                 <div className="merco-logo-bg-small">
                   <span className="merco-text-small">Merco</span>
                   <div className="merco-t-line-small"></div>
-                  <span className="merco-textil-small">êxtil</span>
+                  <span className="merco-textil-small">Têxtil</span>
                 </div>
               </div>
-              <div className="h-6 w-px bg-gray-600"></div>
-              <span className="text-lg font-medium text-gray-300">Controle de Produção</span>
+              <div className="h-8 w-px bg-gray-600"></div>
+              <span className="text-2xl font-bold text-white">Merco Têxtil</span>
               <Badge className={`${badge.class} badge-merco`}>
                 {badge.text}
               </Badge>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-400">Olá, <span className="text-white font-medium">{user.username}</span></span>
+              {user.role === "admin" && (
+                <Button variant="outline" size="sm" onClick={resetDatabase} className="border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-white">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Reset DB
+                </Button>
+              )}
               <Button variant="outline" size="sm" onClick={onLogout} className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sair
@@ -292,7 +313,7 @@ const Dashboard = ({ user, onLogout }) => {
 
           <TabsContent value="dashboard" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-white">Painel de Fusos</h2>
+              <h2 className="text-3xl font-bold text-white">Painel de Controle</h2>
               <div className="layout-switcher">
                 <button
                   className={`layout-btn ${activeLayout === "16_fusos" ? "active" : ""}`}
@@ -337,6 +358,13 @@ const Dashboard = ({ user, onLogout }) => {
             </TabsContent>
           )}
         </Tabs>
+
+        {/* Footer */}
+        <footer className="mt-16 pt-8 border-t border-gray-700 text-center">
+          <p className="text-gray-400 text-sm">
+            © 2025 Todos os direitos reservados | Desenvolvido por CodeliumCompany
+          </p>
+        </footer>
       </main>
     </div>
   );
@@ -383,8 +411,7 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
   const handleOrderSubmit = async () => {
     try {
       await axios.post(`${API}/orders`, {
-        machine_number: selectedMachine.number,
-        layout_type: layout,
+        machine_id: selectedMachine.id,
         ...orderData
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -403,8 +430,7 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
   const handleMaintenanceSubmit = async () => {
     try {
       await axios.post(`${API}/maintenance`, {
-        machine_number: maintenanceMachine.number,
-        layout_type: layout,
+        machine_id: maintenanceMachine.id,
         motivo: maintenanceData.motivo
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -420,109 +446,93 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     }
   };
 
-  // 16 Fusos Layout - Exact replication based on the provided image
+  // 16 Fusos Layout - EXACT replication based on the provided image
   const renderLayout16 = () => {
-    const renderMachineBox = (machineIndex, displayNumber, key = null) => {
-      const machine = machines[machineIndex];
-      const uniqueKey = key || `machine-${machine?.id || machineIndex}`;
-      
+    const renderMachineBox = (machine, key) => {
       if (!machine) return null;
       
       return (
-        <div key={uniqueKey} className={`machine-box ${getStatusColor(machine?.status)}`}>
-          <span onClick={() => handleMachineClick(machine)}>{displayNumber}</span>
+        <div key={key} className={`machine-box-large ${getStatusColor(machine.status)}`}>
+          <span onClick={() => handleMachineClick(machine)} className="machine-code">
+            {machine.code}
+          </span>
           <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
-            <Wrench className="h-3 w-3" />
+            <Wrench className="h-4 w-4" />
           </button>
         </div>
       );
     };
 
     return (
-      <div className="layout-16-exact-photo">
+      <div className="layout-16-photo-exact">
         {/* Top section */}
-        <div className="layout-16-top-section-photo">
-          {/* Block 1: Numbers 1-4 (2x2) */}
-          <div className="layout-16-block-2x2">
-            <div className="block-row">
-              {renderMachineBox(0, 1, 'top-1-1')}
-              {renderMachineBox(1, 2, 'top-1-2')}
-            </div>
-            <div className="block-row">
-              {renderMachineBox(2, 3, 'top-1-3')}
-              {renderMachineBox(3, 4, 'top-1-4')}
-            </div>
+        <div className="layout-16-top">
+          {/* CD1-CD4 block (2x2) */}
+          <div className="cd-block-2x2">
+            {machines.filter(m => ["CD1", "CD2", "CD3", "CD4"].includes(m.code)).map(machine => 
+              renderMachineBox(machine, `cd-${machine.code}`)
+            )}
           </div>
           
-          {/* Block 2: Numbers 5-8 (2x2) */}
-          <div className="layout-16-block-2x2">
-            <div className="block-row">
-              {renderMachineBox(4, 5, 'top-2-5')}
-              {renderMachineBox(5, 6, 'top-2-6')}
-            </div>
-            <div className="block-row">
-              {renderMachineBox(6, 7, 'top-2-7')}
-              {renderMachineBox(7, 8, 'top-2-8')}
-            </div>
+          {/* CD5-CD8 block (2x2) */}
+          <div className="cd-block-2x2">
+            {machines.filter(m => ["CD5", "CD6", "CD7", "CD8"].includes(m.code)).map(machine => 
+              renderMachineBox(machine, `cd-${machine.code}`)
+            )}
           </div>
           
-          {/* Block 3: Numbers 17-20 (4x1 vertical) */}
-          <div className="layout-16-block-4x1">
-            {renderMachineBox(16, 17, 'top-3-17')}
-            {renderMachineBox(17, 18, 'top-3-18')}
-            {renderMachineBox(18, 19, 'top-3-19')}
-            {renderMachineBox(19, 20, 'top-3-20')}
+          {/* CD17-CD20 block (1x4) */}
+          <div className="cd-block-1x4">
+            {machines.filter(m => ["CD17", "CD18", "CD19", "CD20"].includes(m.code)).map(machine => 
+              renderMachineBox(machine, `cd-${machine.code}`)
+            )}
           </div>
         </div>
 
         {/* Middle section */}
-        <div className="layout-16-middle-section-photo">
-          {/* Block 4: Numbers 9-12 (2x2) */}
-          <div className="layout-16-block-2x2">
-            <div className="block-row">
-              {renderMachineBox(8, 9, 'mid-4-9')}
-              {renderMachineBox(9, 10, 'mid-4-10')}
-            </div>
-            <div className="block-row">
-              {renderMachineBox(10, 11, 'mid-4-11')}
-              {renderMachineBox(11, 12, 'mid-4-12')}
-            </div>
-          </div>
-          
-          {/* Block 5: Numbers 13-16 (2x2) */}
-          <div className="layout-16-block-2x2">
-            <div className="block-row">
-              {renderMachineBox(12, 13, 'mid-5-13')}
-              {renderMachineBox(13, 14, 'mid-5-14')}
-            </div>
-            <div className="block-row">
-              {renderMachineBox(14, 15, 'mid-5-15')}
-              {renderMachineBox(15, 16, 'mid-5-16')}
-            </div>
-          </div>
-          
-          {/* Block 6: Numbers 21-24 (4x1 vertical) */}
-          <div className="layout-16-block-4x1">
-            {renderMachineBox(20, 21, 'mid-6-21')}
-            {renderMachineBox(21, 22, 'mid-6-22')}
-            {renderMachineBox(22, 23, 'mid-6-23')}
-            {renderMachineBox(23, 24, 'mid-6-24')}
-          </div>
-        </div>
-
-        {/* Bottom section - Large grid with all numbers in reverse order */}
-        <div className="layout-16-bottom-section-photo">
-          {/* Top line of bottom grid - descending odd numbers */}
-          <div className="layout-16-bottom-line">
-            {[23, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 1].map((machineIdx, i) => 
-              renderMachineBox(23, 24-i, `bottom-top-${i}`)
+        <div className="layout-16-middle">
+          {/* CD9-CD12 block (2x2) */}
+          <div className="cd-block-2x2">
+            {machines.filter(m => ["CD9", "CD10", "CD11", "CD12"].includes(m.code)).map(machine => 
+              renderMachineBox(machine, `cd-${machine.code}`)
             )}
           </div>
           
-          {/* Bottom line of bottom grid - descending even numbers */}
-          <div className="layout-16-bottom-line">
-            {[22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0].map((machineIdx, i) => 
-              renderMachineBox(22, 23-i, `bottom-bot-${i}`)
+          {/* CD13-CD16 block (2x2) */}
+          <div className="cd-block-2x2">
+            {machines.filter(m => ["CD13", "CD14", "CD15", "CD16"].includes(m.code)).map(machine => 
+              renderMachineBox(machine, `cd-${machine.code}`)
+            )}
+          </div>
+          
+          {/* CD21-CD24 block (1x4) */}
+          <div className="cd-block-1x4">
+            {machines.filter(m => ["CD21", "CD22", "CD23", "CD24"].includes(m.code)).map(machine => 
+              renderMachineBox(machine, `cd-${machine.code}`)
+            )}
+          </div>
+        </div>
+
+        {/* CI section */}
+        <div className="layout-16-ci">
+          <div className="ci-label">17 FUSOS</div>
+          <div className="ci-block-1x4">
+            {machines.filter(m => ["CI1", "CI2", "CI3", "CI4"].includes(m.code)).map(machine => 
+              renderMachineBox(machine, `ci-${machine.code}`)
+            )}
+          </div>
+        </div>
+
+        {/* F section - Bottom row */}
+        <div className="layout-16-f-section">
+          <div className="f-row-top">
+            {machines.filter(m => m.code && m.code.startsWith("F") && parseInt(m.code.slice(1)) % 2 === 1).sort((a, b) => parseInt(b.code.slice(1)) - parseInt(a.code.slice(1))).map(machine => 
+              renderMachineBox(machine, `f-${machine.code}`)
+            )}
+          </div>
+          <div className="f-row-bottom">
+            {machines.filter(m => m.code && m.code.startsWith("F") && parseInt(m.code.slice(1)) % 2 === 0).sort((a, b) => parseInt(b.code.slice(1)) - parseInt(a.code.slice(1))).map(machine => 
+              renderMachineBox(machine, `f-${machine.code}`)
             )}
           </div>
         </div>
@@ -532,18 +542,16 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
 
   // 32 Fusos Layout - with unique identification
   const renderLayout32 = () => {
-    const renderMachineBox = (targetNumber, key = null, section = "") => {
-      // Find machine by number in the current layout
-      const machine = machines.find(m => m.number === targetNumber && m.layout_type === layout);
-      const uniqueKey = key || `machine-${machine?.id || `${targetNumber}-${section}`}`;
-      
+    const renderMachineBox = (machine, key) => {
       if (!machine) return null;
       
       return (
-        <div key={uniqueKey} className={`machine-box ${getStatusColor(machine?.status)}`}>
-          <span onClick={() => handleMachineClick(machine)}>{machine.number}</span>
+        <div key={key} className={`machine-box-large ${getStatusColor(machine.status)}`}>
+          <span onClick={() => handleMachineClick(machine)} className="machine-code">
+            {machine.code}
+          </span>
           <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
-            <Wrench className="h-3 w-3" />
+            <Wrench className="h-4 w-4" />
           </button>
         </div>
       );
@@ -551,57 +559,9 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
 
     return (
       <div className="layout-32-exact">
-        {/* Top row - 12 machines */}
-        <div className="layout-32-top-row">
-          {[1,2,3,4,5,6,7,8,9,10,11,12].map(num => 
-            renderMachineBox(num, `top-${num}`, "top")
-          )}
-        </div>
-
-        {/* Second row - 6 machines (15-20) */}
-        <div className="layout-32-second-row">
-          {[15,16,17,18,19,20].map(num => 
-            renderMachineBox(num, `second-${num}`, "second")
-          )}
-        </div>
-
-        {/* Three vertical groups */}
-        <div className="layout-32-vertical-groups">
-          {/* Group 1 (1-10) */}
-          <div className="layout-32-vertical-group">
-            {[1,3,5,7,9,2,4,6,8,10].map((num, index) => 
-              renderMachineBox(num, `group1-${index}-${num}`, "group1")
-            )}
-          </div>
-
-          {/* Group 2 (11-20) */}
-          <div className="layout-32-vertical-group">
-            {[11,13,15,17,19,12,14,16,18,20].map((num, index) => 
-              renderMachineBox(num, `group2-${index}-${num}`, "group2")
-            )}
-          </div>
-
-          {/* Group 3 (21-30) */}
-          <div className="layout-32-vertical-group">
-            {[21,23,25,27,29,22,24,26,28,30].map((num, index) => 
-              renderMachineBox(num, `group3-${index}-${num}`, "group3")
-            )}
-          </div>
-        </div>
-
-        {/* Bottom row - 6 machines (1-6) */}
-        <div className="layout-32-bottom-row">
-          {[1,2,3,4,5,6].map(num => 
-            renderMachineBox(num, `bottom-${num}`, "bottom")
-          )}
-        </div>
-
-        {/* Final 3 machines (31-33) */}
-        <div className="layout-32-final">
-          {renderMachineBox(32, "final-32", "final")}
-          {renderMachineBox(31, "final-31", "final")}
-          {renderMachineBox(33, "final-33", "final")}
-        </div>
+        {machines.map(machine => 
+          renderMachineBox(machine, `machine-32-${machine.id}`)
+        )}
       </div>
     );
   };
@@ -610,7 +570,7 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     <div className="space-y-6">
       <div className="fusos-container card-merco">
         <div className="mb-6">
-          <h3 className="text-xl font-bold mb-4 text-white">
+          <h3 className="text-2xl font-bold mb-6 text-white">
             Layout {layout === "16_fusos" ? "16" : "32"} Fusos
           </h3>
           <div className="status-legend">
@@ -638,48 +598,52 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
 
       {/* Order Dialog */}
       <Dialog open={!!selectedMachine} onOpenChange={() => setSelectedMachine(null)}>
-        <DialogContent className="dialog-merco">
+        <DialogContent className="dialog-merco max-w-md">
           <DialogHeader className="dialog-header">
             <DialogTitle className="dialog-title">
-              Novo Pedido - Máquina {selectedMachine?.number}
+              Novo Pedido - {selectedMachine?.code}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 p-6 form-merco">
             <div>
-              <Label htmlFor="cliente">Cliente</Label>
+              <Label htmlFor="cliente">Cliente *</Label>
               <Input
                 id="cliente"
                 value={orderData.cliente}
                 onChange={(e) => setOrderData({...orderData, cliente: e.target.value})}
                 placeholder="Nome do cliente"
+                required
               />
             </div>
             <div>
-              <Label htmlFor="artigo">Artigo</Label>
+              <Label htmlFor="artigo">Artigo *</Label>
               <Input
                 id="artigo"
                 value={orderData.artigo}
                 onChange={(e) => setOrderData({...orderData, artigo: e.target.value})}
                 placeholder="Artigo"
+                required
               />
             </div>
             <div>
-              <Label htmlFor="cor">Cor</Label>
+              <Label htmlFor="cor">Cor *</Label>
               <Input
                 id="cor"
                 value={orderData.cor}
                 onChange={(e) => setOrderData({...orderData, cor: e.target.value})}
                 placeholder="Cor"
+                required
               />
             </div>
             <div>
-              <Label htmlFor="quantidade">Quantidade</Label>
+              <Label htmlFor="quantidade">Quantidade *</Label>
               <Input
                 id="quantidade"
                 type="text"
                 value={orderData.quantidade}
                 onChange={(e) => setOrderData({...orderData, quantidade: e.target.value})}
-                placeholder="Quantidade (ex: 100, 50kg, etc)"
+                placeholder="Ex: 100, 50kg, 30m"
+                required
               />
             </div>
             <div>
@@ -691,7 +655,11 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
                 placeholder="Observações (opcional)"
               />
             </div>
-            <Button onClick={handleOrderSubmit} className="w-full btn-merco">
+            <Button 
+              onClick={handleOrderSubmit} 
+              className="w-full btn-merco"
+              disabled={!orderData.cliente || !orderData.artigo || !orderData.cor || !orderData.quantidade}
+            >
               Criar Pedido
             </Button>
           </div>
@@ -700,15 +668,15 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
 
       {/* Maintenance Dialog */}
       <Dialog open={!!maintenanceMachine} onOpenChange={() => setMaintenanceMachine(null)}>
-        <DialogContent className="dialog-merco">
+        <DialogContent className="dialog-merco max-w-md">
           <DialogHeader className="dialog-header">
             <DialogTitle className="dialog-title">
-              Colocar em Manutenção - Máquina {maintenanceMachine?.number}
+              Manutenção - {maintenanceMachine?.code}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 p-6 form-merco">
             <div>
-              <Label htmlFor="motivo">Motivo da Manutenção</Label>
+              <Label htmlFor="motivo">Motivo da Manutenção *</Label>
               <Textarea
                 id="motivo"
                 value={maintenanceData.motivo}
@@ -717,7 +685,11 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
                 required
               />
             </div>
-            <Button onClick={handleMaintenanceSubmit} className="w-full btn-merco">
+            <Button 
+              onClick={handleMaintenanceSubmit} 
+              className="w-full btn-merco"
+              disabled={!maintenanceData.motivo}
+            >
               Colocar em Manutenção
             </Button>
           </div>
@@ -775,31 +747,30 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+      minute: '2-digit'
     });
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-white">Gerenciamento de Pedidos</h2>
-      <div className="grid gap-4">
+      <h2 className="text-3xl font-bold text-white">Gerenciamento de Pedidos</h2>
+      <div className="grid gap-6">
         {orders.map((order) => (
-          <Card key={order.id} className="card-merco">
+          <Card key={order.id} className="card-merco-large">
             <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="font-bold text-white text-lg">
-                    Máquina {order.machine_number} - {order.layout_type.replace('_', ' ')}
+                  <h3 className="font-bold text-white text-xl">
+                    Máquina {order.machine_code} - {order.layout_type.replace('_', ' ')}
                   </h3>
-                  <p className="text-gray-400">Cliente: <span className="text-white">{order.cliente}</span></p>
+                  <p className="text-gray-400 text-lg">Cliente: <span className="text-white">{order.cliente}</span></p>
                 </div>
-                <Badge className={`${getStatusBadge(order.status)} font-semibold`}>
+                <Badge className={`${getStatusBadge(order.status)} font-semibold text-sm`}>
                   {order.status.replace("_", " ").toUpperCase()}
                 </Badge>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base mb-6">
                 <div>
                   <span className="font-medium text-gray-400">Artigo:</span>
                   <p className="text-white">{order.artigo}</p>
@@ -819,23 +790,23 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
               </div>
 
               {/* Time information */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4 p-3 bg-gray-900/50 rounded">
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-blue-400" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base mb-6 p-4 bg-gray-900/50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <Clock className="h-5 w-5 text-blue-400" />
                   <div>
                     <span className="font-medium text-gray-400">Criado:</span>
                     <p className="text-white">{formatDateTime(order.created_at)}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-orange-400" />
+                <div className="flex items-center space-x-3">
+                  <Clock className="h-5 w-5 text-orange-400" />
                   <div>
                     <span className="font-medium text-gray-400">Iniciado:</span>
                     <p className="text-white">{formatDateTime(order.started_at)}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-green-400" />
+                <div className="flex items-center space-x-3">
+                  <Clock className="h-5 w-5 text-green-400" />
                   <div>
                     <span className="font-medium text-gray-400">Finalizado:</span>
                     <p className="text-white">{formatDateTime(order.finished_at)}</p>
@@ -844,22 +815,22 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
               </div>
               
               {order.observacao && (
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-base text-gray-400 mb-4 p-3 bg-gray-800/50 rounded">
                   <span className="font-medium">Observação:</span> {order.observacao}
                 </p>
               )}
 
               {order.laudo_final && (
-                <p className="text-sm text-green-400 mb-4 p-3 bg-green-900/20 rounded border border-green-700">
+                <p className="text-base text-green-400 mb-4 p-3 bg-green-900/20 rounded border border-green-700">
                   <span className="font-medium">Laudo Final:</span> {order.laudo_final}
                 </p>
               )}
               
               {(user.role === "admin" || user.role === "operador_externo") && order.status !== "finalizado" && (
-                <div className="flex space-x-2">
+                <div className="flex space-x-3">
                   {order.status === "pendente" && (
                     <Button
-                      size="sm"
+                      size="lg"
                       className="btn-merco"
                       onClick={() => updateOrder(order.id, "em_producao")}
                     >
@@ -868,8 +839,8 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
                   )}
                   {order.status === "em_producao" && (
                     <Button
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700"
+                      size="lg"
+                      className="bg-green-600 hover:bg-green-700 text-white"
                       onClick={() => setSelectedOrder(order)}
                     >
                       Finalizar Produção
@@ -887,7 +858,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
         <DialogContent className="dialog-merco">
           <DialogHeader className="dialog-header">
             <DialogTitle className="dialog-title">
-              Finalizar Produção - Máquina {selectedOrder?.machine_number}
+              Finalizar Produção - {selectedOrder?.machine_code}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 p-6 form-merco">
@@ -910,7 +881,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
                 required
               />
             </div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-3">
               <Button onClick={handleFinish} className="flex-1 btn-merco" disabled={!finishData.laudo_final}>
                 Finalizar Produção
               </Button>
@@ -921,105 +892,6 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-};
-
-const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUpdate }) => {
-  const finishMaintenance = async (maintenanceId) => {
-    try {
-      await axios.put(`${API}/maintenance/${maintenanceId}/finish`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
-      
-      toast.success("Manutenção finalizada com sucesso!");
-      onMaintenanceUpdate();
-      onMachineUpdate();
-    } catch (error) {
-      toast.error("Erro ao finalizar manutenção");
-    }
-  };
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "em_manutencao": return "bg-blue-600 text-blue-100";
-      case "finalizada": return "bg-green-600 text-green-100";
-      default: return "bg-gray-600 text-gray-100";
-    }
-  };
-
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
-  };
-
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-white">Gerenciamento de Manutenção</h2>
-      <div className="grid gap-4">
-        {maintenances.map((maintenance) => (
-          <Card key={maintenance.id} className="card-merco">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="font-bold text-white text-lg">
-                    Máquina {maintenance.machine_number} - {maintenance.layout_type.replace('_', ' ')}
-                  </h3>
-                  <p className="text-gray-400">Criado por: <span className="text-white">{maintenance.created_by}</span></p>
-                </div>
-                <Badge className={`${getStatusBadge(maintenance.status)} font-semibold`}>
-                  {maintenance.status.replace("_", " ").toUpperCase()}
-                </Badge>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4 p-3 bg-gray-900/50 rounded">
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-blue-400" />
-                  <div>
-                    <span className="font-medium text-gray-400">Iniciado:</span>
-                    <p className="text-white">{formatDateTime(maintenance.created_at)}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-green-400" />
-                  <div>
-                    <span className="font-medium text-gray-400">Finalizado:</span>
-                    <p className="text-white">{formatDateTime(maintenance.finished_at)}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <p className="text-sm text-blue-400 mb-4 p-3 bg-blue-900/20 rounded border border-blue-700">
-                <span className="font-medium">Motivo:</span> {maintenance.motivo}
-              </p>
-
-              {maintenance.finished_by && (
-                <p className="text-sm text-gray-400 mb-4">
-                  <span className="font-medium">Finalizado por:</span> {maintenance.finished_by}
-                </p>
-              )}
-              
-              {maintenance.status === "em_manutencao" && (
-                <Button
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={() => finishMaintenance(maintenance.id)}
-                >
-                  Liberar da Manutenção
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 };
@@ -1094,59 +966,21 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      timeZone: 'America/Sao_Paulo'
+    });
   };
 
-  const exportEspulasReport = async () => {
-    try {
-      const response = await axios.get(`${API}/espulas/report`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
-      
-      const data = response.data;
-      
-      // Create Excel workbook
-      const wb = XLSX.utils.book_new();
-      
-      // Espulas sheet
-      const espulasData = data.espulas.map(espula => ({
-        'ID': espula.id,
-        'Cliente': espula.cliente,
-        'Artigo': espula.artigo,
-        'Cor': espula.cor,
-        'Quantidade': espula.quantidade,
-        'Observações': espula.observacoes,
-        'Data Lançamento': new Date(espula.data_lancamento).toLocaleString('pt-BR'),
-        'Data Prevista Entrega': new Date(espula.data_prevista_entrega).toLocaleDateString('pt-BR'),
-        'Status': getStatusText(espula.status),
-        'Criado por': espula.created_by,
-        'Finalizado em': espula.finished_at ? new Date(espula.finished_at).toLocaleString('pt-BR') : ''
-      }));
-      
-      const espulasWS = XLSX.utils.json_to_sheet(espulasData);
-      XLSX.utils.book_append_sheet(wb, espulasWS, "Espulas Finalizadas");
-      
-      // Save file
-      const fileName = `relatorio_espulas_${new Date().toISOString().split('T')[0]}.xlsx`;
-      XLSX.writeFile(wb, fileName);
-      
-      toast.success("Relatório de espulas exportado com sucesso!");
-    } catch (error) {
-      console.error('Espulas export error:', error.response?.data || error.message);
-      toast.error(`Erro ao exportar relatório de espulas: ${error.response?.data?.detail || error.message}`);
-    }
-  };
-
-  // Sort espulas by priority (delivery date) - closest dates first for em_producao status
+  // Sort espulas by priority (delivery date)
   const sortedEspulas = [...espulas].sort((a, b) => {
     if (a.status === "em_producao_aguardando" || a.status === "producao") {
       if (b.status === "em_producao_aguardando" || b.status === "producao") {
         return new Date(a.data_prevista_entrega) - new Date(b.data_prevista_entrega);
       }
-      return -1; // Production items first
+      return -1;
     }
     if (b.status === "em_producao_aguardando" || b.status === "producao") {
-      return 1; // Production items first
+      return 1;
     }
     return new Date(a.data_prevista_entrega) - new Date(b.data_prevista_entrega);
   });
@@ -1154,25 +988,16 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">Gerenciamento de Espulas</h2>
-        <div className="flex space-x-2">
-          <Button onClick={() => setShowForm(!showForm)} className="btn-merco">
-            {showForm ? "Cancelar" : "+ LANÇAR"}
-          </Button>
-          {user.role === "admin" && (
-            <Button onClick={exportEspulasReport} className="bg-green-600 hover:bg-green-700">
-              <Download className="h-4 w-4 mr-2" />
-              Gerar Relatório
-            </Button>
-          )}
-        </div>
+        <h2 className="text-3xl font-bold text-white">Gerenciamento de Espulas</h2>
+        <Button onClick={() => setShowForm(!showForm)} className="btn-merco-large">
+          {showForm ? "Cancelar" : "+ LANÇAR"}
+        </Button>
       </div>
 
-      {/* Form for creating new Espula */}
       {showForm && (
-        <Card className="card-merco">
+        <Card className="card-merco-large">
           <CardHeader>
-            <CardTitle className="text-white">Nova Ordem de Serviço - Espula</CardTitle>
+            <CardTitle className="text-white text-xl">Nova Ordem de Serviço - Espula</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 form-merco">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1238,7 +1063,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
             </div>
             <Button 
               onClick={createEspula} 
-              className="w-full btn-merco"
+              className="w-full btn-merco-large"
               disabled={!espulaData.cliente || !espulaData.artigo || !espulaData.cor || !espulaData.quantidade || !espulaData.data_prevista_entrega}
             >
               + LANÇAR ESPULA
@@ -1248,23 +1073,23 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       )}
 
       {/* Espulas Cards */}
-      <div className="grid gap-4">
+      <div className="grid gap-6">
         {sortedEspulas.map((espula) => (
-          <Card key={espula.id} className="card-merco">
+          <Card key={espula.id} className="card-merco-large">
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="font-bold text-white text-lg">
+                  <h3 className="font-bold text-white text-xl">
                     OS #{espula.id.slice(-8)} - {espula.cliente}
                   </h3>
-                  <p className="text-gray-400">Artigo: <span className="text-white">{espula.artigo}</span></p>
+                  <p className="text-gray-400 text-lg">Artigo: <span className="text-white">{espula.artigo}</span></p>
                 </div>
-                <Badge className={`${getStatusBadge(espula.status)} font-semibold`}>
+                <Badge className={`${getStatusBadge(espula.status)} font-semibold text-sm`}>
                   {getStatusText(espula.status)}
                 </Badge>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base mb-4">
                 <div>
                   <span className="font-medium text-gray-400">Cor:</span>
                   <p className="text-white">{espula.cor}</p>
@@ -1284,18 +1109,16 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
               </div>
 
               {espula.observacoes && (
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-base text-gray-400 mb-4 p-3 bg-gray-800/50 rounded">
                   <span className="font-medium">Observações:</span> {espula.observacoes}
                 </p>
               )}
 
-              {/* Status control buttons */}
               {espula.status !== "finalizado" && (
-                <div className="flex space-x-2">
+                <div className="flex space-x-3">
                   {espula.status === "pendente" && (
                     <Button
-                      size="sm"
-                      className="bg-red-600 hover:bg-red-700"
+                      className="bg-red-600 hover:bg-red-700 text-white"
                       onClick={() => updateEspulaStatus(espula.id, "em_producao_aguardando")}
                     >
                       Colocar em Produção
@@ -1303,8 +1126,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                   )}
                   {espula.status === "em_producao_aguardando" && (
                     <Button
-                      size="sm"
-                      className="bg-red-700 hover:bg-red-800"
+                      className="bg-red-700 hover:bg-red-800 text-white"
                       onClick={() => updateEspulaStatus(espula.id, "producao")}
                     >
                       Iniciar Produção
@@ -1312,8 +1134,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                   )}
                   {espula.status === "producao" && (
                     <Button
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-green-600 hover:bg-green-700 text-white"
                       onClick={() => updateEspulaStatus(espula.id, "finalizado")}
                     >
                       Finalizar
@@ -1326,12 +1147,102 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         ))}
         
         {sortedEspulas.length === 0 && (
-          <Card className="card-merco">
+          <Card className="card-merco-large">
             <CardContent className="p-6 text-center">
-              <p className="text-gray-400">Nenhuma espula encontrada. Clique em "+ LANÇAR" para criar a primeira.</p>
+              <p className="text-gray-400 text-lg">Nenhuma espula encontrada. Clique em "+ LANÇAR" para criar a primeira.</p>
             </CardContent>
           </Card>
         )}
+      </div>
+    </div>
+  );
+};
+
+const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUpdate }) => {
+  const finishMaintenance = async (maintenanceId) => {
+    try {
+      await axios.put(`${API}/maintenance/${maintenanceId}/finish`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Manutenção finalizada com sucesso!");
+      onMaintenanceUpdate();
+      onMachineUpdate();
+    } catch (error) {
+      toast.error("Erro ao finalizar manutenção");
+    }
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-3xl font-bold text-white">Gerenciamento de Manutenção</h2>
+      <div className="grid gap-6">
+        {maintenances.map((maintenance) => (
+          <Card key={maintenance.id} className="card-merco-large">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="font-bold text-white text-xl">
+                    Máquina {maintenance.machine_code}
+                  </h3>
+                  <p className="text-gray-400 text-lg">Criado por: <span className="text-white">{maintenance.created_by}</span></p>
+                </div>
+                <Badge className={`${maintenance.status === "em_manutencao" ? "bg-blue-600 text-blue-100" : "bg-green-600 text-green-100"} font-semibold text-sm`}>
+                  {maintenance.status === "em_manutencao" ? "EM MANUTENÇÃO" : "FINALIZADA"}
+                </Badge>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base mb-4 p-4 bg-gray-900/50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <Clock className="h-5 w-5 text-blue-400" />
+                  <div>
+                    <span className="font-medium text-gray-400">Iniciado:</span>
+                    <p className="text-white">{formatDateTime(maintenance.created_at)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Clock className="h-5 w-5 text-green-400" />
+                  <div>
+                    <span className="font-medium text-gray-400">Finalizado:</span>
+                    <p className="text-white">{formatDateTime(maintenance.finished_at)}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-base text-blue-400 mb-4 p-4 bg-blue-900/20 rounded border border-blue-700">
+                <span className="font-medium">Motivo:</span> {maintenance.motivo}
+              </p>
+
+              {maintenance.finished_by && (
+                <p className="text-base text-gray-400 mb-4">
+                  <span className="font-medium">Finalizado por:</span> {maintenance.finished_by}
+                </p>
+              )}
+              
+              {maintenance.status === "em_manutencao" && (
+                <Button
+                  size="lg"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => finishMaintenance(maintenance.id)}
+                >
+                  Liberar da Manutenção
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
@@ -1381,14 +1292,11 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       });
       
       const data = response.data;
-      
-      // Create Excel workbook
       const wb = XLSX.utils.book_new();
       
-      // Orders sheet
       const ordersData = data.orders.map(order => ({
         'ID': order.id,
-        'Máquina': order.machine_number,
+        'Máquina': order.machine_code,
         'Layout': order.layout_type,
         'Cliente': order.cliente,
         'Artigo': order.artigo,
@@ -1396,9 +1304,9 @@ const AdminPanel = ({ users, onUserUpdate }) => {
         'Quantidade': order.quantidade,
         'Status': order.status,
         'Criado por': order.created_by,
-        'Criado em': new Date(order.created_at).toLocaleString('pt-BR'),
-        'Iniciado em': order.started_at ? new Date(order.started_at).toLocaleString('pt-BR') : '',
-        'Finalizado em': order.finished_at ? new Date(order.finished_at).toLocaleString('pt-BR') : '',
+        'Criado em': new Date(order.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
+        'Iniciado em': order.started_at ? new Date(order.started_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
+        'Finalizado em': order.finished_at ? new Date(order.finished_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
         'Observação': order.observacao,
         'Obs. Liberação': order.observacao_liberacao,
         'Laudo Final': order.laudo_final
@@ -1407,108 +1315,24 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       const ordersWS = XLSX.utils.json_to_sheet(ordersData);
       XLSX.utils.book_append_sheet(wb, ordersWS, "Pedidos");
       
-      // Status History sheet
-      const historyData = data.status_history.map(hist => ({
-        'ID': hist.id,
-        'Máquina': hist.machine_number,
-        'Layout': hist.layout_type,
-        'Status Anterior': hist.old_status,
-        'Novo Status': hist.new_status,
-        'Alterado por': hist.changed_by,
-        'Data/Hora': new Date(hist.changed_at).toLocaleString('pt-BR'),
-        'ID Pedido': hist.order_id || ''
-      }));
-      
-      const historyWS = XLSX.utils.json_to_sheet(historyData);
-      XLSX.utils.book_append_sheet(wb, historyWS, "Histórico Status");
-      
-      // Summary sheet
-      const summaryData = [
-        { 'Informação': 'Layout', 'Valor': data.layout_type },
-        { 'Informação': 'Total de Pedidos', 'Valor': data.orders.length },
-        { 'Informação': 'Pedidos Pendentes', 'Valor': data.orders.filter(o => o.status === 'pendente').length },
-        { 'Informação': 'Em Produção', 'Valor': data.orders.filter(o => o.status === 'em_producao').length },
-        { 'Informação': 'Finalizados', 'Valor': data.orders.filter(o => o.status === 'finalizado').length },
-        { 'Informação': 'Relatório Gerado em', 'Valor': new Date(data.generated_at).toLocaleString('pt-BR') }
-      ];
-      
-      const summaryWS = XLSX.utils.json_to_sheet(summaryData);
-      XLSX.utils.book_append_sheet(wb, summaryWS, "Resumo");
-      
-      // Save file
       const fileName = `relatorio_merco_textil_${layoutType}_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, fileName);
       
       toast.success("Relatório exportado com sucesso!");
     } catch (error) {
-      console.error('Export error details:', error.response?.data || error.message);
-      toast.error(`Erro ao exportar relatório: ${error.response?.data?.detail || error.message}`);
-    }
-  };
-
-  const exportMaintenanceReport = async (layoutType) => {
-    try {
-      const response = await axios.get(`${API}/reports/maintenance?layout_type=${layoutType}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
-      
-      const data = response.data;
-      
-      // Create Excel workbook
-      const wb = XLSX.utils.book_new();
-      
-      // Maintenance sheet
-      const maintenanceData = data.maintenance.map(maint => ({
-        'ID': maint.id,
-        'Máquina': maint.machine_number,
-        'Layout': maint.layout_type,
-        'Motivo': maint.motivo,
-        'Status': maint.status,
-        'Criado por': maint.created_by,
-        'Iniciado em': new Date(maint.created_at).toLocaleString('pt-BR'),
-        'Finalizado em': maint.finished_at ? new Date(maint.finished_at).toLocaleString('pt-BR') : '',
-        'Finalizado por': maint.finished_by || ''
-      }));
-      
-      const maintenanceWS = XLSX.utils.json_to_sheet(maintenanceData);
-      XLSX.utils.book_append_sheet(wb, maintenanceWS, "Manutenções");
-      
-      // Status History sheet (maintenance related)
-      const historyData = data.status_history.map(hist => ({
-        'ID': hist.id,
-        'Máquina': hist.machine_number,
-        'Layout': hist.layout_type,
-        'Status Anterior': hist.old_status,
-        'Novo Status': hist.new_status,
-        'Alterado por': hist.changed_by,
-        'Data/Hora': new Date(hist.changed_at).toLocaleString('pt-BR'),
-        'ID Manutenção': hist.maintenance_id || ''
-      }));
-      
-      const historyWS = XLSX.utils.json_to_sheet(historyData);
-      XLSX.utils.book_append_sheet(wb, historyWS, "Histórico Manutenção");
-      
-      // Save file
-      const fileName = `relatorio_manutencao_${layoutType}_${new Date().toISOString().split('T')[0]}.xlsx`;
-      XLSX.writeFile(wb, fileName);
-      
-      toast.success("Relatório de manutenção exportado com sucesso!");
-    } catch (error) {
-      console.error('Maintenance export error:', error.response?.data || error.message);
-      toast.error(`Erro ao exportar relatório de manutenção: ${error.response?.data?.detail || error.message}`);
+      toast.error("Erro ao exportar relatório");
     }
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-white">Painel de Administração</h2>
+      <h2 className="text-3xl font-bold text-white">Painel de Administração</h2>
       
       <div className="grid md:grid-cols-2 gap-6">
-        {/* User Management */}
-        <Card className="card-merco">
+        <Card className="card-merco-large">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-white">
-              <Users className="h-5 w-5 text-red-500" />
+            <CardTitle className="flex items-center space-x-2 text-white text-xl">
+              <Users className="h-6 w-6 text-red-500" />
               <span>Gerenciar Usuários</span>
             </CardTitle>
           </CardHeader>
@@ -1551,17 +1375,17 @@ const AdminPanel = ({ users, onUserUpdate }) => {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={createUser} className="w-full btn-merco">
+            <Button onClick={createUser} className="w-full btn-merco-large">
               Criar Usuário
             </Button>
             
             <div className="mt-6">
-              <h4 className="font-medium mb-2 text-white">Usuários Existentes</h4>
-              <div className="space-y-2">
+              <h4 className="font-medium mb-4 text-white text-lg">Usuários Existentes</h4>
+              <div className="space-y-3">
                 {users.map((user) => (
-                  <div key={user.id} className="flex justify-between items-center p-3 bg-black/40 rounded border border-gray-700">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-white">{user.username}</span>
+                  <div key={user.id} className="flex justify-between items-center p-4 bg-black/40 rounded-lg border border-gray-700">
+                    <div className="flex items-center space-x-4">
+                      <span className="text-white text-base">{user.username}</span>
                       <Badge className={`${
                         user.role === "admin" ? "badge-admin" : 
                         user.role === "operador_interno" ? "badge-interno" : 
@@ -1586,57 +1410,31 @@ const AdminPanel = ({ users, onUserUpdate }) => {
           </CardContent>
         </Card>
 
-        {/* Reports */}
-        <Card className="card-merco">
+        <Card className="card-merco-large">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-white">
-              <Download className="h-5 w-5 text-red-500" />
+            <CardTitle className="flex items-center space-x-2 text-white text-xl">
+              <Download className="h-6 w-6 text-red-500" />
               <span>Relatórios Excel</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div>
-              <h3 className="text-white font-medium mb-3">Relatórios de Produção</h3>
-              <div className="space-y-3 mb-6">
+              <h3 className="text-white font-medium mb-3 text-lg">Relatórios de Produção</h3>
+              <div className="space-y-3">
                 <Button
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white h-12"
                   onClick={() => exportReport("16_fusos")}
                 >
-                  <Download className="h-4 w-4 mr-2" />
+                  <Download className="h-5 w-5 mr-2" />
                   Relatório Produção 16 Fusos
                 </Button>
                 <Button
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white h-12"
                   onClick={() => exportReport("32_fusos")}
                 >
-                  <Download className="h-4 w-4 mr-2" />
+                  <Download className="h-5 w-5 mr-2" />
                   Relatório Produção 32 Fusos
                 </Button>
-              </div>
-
-              <h3 className="text-white font-medium mb-3">Relatórios de Manutenção</h3>
-              <div className="space-y-3">
-                <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => exportMaintenanceReport("16_fusos")}
-                >
-                  <Wrench className="h-4 w-4 mr-2" />
-                  Relatório Manutenção 16 Fusos
-                </Button>
-                <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => exportMaintenanceReport("32_fusos")}
-                >
-                  <Wrench className="h-4 w-4 mr-2" />
-                  Relatório Manutenção 32 Fusos
-                </Button>
-              </div>
-
-              <div className="mt-4 p-3 bg-blue-500/20 rounded border border-blue-500/30">
-                <p className="text-blue-300 text-sm">
-                  <strong>Relatórios incluem:</strong> Dados completos, histórico de status, 
-                  laudos finais e informações organizadas em planilhas separadas.
-                </p>
               </div>
             </div>
           </CardContent>

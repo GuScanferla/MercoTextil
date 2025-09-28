@@ -9,10 +9,11 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import jwt
 import hashlib
 from passlib.context import CryptContext
+import pytz
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -32,6 +33,13 @@ api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 JWT_SECRET = "fusosmanager_secret_key_2024"
+
+# Brazil timezone
+brazil_tz = pytz.timezone('America/Sao_Paulo')
+
+def get_brazil_time():
+    """Get current time in Brazil timezone"""
+    return datetime.now(brazil_tz)
 
 # Helper function to convert MongoDB documents
 def serialize_doc(doc):
@@ -63,7 +71,7 @@ class User(BaseModel):
     email: str
     role: str  # admin, operador_interno, operador_externo
     active: bool = True
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=get_brazil_time)
 
 class UserCreate(BaseModel):
     username: str
@@ -81,51 +89,51 @@ class LoginResponse(BaseModel):
 
 class Machine(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    number: int
+    code: str  # CD1, CD2, CI1, F1, etc.
+    position: str  # unique position identifier
     status: str = "verde"  # verde, amarelo, vermelho, azul (manutenção)
     layout_type: str  # 16_fusos or 32_fusos
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=get_brazil_time)
 
 class Maintenance(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    machine_number: int
-    layout_type: str
+    machine_id: str
+    machine_code: str
     motivo: str
     status: str = "em_manutencao"  # em_manutencao, finalizada
     created_by: str
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=get_brazil_time)
     finished_at: Optional[datetime] = None
     finished_by: Optional[str] = None
 
 class MaintenanceCreate(BaseModel):
-    machine_number: int
-    layout_type: str
+    machine_id: str
     motivo: str
 
 class Order(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    machine_number: int
+    machine_id: str
+    machine_code: str
     layout_type: str
     cliente: str
     artigo: str
     cor: str
-    quantidade: str  # Changed to string to allow letters and numbers
+    quantidade: str
     observacao: str = ""
     status: str = "pendente"  # pendente, em_producao, finalizado
     created_by: str
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=get_brazil_time)
     started_at: Optional[datetime] = None
     finished_at: Optional[datetime] = None
     observacao_liberacao: str = ""
     laudo_final: str = ""
 
 class OrderCreate(BaseModel):
-    machine_number: int
-    layout_type: str
+    machine_id: str
     cliente: str
     artigo: str
     cor: str
-    quantidade: str  # Changed to string to allow letters and numbers
+    quantidade: str
     observacao: str = ""
 
 class OrderUpdate(BaseModel):
@@ -133,25 +141,14 @@ class OrderUpdate(BaseModel):
     observacao_liberacao: str = ""
     laudo_final: str = ""
 
-class StatusHistory(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    machine_number: int
-    layout_type: str
-    old_status: str
-    new_status: str
-    changed_by: str
-    changed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    order_id: Optional[str] = None
-    maintenance_id: Optional[str] = None
-
 class Espula(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     cliente: str
     artigo: str
     cor: str
-    quantidade: str  # Changed to string to allow letters and numbers
+    quantidade: str
     observacoes: str = ""
-    data_lancamento: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    data_lancamento: datetime = Field(default_factory=get_brazil_time)
     data_prevista_entrega: datetime
     status: str = "pendente"  # pendente, em_producao_aguardando, producao, finalizado
     created_by: str
@@ -168,6 +165,18 @@ class EspulaCreate(BaseModel):
 class EspulaUpdate(BaseModel):
     status: str
 
+class StatusHistory(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    machine_id: str
+    machine_code: str
+    layout_type: str
+    old_status: str
+    new_status: str
+    changed_by: str
+    changed_at: datetime = Field(default_factory=get_brazil_time)
+    order_id: Optional[str] = None
+    maintenance_id: Optional[str] = None
+
 # Helper functions
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -180,7 +189,7 @@ def create_access_token(user_id: str, username: str, role: str) -> str:
         "user_id": user_id,
         "username": username,
         "role": role,
-        "exp": datetime.now(timezone.utc).timestamp() + (24 * 60 * 60)  # 24 hours
+        "exp": get_brazil_time().timestamp() + (24 * 60 * 60)  # 24 hours
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
@@ -198,6 +207,13 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 # Initialize data
 async def init_data():
+    # Clear existing data except users
+    await db.orders.delete_many({})
+    await db.espulas.delete_many({})
+    await db.maintenance.delete_many({})
+    await db.status_history.delete_many({})
+    await db.machines.delete_many({})
+    
     # Create default users if they don't exist
     admin_exists = await db.users.find_one({"username": "admin"})
     if not admin_exists:
@@ -232,22 +248,77 @@ async def init_data():
         externo_dict["password"] = hash_password("externo123")
         await db.users.insert_one(externo_dict)
 
-    # Initialize machines for both layouts
-    for layout in ["16_fusos", "32_fusos"]:
-        if layout == "16_fusos":
-            # 24 machines for 16 fusos layout as per the image
-            max_machines = 24
-        else:
-            max_machines = 33
-        
-        for i in range(1, max_machines + 1):
-            machine_exists = await db.machines.find_one({"number": i, "layout_type": layout})
-            if not machine_exists:
-                machine = Machine(number=i, layout_type=layout)
-                machine_dict = machine.dict()
-                # Create unique ID based on number and layout
-                machine_dict["id"] = f"{layout}_{i}_{str(uuid.uuid4())[:8]}"
-                await db.machines.insert_one(machine_dict)
+    # Initialize machines for 16 fusos layout - EXACT as per photo
+    layout_16_machines = [
+        # CD blocks - 2x2 arrangements
+        {"code": "CD1", "position": "top-left-1"},
+        {"code": "CD2", "position": "top-left-2"},
+        {"code": "CD3", "position": "top-left-3"},
+        {"code": "CD4", "position": "top-left-4"},
+        {"code": "CD5", "position": "top-right-1"},
+        {"code": "CD6", "position": "top-right-2"},
+        {"code": "CD7", "position": "top-right-3"},
+        {"code": "CD8", "position": "top-right-4"},
+        {"code": "CD9", "position": "middle-left-1"},
+        {"code": "CD10", "position": "middle-left-2"},
+        {"code": "CD11", "position": "middle-left-3"},
+        {"code": "CD12", "position": "middle-left-4"},
+        {"code": "CD13", "position": "middle-right-1"},
+        {"code": "CD14", "position": "middle-right-2"},
+        {"code": "CD15", "position": "middle-right-3"},
+        {"code": "CD16", "position": "middle-right-4"},
+        # CD vertical blocks
+        {"code": "CD17", "position": "right-vertical-1"},
+        {"code": "CD18", "position": "right-vertical-2"},
+        {"code": "CD19", "position": "right-vertical-3"},
+        {"code": "CD20", "position": "right-vertical-4"},
+        {"code": "CD21", "position": "right-vertical-5"},
+        {"code": "CD22", "position": "right-vertical-6"},
+        {"code": "CD23", "position": "right-vertical-7"},
+        {"code": "CD24", "position": "right-vertical-8"},
+        # CI blocks
+        {"code": "CI1", "position": "ci-1"},
+        {"code": "CI2", "position": "ci-2"},
+        {"code": "CI3", "position": "ci-3"},
+        {"code": "CI4", "position": "ci-4"},
+    ]
+    
+    # F blocks for bottom row
+    for i in range(1, 25):
+        layout_16_machines.append({
+            "code": f"F{i}",
+            "position": f"f-{i}"
+        })
+
+    # Create 16 fusos machines
+    for i, machine_data in enumerate(layout_16_machines):
+        machine = Machine(
+            code=machine_data["code"],
+            position=machine_data["position"],
+            layout_type="16_fusos"
+        )
+        machine_dict = machine.dict()
+        machine_dict["id"] = f"16_fusos_{i+1}_{str(uuid.uuid4())[:8]}"
+        await db.machines.insert_one(machine_dict)
+
+    # Initialize machines for 32 fusos layout with unique IDs
+    for i in range(1, 34):
+        machine = Machine(
+            code=str(i),
+            position=f"pos-{i}",
+            layout_type="32_fusos"
+        )
+        machine_dict = machine.dict()
+        machine_dict["id"] = f"32_fusos_{i}_{str(uuid.uuid4())[:8]}"
+        await db.machines.insert_one(machine_dict)
+
+@api_router.post("/reset-database")
+async def reset_database(current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await init_data()
+    return {"message": "Database reset successfully, keeping only users"}
 
 # Auth routes
 @api_router.post("/auth/login", response_model=LoginResponse)
@@ -314,47 +385,14 @@ async def delete_user(user_id: str, current_user: User = Depends(get_current_use
 # Machine routes
 @api_router.get("/machines/{layout_type}", response_model=List[Machine])
 async def get_machines(layout_type: str, current_user: User = Depends(get_current_user)):
-    machines = await db.machines.find({"layout_type": layout_type}).sort("number", 1).to_list(1000)
+    machines = await db.machines.find({"layout_type": layout_type}).to_list(1000)
     return [Machine(**machine) for machine in machines]
-
-@api_router.put("/machines/{machine_id}/status")
-async def update_machine_status(
-    machine_id: str, 
-    status: str, 
-    current_user: User = Depends(get_current_user)
-):
-    machine = await db.machines.find_one({"id": machine_id})
-    if not machine:
-        raise HTTPException(status_code=404, detail="Machine not found")
-    
-    old_status = machine["status"]
-    
-    # Update machine status
-    await db.machines.update_one(
-        {"id": machine_id},
-        {"$set": {"status": status, "updated_at": datetime.now(timezone.utc)}}
-    )
-    
-    # Record status history
-    history = StatusHistory(
-        machine_number=machine["number"],
-        layout_type=machine["layout_type"],
-        old_status=old_status,
-        new_status=status,
-        changed_by=current_user.username
-    )
-    await db.status_history.insert_one(history.dict())
-    
-    return {"message": "Status updated successfully"}
 
 # Maintenance routes
 @api_router.post("/maintenance", response_model=Maintenance)
 async def create_maintenance(maintenance_data: MaintenanceCreate, current_user: User = Depends(get_current_user)):
-    # Check if machine exists and is available
-    machine = await db.machines.find_one({
-        "number": maintenance_data.machine_number,
-        "layout_type": maintenance_data.layout_type
-    })
+    # Find machine by ID
+    machine = await db.machines.find_one({"id": maintenance_data.machine_id})
     if not machine:
         raise HTTPException(status_code=404, detail="Machine not found")
     
@@ -362,8 +400,8 @@ async def create_maintenance(maintenance_data: MaintenanceCreate, current_user: 
         raise HTTPException(status_code=400, detail="Machine must be available to enter maintenance")
     
     maintenance = Maintenance(
-        machine_number=maintenance_data.machine_number,
-        layout_type=maintenance_data.layout_type,
+        machine_id=maintenance_data.machine_id,
+        machine_code=machine["code"],
         motivo=maintenance_data.motivo,
         created_by=current_user.username
     )
@@ -372,20 +410,9 @@ async def create_maintenance(maintenance_data: MaintenanceCreate, current_user: 
     
     # Update machine status to azul (maintenance)
     await db.machines.update_one(
-        {"number": maintenance_data.machine_number, "layout_type": maintenance_data.layout_type},
-        {"$set": {"status": "azul", "updated_at": datetime.now(timezone.utc)}}
+        {"id": maintenance_data.machine_id},
+        {"$set": {"status": "azul", "updated_at": get_brazil_time()}}
     )
-    
-    # Record status history
-    history = StatusHistory(
-        machine_number=maintenance_data.machine_number,
-        layout_type=maintenance_data.layout_type,
-        old_status="verde",
-        new_status="azul",
-        changed_by=current_user.username,
-        maintenance_id=maintenance.id
-    )
-    await db.status_history.insert_one(history.dict())
     
     return maintenance
 
@@ -409,7 +436,7 @@ async def finish_maintenance(maintenance_id: str, current_user: User = Depends(g
         {
             "$set": {
                 "status": "finalizada",
-                "finished_at": datetime.now(timezone.utc),
+                "finished_at": get_brazil_time(),
                 "finished_by": current_user.username
             }
         }
@@ -417,20 +444,9 @@ async def finish_maintenance(maintenance_id: str, current_user: User = Depends(g
     
     # Update machine status back to verde (available)
     await db.machines.update_one(
-        {"number": maintenance["machine_number"], "layout_type": maintenance["layout_type"]},
-        {"$set": {"status": "verde", "updated_at": datetime.now(timezone.utc)}}
+        {"id": maintenance["machine_id"]},
+        {"$set": {"status": "verde", "updated_at": get_brazil_time()}}
     )
-    
-    # Record status history
-    history = StatusHistory(
-        machine_number=maintenance["machine_number"],
-        layout_type=maintenance["layout_type"],
-        old_status="azul",
-        new_status="verde",
-        changed_by=current_user.username,
-        maintenance_id=maintenance_id
-    )
-    await db.status_history.insert_one(history.dict())
     
     return {"message": "Maintenance finished successfully"}
 
@@ -441,10 +457,7 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
         raise HTTPException(status_code=403, detail="Not authorized")
     
     # Check if machine exists and is available
-    machine = await db.machines.find_one({
-        "number": order_data.machine_number,
-        "layout_type": order_data.layout_type
-    })
+    machine = await db.machines.find_one({"id": order_data.machine_id})
     if not machine:
         raise HTTPException(status_code=404, detail="Machine not found")
     
@@ -452,8 +465,9 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
         raise HTTPException(status_code=400, detail="Machine not available")
     
     order = Order(
-        machine_number=order_data.machine_number,
-        layout_type=order_data.layout_type,
+        machine_id=order_data.machine_id,
+        machine_code=machine["code"],
+        layout_type=machine["layout_type"],
         cliente=order_data.cliente,
         artigo=order_data.artigo,
         cor=order_data.cor,
@@ -466,30 +480,15 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
     
     # Update machine status to amarelo (pending)
     await db.machines.update_one(
-        {"number": order_data.machine_number, "layout_type": order_data.layout_type},
-        {"$set": {"status": "amarelo", "updated_at": datetime.now(timezone.utc)}}
+        {"id": order_data.machine_id},
+        {"$set": {"status": "amarelo", "updated_at": get_brazil_time()}}
     )
-    
-    # Record status history
-    history = StatusHistory(
-        machine_number=order_data.machine_number,
-        layout_type=order_data.layout_type,
-        old_status="verde",
-        new_status="amarelo",
-        changed_by=current_user.username,
-        order_id=order.id
-    )
-    await db.status_history.insert_one(history.dict())
     
     return order
 
 @api_router.get("/orders", response_model=List[Order])
 async def get_orders(current_user: User = Depends(get_current_user)):
     orders = await db.orders.find().sort("created_at", -1).to_list(1000)
-    # Convert quantidade to string if it's an integer (for backward compatibility)
-    for order in orders:
-        if isinstance(order.get('quantidade'), int):
-            order['quantidade'] = str(order['quantidade'])
     return [Order(**order) for order in orders]
 
 @api_router.put("/orders/{order_id}")
@@ -513,31 +512,20 @@ async def update_order(
     
     if order_update.status == "em_producao":
         update_data["status"] = "em_producao"
-        update_data["started_at"] = datetime.now(timezone.utc)
+        update_data["started_at"] = get_brazil_time()
         machine_status = "vermelho"
     elif order_update.status == "finalizado":
         update_data["status"] = "finalizado"
-        update_data["finished_at"] = datetime.now(timezone.utc)
+        update_data["finished_at"] = get_brazil_time()
         machine_status = "verde"
     
     await db.orders.update_one({"id": order_id}, {"$set": update_data})
     
     # Update machine status
     await db.machines.update_one(
-        {"number": order["machine_number"], "layout_type": order["layout_type"]},
-        {"$set": {"status": machine_status, "updated_at": datetime.now(timezone.utc)}}
+        {"id": order["machine_id"]},
+        {"$set": {"status": machine_status, "updated_at": get_brazil_time()}}
     )
-    
-    # Record status history
-    history = StatusHistory(
-        machine_number=order["machine_number"],
-        layout_type=order["layout_type"],
-        old_status=order["status"],
-        new_status=order_update.status,
-        changed_by=current_user.username,
-        order_id=order_id
-    )
-    await db.status_history.insert_one(history.dict())
     
     return {"message": "Order updated successfully"}
 
@@ -545,8 +533,9 @@ async def update_order(
 @api_router.post("/espulas", response_model=Espula)
 async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(get_current_user)):
     try:
-        # Convert string date to datetime
-        data_prevista = datetime.fromisoformat(espula_data.data_prevista_entrega.replace('Z', '+00:00'))
+        # Convert string date to datetime in Brazil timezone
+        data_prevista = datetime.fromisoformat(espula_data.data_prevista_entrega)
+        data_prevista = brazil_tz.localize(data_prevista)
         
         espula = Espula(
             cliente=espula_data.cliente,
@@ -569,12 +558,6 @@ async def get_espulas(current_user: User = Depends(get_current_user)):
     espulas = await db.espulas.find({"status": {"$ne": "finalizado"}}).sort("data_prevista_entrega", 1).to_list(1000)
     return [Espula(**espula) for espula in espulas]
 
-@api_router.get("/espulas/finished", response_model=List[Espula])
-async def get_finished_espulas(current_user: User = Depends(get_current_user)):
-    # Get finished espulas for reports
-    espulas = await db.espulas.find({"status": "finalizado"}).sort("finished_at", -1).to_list(1000)
-    return [Espula(**espula) for espula in espulas]
-
 @api_router.put("/espulas/{espula_id}")
 async def update_espula(
     espula_id: str, 
@@ -588,68 +571,13 @@ async def update_espula(
     update_data = {"status": espula_update.status}
     
     if espula_update.status == "finalizado":
-        update_data["finished_at"] = datetime.now(timezone.utc)
+        update_data["finished_at"] = get_brazil_time()
     
     await db.espulas.update_one({"id": espula_id}, {"$set": update_data})
     
     return {"message": "Espula updated successfully"}
 
-@api_router.get("/espulas/report")
-async def get_espulas_report(current_user: User = Depends(get_current_user)):
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
-    try:
-        # Get finished espulas for report
-        espulas = await db.espulas.find({"status": "finalizado"}).to_list(1000)
-        
-        # Serialize the data to make it JSON compatible
-        serialized_espulas = serialize_docs(espulas)
-        
-        return {
-            "espulas": serialized_espulas,
-            "generated_at": datetime.now(timezone.utc).isoformat()
-        }
-    except Exception as e:
-        logger.error(f"Error exporting espulas report: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error generating espulas report: {str(e)}")
-
 # Reports routes
-@api_router.get("/reports/status-history")
-async def get_status_history(current_user: User = Depends(get_current_user)):
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
-    history = await db.status_history.find().sort("changed_at", -1).to_list(1000)
-    return serialize_docs(history)
-
-@api_router.get("/reports/maintenance")
-async def get_maintenance_report(layout_type: str, current_user: User = Depends(get_current_user)):
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
-    try:
-        # Get maintenance data for the report
-        maintenance = await db.maintenance.find({"layout_type": layout_type}).to_list(1000)
-        history = await db.status_history.find({
-            "layout_type": layout_type,
-            "$or": [{"new_status": "azul"}, {"old_status": "azul"}]
-        }).to_list(1000)
-        
-        # Serialize the data to make it JSON compatible
-        serialized_maintenance = serialize_docs(maintenance)
-        serialized_history = serialize_docs(history)
-        
-        return {
-            "maintenance": serialized_maintenance,
-            "status_history": serialized_history,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-            "layout_type": layout_type
-        }
-    except Exception as e:
-        logger.error(f"Error exporting maintenance report: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error generating maintenance report: {str(e)}")
-
 @api_router.get("/reports/export")
 async def export_report(layout_type: str, current_user: User = Depends(get_current_user)):
     if current_user.role != "admin":
@@ -667,12 +595,29 @@ async def export_report(layout_type: str, current_user: User = Depends(get_curre
         return {
             "orders": serialized_orders,
             "status_history": serialized_history,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": get_brazil_time().isoformat(),
             "layout_type": layout_type
         }
     except Exception as e:
         logger.error(f"Error exporting report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
+
+@api_router.get("/espulas/report")
+async def get_espulas_report(current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    try:
+        espulas = await db.espulas.find({"status": "finalizado"}).to_list(1000)
+        serialized_espulas = serialize_docs(espulas)
+        
+        return {
+            "espulas": serialized_espulas,
+            "generated_at": get_brazil_time().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error exporting espulas report: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating espulas report: {str(e)}")
 
 # Include the router in the main app
 app.include_router(api_router)

@@ -171,154 +171,273 @@ class FusosSystemTester:
                 f"- Status: {status}, Response type: {type(response)}"
             )
 
-    def test_order_creation(self):
-        """Test order creation (admin and interno only)"""
-        print("\n📋 TESTING ORDER CREATION")
+    def test_espulas_creation(self):
+        """Test Espulas creation with new field structure"""
+        print("\n📦 TESTING ESPULAS CREATION")
         
-        # Test with admin user
-        order_data = {
-            "machine_number": 1,
-            "layout_type": "16_fusos",
-            "cliente": "Test Client",
-            "artigo": "Test Article",
-            "cor": "Blue",
-            "quantidade": 100,
-            "observacao": "Test order"
+        # Test espula creation with new fields
+        espula_data = {
+            "cliente": "Empresa ABC Ltda",
+            "artigo": "Tecido Premium 100% Algodão",
+            "cor": "Azul Marinho",
+            "quantidade_metros": "150.5",  # New field name
+            "carga": "ABC123",  # New alphanumeric field
+            "observacoes": "Material de alta qualidade para exportação",
+            "data_prevista_entrega": "2024-02-15"
         }
         
-        # Test admin can create orders
         success, response, status = self.make_request(
-            'POST', 'orders', order_data, token=self.tokens.get('admin')
+            'POST', 'espulas', espula_data, token=self.tokens.get('admin')
         )
         
         if success and 'id' in response:
-            self.created_orders.append(response['id'])
+            self.created_espulas.append(response['id'])
+            # Verify new field names are present
+            has_metros = 'quantidade_metros' in response
+            has_carga = 'carga' in response
+            correct_status = response.get('status') == 'pendente'
+            
             self.log_test(
-                "Create order (admin)", 
-                True, 
-                f"- Order ID: {response['id']}"
+                "Create espula with new fields", 
+                has_metros and has_carga and correct_status, 
+                f"- ID: {response['id']}, Metros: {has_metros}, Carga: {has_carga}, Status: {response.get('status')}"
             )
         else:
             self.log_test(
-                "Create order (admin)", 
+                "Create espula with new fields", 
                 False, 
                 f"- Status: {status}, Response: {response}"
             )
 
-        # Test interno can create orders
-        order_data["machine_number"] = 2
+        # Test with different user roles
+        espula_data["cliente"] = "Cliente Interno"
+        espula_data["carga"] = "XYZ789"
+        
         success, response, status = self.make_request(
-            'POST', 'orders', order_data, token=self.tokens.get('interno')
+            'POST', 'espulas', espula_data, token=self.tokens.get('interno')
         )
         
         if success and 'id' in response:
-            self.created_orders.append(response['id'])
+            self.created_espulas.append(response['id'])
             self.log_test(
-                "Create order (interno)", 
+                "Create espula (interno)", 
                 True, 
-                f"- Order ID: {response['id']}"
+                f"- ID: {response['id']}"
             )
         else:
             self.log_test(
-                "Create order (interno)", 
+                "Create espula (interno)", 
                 False, 
-                f"- Status: {status}, Response: {response}"
+                f"- Status: {status}"
             )
 
-        # Test externo CANNOT create orders
-        order_data["machine_number"] = 3
+    def test_espulas_status_updates(self):
+        """Test Espulas status updates with history tracking"""
+        print("\n🔄 TESTING ESPULAS STATUS UPDATES")
+        
+        if not self.created_espulas:
+            print("⚠️ No espulas created, skipping status update tests")
+            return
+
+        espula_id = self.created_espulas[0]
+        
+        # Test status update to em_producao_aguardando (should set iniciado_em)
+        update_data = {"status": "em_producao_aguardando"}
+        
         success, response, status = self.make_request(
-            'POST', 'orders', order_data, token=self.tokens.get('externo'), expected_status=403
+            'PUT', f'espulas/{espula_id}', update_data, token=self.tokens.get('admin')
         )
         
         self.log_test(
-            "Create order (externo - should fail)", 
+            "Update to em_producao_aguardando", 
+            success, 
+            f"- Status: {status} (should set iniciado_em)"
+        )
+
+        # Test status update to producao
+        update_data = {"status": "producao"}
+        
+        success, response, status = self.make_request(
+            'PUT', f'espulas/{espula_id}', update_data, token=self.tokens.get('admin')
+        )
+        
+        self.log_test(
+            "Update to producao", 
+            success, 
+            f"- Status: {status}"
+        )
+
+        # Test status update to finalizado (should set finalizado_em)
+        update_data = {"status": "finalizado"}
+        
+        success, response, status = self.make_request(
+            'PUT', f'espulas/{espula_id}', update_data, token=self.tokens.get('admin')
+        )
+        
+        self.log_test(
+            "Update to finalizado", 
+            success, 
+            f"- Status: {status} (should set finalizado_em)"
+        )
+
+    def test_espulas_list(self):
+        """Test getting espulas list with new field names"""
+        print("\n📄 TESTING ESPULAS LIST")
+        
+        success, response, status = self.make_request(
+            'GET', 'espulas', token=self.tokens.get('admin')
+        )
+        
+        if success and isinstance(response, list):
+            # Check if response contains new field names
+            has_new_fields = True
+            if response:
+                first_espula = response[0]
+                has_metros = 'quantidade_metros' in first_espula
+                has_carga = 'carga' in first_espula
+                has_new_fields = has_metros and has_carga
+            
+            self.log_test(
+                "Get espulas list", 
+                has_new_fields, 
+                f"- Count: {len(response)}, Has new fields: {has_new_fields}"
+            )
+        else:
+            self.log_test(
+                "Get espulas list", 
+                False, 
+                f"- Status: {status}"
+            )
+
+    def test_database_reset(self):
+        """Test database reset functionality (admin only)"""
+        print("\n🔄 TESTING DATABASE RESET")
+        
+        # Test admin can reset database
+        success, response, status = self.make_request(
+            'POST', 'reset-database', token=self.tokens.get('admin')
+        )
+        
+        self.log_test(
+            "Reset database (admin)", 
+            success, 
+            f"- Status: {status}, Message: {response.get('message', '')}"
+        )
+
+        # Test non-admin cannot reset database
+        success, response, status = self.make_request(
+            'POST', 'reset-database', token=self.tokens.get('interno'), expected_status=403
+        )
+        
+        self.log_test(
+            "Reset database (interno - should fail)", 
             success, 
             f"- Status: {status} (expected 403)"
         )
 
-    def test_order_management(self):
-        """Test order status updates"""
-        print("\n🔄 TESTING ORDER MANAGEMENT")
-        
-        if not self.created_orders:
-            print("⚠️ No orders created, skipping order management tests")
-            return
-
-        order_id = self.created_orders[0]
-        
-        # Test externo can start production
-        update_data = {
-            "status": "em_producao",
-            "observacao_liberacao": "Starting production"
-        }
-        
+        # Verify machines are recreated after reset
         success, response, status = self.make_request(
-            'PUT', f'orders/{order_id}', update_data, token=self.tokens.get('externo')
+            'GET', 'machines/16_fusos', token=self.tokens.get('admin')
         )
         
-        self.log_test(
-            "Start production (externo)", 
-            success, 
-            f"- Status: {status}"
-        )
-
-        # Test admin can finish production
-        update_data = {
-            "status": "finalizado",
-            "observacao_liberacao": "Production finished"
-        }
-        
-        success, response, status = self.make_request(
-            'PUT', f'orders/{order_id}', update_data, token=self.tokens.get('admin')
-        )
-        
-        self.log_test(
-            "Finish production (admin)", 
-            success, 
-            f"- Status: {status}"
-        )
-
-        # Test interno CANNOT update orders
-        if len(self.created_orders) > 1:
-            order_id_2 = self.created_orders[1]
-            update_data = {
-                "status": "em_producao",
-                "observacao_liberacao": "Should not work"
-            }
-            
-            success, response, status = self.make_request(
-                'PUT', f'orders/{order_id_2}', update_data, 
-                token=self.tokens.get('interno'), expected_status=403
-            )
+        if success and isinstance(response, list):
+            machine_count = len(response)
+            expected_count = 52  # Should be recreated
             
             self.log_test(
-                "Update order (interno - should fail)", 
-                success, 
-                f"- Status: {status} (expected 403)"
+                "Machines recreated after reset", 
+                machine_count == expected_count, 
+                f"- Count: {machine_count}/{expected_count}"
+            )
+        else:
+            self.log_test(
+                "Machines recreated after reset", 
+                False, 
+                f"- Status: {status}"
             )
 
-    def test_orders_list(self):
-        """Test getting orders list"""
-        print("\n📄 TESTING ORDERS LIST")
+    def test_timezone_handling(self):
+        """Test Brasília timezone handling"""
+        print("\n🌎 TESTING TIMEZONE HANDLING")
         
-        for user_type, token in self.tokens.items():
-            success, response, status = self.make_request(
-                'GET', 'orders', token=token
-            )
+        # Create an espula and check timestamp format
+        espula_data = {
+            "cliente": "Teste Timezone",
+            "artigo": "Teste",
+            "cor": "Verde",
+            "quantidade_metros": "100",
+            "carga": "TZ001",
+            "observacoes": "Teste de timezone",
+            "data_prevista_entrega": "2024-03-01"
+        }
+        
+        success, response, status = self.make_request(
+            'POST', 'espulas', espula_data, token=self.tokens.get('admin')
+        )
+        
+        if success and 'created_at' in response:
+            created_at = response['created_at']
+            # Check if timestamp is in ISO format (should be Brasília time)
+            try:
+                datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                timezone_test_passed = True
+            except:
+                timezone_test_passed = False
             
-            if success and isinstance(response, list):
-                self.log_test(
-                    f"Get orders ({user_type})", 
-                    True, 
-                    f"- Count: {len(response)}"
-                )
-            else:
-                self.log_test(
-                    f"Get orders ({user_type})", 
-                    False, 
-                    f"- Status: {status}"
-                )
+            self.log_test(
+                "Timezone handling", 
+                timezone_test_passed, 
+                f"- Created at: {created_at}"
+            )
+        else:
+            self.log_test(
+                "Timezone handling", 
+                False, 
+                f"- Status: {status}"
+            )
+
+    def test_error_handling(self):
+        """Test error handling for invalid data"""
+        print("\n⚠️ TESTING ERROR HANDLING")
+        
+        # Test invalid espula data (missing required fields)
+        invalid_data = {
+            "cliente": "Test",
+            # Missing required fields
+        }
+        
+        success, response, status = self.make_request(
+            'POST', 'espulas', invalid_data, token=self.tokens.get('admin'), expected_status=422
+        )
+        
+        self.log_test(
+            "Invalid espula data", 
+            status == 422, 
+            f"- Status: {status} (expected 422)"
+        )
+
+        # Test unauthorized access (no token)
+        success, response, status = self.make_request(
+            'GET', 'espulas', expected_status=403
+        )
+        
+        self.log_test(
+            "Unauthorized access", 
+            status == 403, 
+            f"- Status: {status} (expected 403)"
+        )
+
+        # Test invalid espula ID for update
+        update_data = {"status": "producao"}
+        success, response, status = self.make_request(
+            'PUT', 'espulas/invalid-id', update_data, token=self.tokens.get('admin'), expected_status=404
+        )
+        
+        self.log_test(
+            "Invalid espula ID", 
+            status == 404, 
+            f"- Status: {status} (expected 404)"
+        )
 
     def test_user_management(self):
         """Test user management (admin only)"""

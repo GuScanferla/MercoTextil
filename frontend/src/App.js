@@ -572,10 +572,10 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
   // 32 Fusos Layout - EXACT replication based on the new user provided image
   const renderLayout32 = () => {
     const renderMachineBox = (machine, key) => {
-      if (!machine) return null;
+      const uniqueKey = machine?.id ? `32-${machine.id}` : `32-empty-${key}`;
       
       return (
-        <div key={`${key}-${machine?.id || 'empty'}`} className={`machine-box-32 ${getStatusColor(machine?.status || 'verde')}`}>
+        <div key={uniqueKey} className={`machine-box-32 ${getStatusColor(machine?.status || 'verde')}`}>
           <span onClick={() => machine && handleMachineClick(machine)} className="machine-code">
             {machine?.code || key}
           </span>

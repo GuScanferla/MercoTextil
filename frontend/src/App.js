@@ -146,12 +146,6 @@ const LoginPage = ({ onLogin }) => {
               {isLoading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
-          <div className="mt-6 p-4 bg-black bg-opacity-50 rounded-lg text-sm border border-gray-700">
-            <p className="font-semibold mb-2 text-gray-300">Usuários padrão:</p>
-            <p className="text-gray-400"><strong className="text-red-400">Admin:</strong> admin / admin123</p>
-            <p className="text-gray-400"><strong className="text-blue-400">Interno:</strong> interno / interno123</p>
-            <p className="text-gray-400"><strong className="text-orange-400">Externo:</strong> externo / externo123</p>
-          </div>
         </CardContent>
       </Card>
     </div>

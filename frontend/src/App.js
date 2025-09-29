@@ -446,13 +446,13 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     }
   };
 
-  // 16 Fusos Layout - EXACT replication based on the provided image
+  // 16 Fusos Layout - EXACT replication based on the user provided image
   const renderLayout16 = () => {
     const renderMachineBox = (machine, key) => {
       if (!machine) return null;
       
       return (
-        <div key={key} className={`machine-box-large ${getStatusColor(machine.status)}`}>
+        <div key={key} className={`machine-box-16 ${getStatusColor(machine.status)}`}>
           <span onClick={() => handleMachineClick(machine)} className="machine-code">
             {machine.code}
           </span>
@@ -463,29 +463,38 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
       );
     };
 
+    // Organize machines by code for easy access
+    const machinesByCode = {};
+    machines.forEach(machine => {
+      machinesByCode[machine.code] = machine;
+    });
+
     return (
-      <div className="layout-16-photo-exact">
+      <div className="layout-16-exact">
         {/* Top section */}
         <div className="layout-16-top">
           {/* CD1-CD4 block (2x2) */}
           <div className="cd-block-2x2">
-            {machines.filter(m => ["CD1", "CD2", "CD3", "CD4"].includes(m.code)).map(machine => 
-              renderMachineBox(machine, `cd-${machine.code}`)
-            )}
+            {renderMachineBox(machinesByCode["CD1"], "cd1")}
+            {renderMachineBox(machinesByCode["CD2"], "cd2")}
+            {renderMachineBox(machinesByCode["CD3"], "cd3")}
+            {renderMachineBox(machinesByCode["CD4"], "cd4")}
           </div>
           
           {/* CD5-CD8 block (2x2) */}
           <div className="cd-block-2x2">
-            {machines.filter(m => ["CD5", "CD6", "CD7", "CD8"].includes(m.code)).map(machine => 
-              renderMachineBox(machine, `cd-${machine.code}`)
-            )}
+            {renderMachineBox(machinesByCode["CD5"], "cd5")}
+            {renderMachineBox(machinesByCode["CD6"], "cd6")}
+            {renderMachineBox(machinesByCode["CD7"], "cd7")}
+            {renderMachineBox(machinesByCode["CD8"], "cd8")}
           </div>
           
-          {/* CD17-CD20 block (1x4) */}
+          {/* CD17-CD20 block (1x4 vertical) */}
           <div className="cd-block-1x4">
-            {machines.filter(m => ["CD17", "CD18", "CD19", "CD20"].includes(m.code)).map(machine => 
-              renderMachineBox(machine, `cd-${machine.code}`)
-            )}
+            {renderMachineBox(machinesByCode["CD17"], "cd17")}
+            {renderMachineBox(machinesByCode["CD18"], "cd18")}
+            {renderMachineBox(machinesByCode["CD19"], "cd19")}
+            {renderMachineBox(machinesByCode["CD20"], "cd20")}
           </div>
         </div>
 
@@ -493,46 +502,50 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
         <div className="layout-16-middle">
           {/* CD9-CD12 block (2x2) */}
           <div className="cd-block-2x2">
-            {machines.filter(m => ["CD9", "CD10", "CD11", "CD12"].includes(m.code)).map(machine => 
-              renderMachineBox(machine, `cd-${machine.code}`)
-            )}
+            {renderMachineBox(machinesByCode["CD9"], "cd9")}
+            {renderMachineBox(machinesByCode["CD10"], "cd10")}
+            {renderMachineBox(machinesByCode["CD11"], "cd11")}
+            {renderMachineBox(machinesByCode["CD12"], "cd12")}
           </div>
           
           {/* CD13-CD16 block (2x2) */}
           <div className="cd-block-2x2">
-            {machines.filter(m => ["CD13", "CD14", "CD15", "CD16"].includes(m.code)).map(machine => 
-              renderMachineBox(machine, `cd-${machine.code}`)
-            )}
+            {renderMachineBox(machinesByCode["CD13"], "cd13")}
+            {renderMachineBox(machinesByCode["CD14"], "cd14")}
+            {renderMachineBox(machinesByCode["CD15"], "cd15")}
+            {renderMachineBox(machinesByCode["CD16"], "cd16")}
           </div>
           
-          {/* CD21-CD24 block (1x4) */}
+          {/* CD21-CD24 block (1x4 vertical) */}
           <div className="cd-block-1x4">
-            {machines.filter(m => ["CD21", "CD22", "CD23", "CD24"].includes(m.code)).map(machine => 
-              renderMachineBox(machine, `cd-${machine.code}`)
-            )}
+            {renderMachineBox(machinesByCode["CD21"], "cd21")}
+            {renderMachineBox(machinesByCode["CD22"], "cd22")}
+            {renderMachineBox(machinesByCode["CD23"], "cd23")}
+            {renderMachineBox(machinesByCode["CD24"], "cd24")}
           </div>
         </div>
 
-        {/* CI section */}
+        {/* CI section - labeled as "17 FUSOS" */}
         <div className="layout-16-ci">
           <div className="ci-label">17 FUSOS</div>
           <div className="ci-block-1x4">
-            {machines.filter(m => ["CI1", "CI2", "CI3", "CI4"].includes(m.code)).map(machine => 
-              renderMachineBox(machine, `ci-${machine.code}`)
-            )}
+            {renderMachineBox(machinesByCode["CI1"], "ci1")}
+            {renderMachineBox(machinesByCode["CI2"], "ci2")}
+            {renderMachineBox(machinesByCode["CI3"], "ci3")}
+            {renderMachineBox(machinesByCode["CI4"], "ci4")}
           </div>
         </div>
 
-        {/* F section - Bottom row */}
+        {/* F section - Bottom row (F23 to F1 top, F24 to F2 bottom) */}
         <div className="layout-16-f-section">
           <div className="f-row-top">
-            {machines.filter(m => m.code && m.code.startsWith("F") && parseInt(m.code.slice(1)) % 2 === 1).sort((a, b) => parseInt(b.code.slice(1)) - parseInt(a.code.slice(1))).map(machine => 
-              renderMachineBox(machine, `f-${machine.code}`)
+            {["F23", "F21", "F19", "F17", "F15", "F13", "F11", "F9", "F7", "F5", "F3", "F1"].map(code => 
+              renderMachineBox(machinesByCode[code], code.toLowerCase())
             )}
           </div>
           <div className="f-row-bottom">
-            {machines.filter(m => m.code && m.code.startsWith("F") && parseInt(m.code.slice(1)) % 2 === 0).sort((a, b) => parseInt(b.code.slice(1)) - parseInt(a.code.slice(1))).map(machine => 
-              renderMachineBox(machine, `f-${machine.code}`)
+            {["F24", "F22", "F20", "F18", "F16", "F14", "F12", "F10", "F8", "F6", "F4", "F2"].map(code => 
+              renderMachineBox(machinesByCode[code], code.toLowerCase())
             )}
           </div>
         </div>

@@ -163,7 +163,8 @@ class EspulaCreate(BaseModel):
     cliente: str
     artigo: str
     cor: str
-    quantidade: str
+    quantidade_metros: str  # Changed from quantidade to quantidade_metros
+    carga: str  # New field for carga (letters and numbers allowed)
     observacoes: str = ""
     data_prevista_entrega: str  # Will be converted to datetime
 

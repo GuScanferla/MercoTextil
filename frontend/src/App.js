@@ -1126,9 +1126,17 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      timeZone: 'America/Sao_Paulo'
-    });
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
   };
 
   const formatDateTime = (dateString) => {

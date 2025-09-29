@@ -254,47 +254,53 @@ async def init_data():
         externo_dict["password"] = hash_password("externo123")
         await db.users.insert_one(externo_dict)
 
-    # Initialize machines for 16 fusos layout - EXACT as per photo
+    # Initialize machines for 16 fusos layout - EXACT as per user image
     layout_16_machines = [
-        # CD blocks - 2x2 arrangements
-        {"code": "CD1", "position": "top-left-1"},
-        {"code": "CD2", "position": "top-left-2"},
-        {"code": "CD3", "position": "top-left-3"},
-        {"code": "CD4", "position": "top-left-4"},
-        {"code": "CD5", "position": "top-right-1"},
-        {"code": "CD6", "position": "top-right-2"},
-        {"code": "CD7", "position": "top-right-3"},
-        {"code": "CD8", "position": "top-right-4"},
-        {"code": "CD9", "position": "middle-left-1"},
-        {"code": "CD10", "position": "middle-left-2"},
-        {"code": "CD11", "position": "middle-left-3"},
-        {"code": "CD12", "position": "middle-left-4"},
-        {"code": "CD13", "position": "middle-right-1"},
-        {"code": "CD14", "position": "middle-right-2"},
-        {"code": "CD15", "position": "middle-right-3"},
-        {"code": "CD16", "position": "middle-right-4"},
-        # CD vertical blocks
-        {"code": "CD17", "position": "right-vertical-1"},
-        {"code": "CD18", "position": "right-vertical-2"},
-        {"code": "CD19", "position": "right-vertical-3"},
-        {"code": "CD20", "position": "right-vertical-4"},
-        {"code": "CD21", "position": "right-vertical-5"},
-        {"code": "CD22", "position": "right-vertical-6"},
-        {"code": "CD23", "position": "right-vertical-7"},
-        {"code": "CD24", "position": "right-vertical-8"},
-        # CI blocks
+        # Top row blocks CD1-CD4, CD5-CD8 (2x2 each), CD17-CD20 (1x4)
+        {"code": "CD1", "position": "block1-1"},
+        {"code": "CD2", "position": "block1-2"},
+        {"code": "CD3", "position": "block1-3"},
+        {"code": "CD4", "position": "block1-4"},
+        {"code": "CD5", "position": "block2-1"},
+        {"code": "CD6", "position": "block2-2"},
+        {"code": "CD7", "position": "block2-3"},
+        {"code": "CD8", "position": "block2-4"},
+        {"code": "CD17", "position": "block3-1"},
+        {"code": "CD18", "position": "block3-2"},
+        {"code": "CD19", "position": "block3-3"},
+        {"code": "CD20", "position": "block3-4"},
+        # Middle blocks CD9-CD12, CD13-CD16 (2x2 each), CD21-CD24 (1x4)
+        {"code": "CD9", "position": "block4-1"},
+        {"code": "CD10", "position": "block4-2"},
+        {"code": "CD11", "position": "block4-3"},
+        {"code": "CD12", "position": "block4-4"},
+        {"code": "CD13", "position": "block5-1"},
+        {"code": "CD14", "position": "block5-2"},
+        {"code": "CD15", "position": "block5-3"},
+        {"code": "CD16", "position": "block5-4"},
+        {"code": "CD21", "position": "block6-1"},
+        {"code": "CD22", "position": "block6-2"},
+        {"code": "CD23", "position": "block6-3"},
+        {"code": "CD24", "position": "block6-4"},
+        # CI block (1x4) - labeled as "17 FUSOS" in image
         {"code": "CI1", "position": "ci-1"},
         {"code": "CI2", "position": "ci-2"},
         {"code": "CI3", "position": "ci-3"},
         {"code": "CI4", "position": "ci-4"},
+        # F blocks (bottom section) F1-F24
+        {"code": "F1", "position": "f-1"}, {"code": "F2", "position": "f-2"},
+        {"code": "F3", "position": "f-3"}, {"code": "F4", "position": "f-4"},
+        {"code": "F5", "position": "f-5"}, {"code": "F6", "position": "f-6"},
+        {"code": "F7", "position": "f-7"}, {"code": "F8", "position": "f-8"},
+        {"code": "F9", "position": "f-9"}, {"code": "F10", "position": "f-10"},
+        {"code": "F11", "position": "f-11"}, {"code": "F12", "position": "f-12"},
+        {"code": "F13", "position": "f-13"}, {"code": "F14", "position": "f-14"},
+        {"code": "F15", "position": "f-15"}, {"code": "F16", "position": "f-16"},
+        {"code": "F17", "position": "f-17"}, {"code": "F18", "position": "f-18"},
+        {"code": "F19", "position": "f-19"}, {"code": "F20", "position": "f-20"},
+        {"code": "F21", "position": "f-21"}, {"code": "F22", "position": "f-22"},
+        {"code": "F23", "position": "f-23"}, {"code": "F24", "position": "f-24"}
     ]
-    
-    # F blocks for bottom row
-    for i in range(1, 25):
-        layout_16_machines.append({
-            "code": f"F{i}",
-            "position": f"f-{i}"
-        })
 
     # Create 16 fusos machines
     for i, machine_data in enumerate(layout_16_machines):
@@ -304,18 +310,60 @@ async def init_data():
             layout_type="16_fusos"
         )
         machine_dict = machine.dict()
-        machine_dict["id"] = f"16_fusos_{i+1}_{str(uuid.uuid4())[:8]}"
+        machine_dict["id"] = f"16_fusos_{machine_data['code']}_{str(uuid.uuid4())[:8]}"
         await db.machines.insert_one(machine_dict)
 
-    # Initialize machines for 32 fusos layout with unique IDs
-    for i in range(1, 34):
+    # Initialize machines for 32 fusos layout - EXACT as per user image
+    layout_32_machines = [
+        # Top row CT1-CT24
+        {"code": "CT1", "position": "ct-1"}, {"code": "CT2", "position": "ct-2"},
+        {"code": "CT3", "position": "ct-3"}, {"code": "CT4", "position": "ct-4"},
+        {"code": "CT5", "position": "ct-5"}, {"code": "CT6", "position": "ct-6"},
+        {"code": "CT7", "position": "ct-7"}, {"code": "CT8", "position": "ct-8"},
+        {"code": "CT9", "position": "ct-9"}, {"code": "CT10", "position": "ct-10"},
+        {"code": "CT11", "position": "ct-11"}, {"code": "CT12", "position": "ct-12"},
+        {"code": "CT13", "position": "ct-13"}, {"code": "CT14", "position": "ct-14"},
+        {"code": "CT15", "position": "ct-15"}, {"code": "CT16", "position": "ct-16"},
+        {"code": "CT17", "position": "ct-17"}, {"code": "CT18", "position": "ct-18"},
+        {"code": "CT19", "position": "ct-19"}, {"code": "CT20", "position": "ct-20"},
+        {"code": "CT21", "position": "ct-21"}, {"code": "CT22", "position": "ct-22"},
+        {"code": "CT23", "position": "ct-23"}, {"code": "CT24", "position": "ct-24"},
+        # U groups (3 columns of 10 machines each)
+        {"code": "U1", "position": "u1-1"}, {"code": "U2", "position": "u1-2"},
+        {"code": "U3", "position": "u1-3"}, {"code": "U4", "position": "u1-4"},
+        {"code": "U5", "position": "u1-5"}, {"code": "U6", "position": "u1-6"},
+        {"code": "U7", "position": "u1-7"}, {"code": "U8", "position": "u1-8"},
+        {"code": "U9", "position": "u1-9"}, {"code": "U10", "position": "u1-10"},
+        {"code": "U11", "position": "u2-1"}, {"code": "U12", "position": "u2-2"},
+        {"code": "U13", "position": "u2-3"}, {"code": "U14", "position": "u2-4"},
+        {"code": "U15", "position": "u2-5"}, {"code": "U16", "position": "u2-6"},
+        {"code": "U17", "position": "u2-7"}, {"code": "U18", "position": "u2-8"},
+        {"code": "U19", "position": "u2-9"}, {"code": "U20", "position": "u2-10"},
+        {"code": "U21", "position": "u3-1"}, {"code": "U22", "position": "u3-2"},
+        {"code": "U23", "position": "u3-3"}, {"code": "U24", "position": "u3-4"},
+        {"code": "U25", "position": "u3-5"}, {"code": "U26", "position": "u3-6"},
+        {"code": "U27", "position": "u3-7"}, {"code": "U28", "position": "u3-8"},
+        {"code": "U29", "position": "u3-9"}, {"code": "U30", "position": "u3-10"},
+        # N row (N1-N10)
+        {"code": "N1", "position": "n-1"}, {"code": "N2", "position": "n-2"},
+        {"code": "N3", "position": "n-3"}, {"code": "N4", "position": "n-4"},
+        {"code": "N5", "position": "n-5"}, {"code": "N6", "position": "n-6"},
+        {"code": "N7", "position": "n-7"}, {"code": "N8", "position": "n-8"},
+        {"code": "N9", "position": "n-9"}, {"code": "N10", "position": "n-10"},
+        # Additional U machines from image (U31-U33)
+        {"code": "U31", "position": "u4-1"}, {"code": "U32", "position": "u4-2"},
+        {"code": "U33", "position": "u4-3"}
+    ]
+
+    # Create 32 fusos machines
+    for i, machine_data in enumerate(layout_32_machines):
         machine = Machine(
-            code=str(i),
-            position=f"pos-{i}",
+            code=machine_data["code"],
+            position=machine_data["position"],
             layout_type="32_fusos"
         )
         machine_dict = machine.dict()
-        machine_dict["id"] = f"32_fusos_{i}_{str(uuid.uuid4())[:8]}"
+        machine_dict["id"] = f"32_fusos_{machine_data['code']}_{str(uuid.uuid4())[:8]}"
         await db.machines.insert_one(machine_dict)
 
 @api_router.post("/reset-database")

@@ -970,11 +970,13 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
 
 const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   const [showForm, setShowForm] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [espulaData, setEspulaData] = useState({
     cliente: "",
     artigo: "",
     cor: "",
-    quantidade: "",
+    quantidade_metros: "", // Changed from quantidade to quantidade_metros
+    carga: "", // New field
     observacoes: "",
     data_prevista_entrega: ""
   });
@@ -990,7 +992,8 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         cliente: "",
         artigo: "",
         cor: "",
-        quantidade: "",
+        quantidade_metros: "",
+        carga: "",
         observacoes: "",
         data_prevista_entrega: ""
       });
@@ -1013,6 +1016,44 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       onEspulaUpdate();
     } catch (error) {
       toast.error("Erro ao atualizar status");
+    }
+  };
+
+  const exportEspulasReport = async () => {
+    try {
+      const finalizedEspulas = espulas.filter(e => e.status === "finalizado");
+      
+      if (finalizedEspulas.length === 0) {
+        toast.warning("Nenhuma espula finalizada para exportar");
+        return;
+      }
+      
+      const wb = XLSX.utils.book_new();
+      
+      const espulasData = finalizedEspulas.map(espula => ({
+        'OS': espula.id.slice(-8),
+        'Cliente': espula.cliente,
+        'Artigo': espula.artigo,
+        'Cor': espula.cor,
+        'Quantidade (m)': espula.quantidade_metros,
+        'Carga': espula.carga,
+        'Observações': espula.observacoes || '-',
+        'Data Lançamento': formatDateTime(espula.created_at),
+        'Data Prevista': formatDate(espula.data_prevista_entrega),
+        'Iniciado em': formatDateTime(espula.iniciado_em),
+        'Finalizado em': formatDateTime(espula.finalizado_em),
+        'Status': 'FINALIZADO',
+        'Criado por': espula.created_by
+      }));
+      
+      const ws = XLSX.utils.json_to_sheet(espulasData);
+      XLSX.utils.book_append_sheet(wb, ws, "Espulas Finalizadas");
+      
+      XLSX.writeFile(wb, `espulas_finalizadas_${new Date().toISOString().split('T')[0]}.xlsx`);
+      toast.success("Relatório exportado com sucesso!");
+      
+    } catch (error) {
+      toast.error("Erro ao exportar relatório");
     }
   };
 
@@ -1043,6 +1084,18 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     });
   };
 
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   // Sort espulas by priority (delivery date)
   const sortedEspulas = [...espulas].sort((a, b) => {
     if (a.status === "em_producao_aguardando" || a.status === "producao") {
@@ -1057,13 +1110,26 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     return new Date(a.data_prevista_entrega) - new Date(b.data_prevista_entrega);
   });
 
+  // Separate active and finalized espulas
+  const activeEspulas = sortedEspulas.filter(e => e.status !== "finalizado");
+  const finalizedEspulas = sortedEspulas.filter(e => e.status === "finalizado");
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold text-white">Gerenciamento de Espulas</h2>
-        <Button onClick={() => setShowForm(!showForm)} className="btn-merco-large">
-          {showForm ? "Cancelar" : "+ LANÇAR"}
-        </Button>
+        <div className="flex space-x-3">
+          <Button onClick={() => setShowHistory(!showHistory)} className="bg-blue-600 hover:bg-blue-700 text-white">
+            {showHistory ? "Ocultar Histórico" : "Ver Histórico"}
+          </Button>
+          <Button onClick={exportEspulasReport} className="bg-green-600 hover:bg-green-700 text-white">
+            <Download className="h-4 w-4 mr-2" />
+            Exportar Relatório
+          </Button>
+          <Button onClick={() => setShowForm(!showForm)} className="btn-merco-large">
+            {showForm ? "Cancelar" : "+ LANÇAR"}
+          </Button>
+        </div>
       </div>
 
       {showForm && (
@@ -1104,12 +1170,22 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="quantidade">Quantidade (em espulas) *</Label>
+                <Label htmlFor="quantidade_metros">Quantidade em Metros *</Label>
                 <Input
-                  id="quantidade"
-                  value={espulaData.quantidade}
-                  onChange={(e) => setEspulaData({...espulaData, quantidade: e.target.value})}
-                  placeholder="Ex: 100, 50 caixas, etc"
+                  id="quantidade_metros"
+                  value={espulaData.quantidade_metros}
+                  onChange={(e) => setEspulaData({...espulaData, quantidade_metros: e.target.value})}
+                  placeholder="Ex: 1000, 500m, etc"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="carga">Carga *</Label>
+                <Input
+                  id="carga"
+                  value={espulaData.carga}
+                  onChange={(e) => setEspulaData({...espulaData, carga: e.target.value})}
+                  placeholder="Ex: A1, B2, C123, etc"
                   required
                 />
               </div>
@@ -1136,7 +1212,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
             <Button 
               onClick={createEspula} 
               className="w-full btn-merco-large"
-              disabled={!espulaData.cliente || !espulaData.artigo || !espulaData.cor || !espulaData.quantidade || !espulaData.data_prevista_entrega}
+              disabled={!espulaData.cliente || !espulaData.artigo || !espulaData.cor || !espulaData.quantidade_metros || !espulaData.carga || !espulaData.data_prevista_entrega}
             >
               + LANÇAR ESPULA
             </Button>
@@ -1144,88 +1220,202 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         </Card>
       )}
 
-      {/* Espulas Cards */}
-      <div className="grid gap-6">
-        {sortedEspulas.map((espula) => (
-          <Card key={espula.id} className="card-merco-large">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="font-bold text-white text-xl">
-                    OS #{espula.id.slice(-8)} - {espula.cliente}
-                  </h3>
-                  <p className="text-gray-400 text-lg">Artigo: <span className="text-white">{espula.artigo}</span></p>
+      {/* Active Espulas */}
+      {!showHistory && (
+        <div className="grid gap-6">
+          <h3 className="text-2xl font-bold text-white">Espulas Ativas</h3>
+          {activeEspulas.map((espula) => (
+            <Card key={espula.id} className="card-merco-large">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-bold text-white text-xl">
+                      OS #{espula.id.slice(-8)} - {espula.cliente}
+                    </h3>
+                    <p className="text-gray-400 text-lg">Artigo: <span className="text-white">{espula.artigo}</span></p>
+                  </div>
+                  <Badge className={`${getStatusBadge(espula.status)} font-semibold text-sm`}>
+                    {getStatusText(espula.status)}
+                  </Badge>
                 </div>
-                <Badge className={`${getStatusBadge(espula.status)} font-semibold text-sm`}>
-                  {getStatusText(espula.status)}
-                </Badge>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base mb-4">
-                <div>
-                  <span className="font-medium text-gray-400">Cor:</span>
-                  <p className="text-white">{espula.cor}</p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base mb-4">
+                  <div>
+                    <span className="font-medium text-gray-400">Cor:</span>
+                    <p className="text-white">{espula.cor}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-400">Quantidade (m):</span>
+                    <p className="text-white">{espula.quantidade_metros}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-400">Carga:</span>
+                    <p className="text-white">{espula.carga}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-400">Entrega Prevista:</span>
+                    <p className="text-white">{formatDate(espula.data_prevista_entrega)}</p>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-medium text-gray-400">Quantidade:</span>
-                  <p className="text-white">{espula.quantidade}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-400">Data Lançamento:</span>
-                  <p className="text-white">{formatDate(espula.data_lancamento)}</p>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-400">Entrega Prevista:</span>
-                  <p className="text-white">{formatDate(espula.data_prevista_entrega)}</p>
-                </div>
-              </div>
 
-              {espula.observacoes && (
-                <p className="text-base text-gray-400 mb-4 p-3 bg-gray-800/50 rounded">
-                  <span className="font-medium">Observações:</span> {espula.observacoes}
-                </p>
-              )}
-
-              {espula.status !== "finalizado" && (
-                <div className="flex space-x-3">
-                  {espula.status === "pendente" && (
-                    <Button
-                      className="bg-red-600 hover:bg-red-700 text-white"
-                      onClick={() => updateEspulaStatus(espula.id, "em_producao_aguardando")}
-                    >
-                      Colocar em Produção
-                    </Button>
+                {/* Time history */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base mb-4 p-4 bg-gray-900/50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <Clock className="h-5 w-5 text-blue-400" />
+                    <div>
+                      <span className="font-medium text-gray-400">Lançado:</span>
+                      <p className="text-white">{formatDateTime(espula.created_at)}</p>
+                    </div>
+                  </div>
+                  {espula.iniciado_em && (
+                    <div className="flex items-center space-x-3">
+                      <Clock className="h-5 w-5 text-yellow-400" />
+                      <div>
+                        <span className="font-medium text-gray-400">Iniciado:</span>
+                        <p className="text-white">{formatDateTime(espula.iniciado_em)}</p>
+                      </div>
+                    </div>
                   )}
-                  {espula.status === "em_producao_aguardando" && (
-                    <Button
-                      className="bg-red-700 hover:bg-red-800 text-white"
-                      onClick={() => updateEspulaStatus(espula.id, "producao")}
-                    >
-                      Iniciar Produção
-                    </Button>
-                  )}
-                  {espula.status === "producao" && (
-                    <Button
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => updateEspulaStatus(espula.id, "finalizado")}
-                    >
-                      Finalizar
-                    </Button>
+                  {espula.finalizado_em && (
+                    <div className="flex items-center space-x-3">
+                      <Clock className="h-5 w-5 text-green-400" />
+                      <div>
+                        <span className="font-medium text-gray-400">Finalizado:</span>
+                        <p className="text-white">{formatDateTime(espula.finalizado_em)}</p>
+                      </div>
+                    </div>
                   )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-        
-        {sortedEspulas.length === 0 && (
-          <Card className="card-merco-large">
-            <CardContent className="p-6 text-center">
-              <p className="text-gray-400 text-lg">Nenhuma espula encontrada. Clique em "+ LANÇAR" para criar a primeira.</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+
+                {espula.observacoes && (
+                  <p className="text-base text-gray-400 mb-4 p-3 bg-gray-800/50 rounded">
+                    <span className="font-medium">Observações:</span> {espula.observacoes}
+                  </p>
+                )}
+
+                {espula.status !== "finalizado" && (
+                  <div className="flex space-x-3">
+                    {espula.status === "pendente" && (
+                      <Button
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                        onClick={() => updateEspulaStatus(espula.id, "em_producao_aguardando")}
+                      >
+                        Colocar em Produção
+                      </Button>
+                    )}
+                    {espula.status === "em_producao_aguardando" && (
+                      <Button
+                        className="bg-red-700 hover:bg-red-800 text-white"
+                        onClick={() => updateEspulaStatus(espula.id, "producao")}
+                      >
+                        Iniciar Produção
+                      </Button>
+                    )}
+                    {espula.status === "producao" && (
+                      <Button
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={() => updateEspulaStatus(espula.id, "finalizado")}
+                      >
+                        Finalizar
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+          
+          {activeEspulas.length === 0 && (
+            <Card className="card-merco-large">
+              <CardContent className="p-6 text-center">
+                <p className="text-gray-400 text-lg">Nenhuma espula ativa. Clique em "+ LANÇAR" para criar a primeira.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* History */}
+      {showHistory && (
+        <div className="grid gap-6">
+          <h3 className="text-2xl font-bold text-white">Histórico - Espulas Finalizadas</h3>
+          {finalizedEspulas.map((espula) => (
+            <Card key={espula.id} className="card-merco-large opacity-75">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-bold text-white text-xl">
+                      OS #{espula.id.slice(-8)} - {espula.cliente}
+                    </h3>
+                    <p className="text-gray-400 text-lg">Artigo: <span className="text-white">{espula.artigo}</span></p>
+                  </div>
+                  <Badge className="bg-green-600 text-green-100 font-semibold text-sm">
+                    FINALIZADO
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base mb-4">
+                  <div>
+                    <span className="font-medium text-gray-400">Cor:</span>
+                    <p className="text-white">{espula.cor}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-400">Quantidade (m):</span>
+                    <p className="text-white">{espula.quantidade_metros}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-400">Carga:</span>
+                    <p className="text-white">{espula.carga}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-400">Criado por:</span>
+                    <p className="text-white">{espula.created_by}</p>
+                  </div>
+                </div>
+
+                {/* Complete time history */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base mb-4 p-4 bg-gray-900/50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <Clock className="h-5 w-5 text-blue-400" />
+                    <div>
+                      <span className="font-medium text-gray-400">Lançado:</span>
+                      <p className="text-white">{formatDateTime(espula.created_at)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Clock className="h-5 w-5 text-yellow-400" />
+                    <div>
+                      <span className="font-medium text-gray-400">Iniciado:</span>
+                      <p className="text-white">{formatDateTime(espula.iniciado_em)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Clock className="h-5 w-5 text-green-400" />
+                    <div>
+                      <span className="font-medium text-gray-400">Finalizado:</span>
+                      <p className="text-white">{formatDateTime(espula.finalizado_em)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {espula.observacoes && (
+                  <p className="text-base text-gray-400 p-3 bg-gray-800/50 rounded">
+                    <span className="font-medium">Observações:</span> {espula.observacoes}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+          
+          {finalizedEspulas.length === 0 && (
+            <Card className="card-merco-large">
+              <CardContent className="p-6 text-center">
+                <p className="text-gray-400 text-lg">Nenhuma espula finalizada no histórico.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -405,52 +405,54 @@ body {
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
 }
 
-/* 16 Fusos Layout - EXACT replication based on user image */
-.layout-16-exact {
+/* 16 Fusos Layout - Centered and Responsive */
+.layout-16-exact-centered {
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  max-width: 1400px;
+  gap: 30px;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 20px;
 }
 
-.layout-16-top,
-.layout-16-middle {
+.layout-16-top-section,
+.layout-16-middle-section {
   display: flex;
   align-items: flex-start;
-  gap: 60px;
-  justify-content: flex-start;
+  gap: 40px;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
 .cd-block-2x2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   padding: 16px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  min-width: 200px;
 }
 
-.cd-block-1x4 {
+.cd-row {
+  display: flex;
+  gap: 8px;
+}
+
+.cd-block-horizontal {
   display: flex;
   gap: 8px;
   padding: 16px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  min-width: 400px;
 }
 
-.layout-16-ci {
+.layout-16-ci-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  margin: 20px 0;
 }
 
 .ci-label {
@@ -464,7 +466,7 @@ body {
   border: 2px solid var(--merco-red);
 }
 
-.ci-block-1x4 {
+.ci-block-horizontal {
   display: flex;
   gap: 8px;
   padding: 16px;
@@ -475,20 +477,23 @@ body {
 
 .layout-16-f-section {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 20px;
+  justify-content: center;
 }
 
-.f-row-top,
-.f-row-bottom {
+.f-row-container {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  justify-content: center;
-  padding: 12px;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.f-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
@@ -515,83 +520,39 @@ body {
   border-color: var(--merco-red);
 }
 
-/* Responsive design for 16 fusos */
-@media (max-width: 1200px) {
-  .layout-16-top,
-  .layout-16-middle {
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
-  }
-  
-  .cd-block-1x4 {
-    min-width: 300px;
-  }
-  
-  .f-row-top,
-  .f-row-bottom {
-    justify-content: flex-start;
-  }
-}
-
-@media (max-width: 768px) {
-  .machine-box-16 {
-    width: 60px;
-    height: 60px;
-    font-size: 12px;
-  }
-  
-  .cd-block-2x2 {
-    min-width: 150px;
-  }
-  
-  .cd-block-1x4 {
-    min-width: 250px;
-    flex-wrap: wrap;
-  }
-}
-
-/* 32 Fusos Layout - EXACT replication based on user image */
-.layout-32-exact {
+/* 32 Fusos Layout - EXACT replication based on new image */
+.layout-32-exact-new {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 30px;
   max-width: 1400px;
   margin: 0 auto;
-}
-
-.ct-row-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.ct-row-top,
-.ct-row-middle,
-.ct-row-bottom {
+/* CT Machines - Two horizontal rows */
+.ct-row-1,
+.ct-row-2 {
   display: flex;
   gap: 8px;
   justify-content: center;
-}
-
-.u-groups-container {
-  display: flex;
-  gap: 40px;
-  justify-content: center;
-  padding: 20px;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
 }
 
-.u-group {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+/* U Machines Container - Three blocks side by side */
+.u-machines-container {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.u-block {
+  display: flex;
   gap: 8px;
   padding: 16px;
   background: rgba(255, 255, 255, 0.05);
@@ -599,35 +560,61 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.n-row-container {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.u-additional {
+.u-column {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+/* N Machines - Single horizontal row */
+.n-machines-row {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
+  flex-wrap: wrap;
+}
+
+.n-machines-confirmed,
+.n-machines-dashed {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.u-extra-group {
-  display: flex;
-  gap: 8px;
+.n-machines-dashed {
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  opacity: 0.7;
 }
 
-.u-extra-single {
+/* Bottom U Machines - U31, U32, U33 */
+.u-bottom-group {
   display: flex;
+  gap: 20px;
   justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.u-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.u-single {
+  display: flex;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Machine boxes for 32 fusos layout */
@@ -652,6 +639,79 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   border-color: var(--merco-red);
+}
+
+/* Responsive design for both layouts */
+@media (max-width: 1200px) {
+  .layout-16-top-section,
+  .layout-16-middle-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .u-machines-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .ct-row-1,
+  .ct-row-2 {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .machine-box-16 {
+    width: 60px;
+    height: 60px;
+    font-size: 12px;
+  }
+  
+  .machine-box-32 {
+    width: 55px;
+    height: 55px;
+    font-size: 12px;
+  }
+  
+  .cd-block-horizontal,
+  .ci-block-horizontal {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .f-row {
+    justify-content: center;
+  }
+  
+  .n-machines-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .u-bottom-group {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-16-exact-centered,
+  .layout-32-exact-new {
+    padding: 10px;
+  }
+  
+  .machine-box-16,
+  .machine-box-32 {
+    width: 50px;
+    height: 50px;
+    font-size: 10px;
+  }
+  
+  .ci-label {
+    font-size: 18px;
+  }
 }
 
 /* Status indicators */

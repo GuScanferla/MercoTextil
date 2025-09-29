@@ -556,9 +556,12 @@ class FusosSystemTester:
             
         self.test_user_info()
         self.test_machines()
-        self.test_order_creation()
-        self.test_order_management()
-        self.test_orders_list()
+        self.test_espulas_creation()
+        self.test_espulas_status_updates()
+        self.test_espulas_list()
+        self.test_database_reset()
+        self.test_timezone_handling()
+        self.test_error_handling()
         self.test_user_management()
         self.test_reports()
         

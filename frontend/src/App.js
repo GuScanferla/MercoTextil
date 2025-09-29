@@ -813,13 +813,60 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
 
   const formatDateTime = (dateString) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleString('pt-BR', {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const formatTime = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const getCurrentBrazilTime = () => {
+    return new Date().toLocaleString('pt-BR', {
       timeZone: 'America/Sao_Paulo',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 
@@ -1086,13 +1133,60 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
 
   const formatDateTime = (dateString) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleString('pt-BR', {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const formatTime = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const getCurrentBrazilTime = () => {
+    return new Date().toLocaleString('pt-BR', {
       timeZone: 'America/Sao_Paulo',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 
@@ -1437,13 +1531,60 @@ const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUp
 
   const formatDateTime = (dateString) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleString('pt-BR', {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const formatTime = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const getCurrentBrazilTime = () => {
+    return new Date().toLocaleString('pt-BR', {
       timeZone: 'America/Sao_Paulo',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      second: '2-digit'
     });
   };
 

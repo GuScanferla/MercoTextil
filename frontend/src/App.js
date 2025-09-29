@@ -1496,47 +1496,6 @@ const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUp
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      });
-    } catch (error) {
-      return "-";
-    }
-  };
-
-  const formatTime = (dateString) => {
-    if (!dateString) return "-";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleTimeString('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (error) {
-      return "-";
-    }
-  };
-
-  const getCurrentBrazilTime = () => {
-    return new Date().toLocaleString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
-  };
-
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold text-white">Gerenciamento de Manutenção</h2>

@@ -446,19 +446,21 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     }
   };
 
-  // 16 Fusos Layout - EXACT replication based on the user provided image
+  // 16 Fusos Layout - EXACT replication with better centering and responsiveness
   const renderLayout16 = () => {
     const renderMachineBox = (machine, key) => {
       if (!machine) return null;
       
       return (
-        <div key={key} className={`machine-box-16 ${getStatusColor(machine.status)}`}>
-          <span onClick={() => handleMachineClick(machine)} className="machine-code">
-            {machine.code}
+        <div key={`${key}-${machine?.id || 'empty'}`} className={`machine-box-16 ${getStatusColor(machine?.status || 'verde')}`}>
+          <span onClick={() => machine && handleMachineClick(machine)} className="machine-code">
+            {machine?.code || key}
           </span>
-          <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
-            <Wrench className="h-4 w-4" />
-          </button>
+          {machine && (
+            <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
+              <Wrench className="h-4 w-4" />
+            </button>
+          )}
         </div>
       );
     };
@@ -466,87 +468,107 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     // Organize machines by code for easy access
     const machinesByCode = {};
     machines.forEach(machine => {
-      machinesByCode[machine.code] = machine;
+      if (machine?.code) {
+        machinesByCode[machine.code] = machine;
+      }
     });
 
     return (
-      <div className="layout-16-exact">
-        {/* Top section */}
-        <div className="layout-16-top">
+      <div className="layout-16-exact-centered">
+        {/* Top section - CD blocks horizontally arranged */}
+        <div className="layout-16-top-section">
           {/* CD1-CD4 block (2x2) */}
           <div className="cd-block-2x2">
-            {renderMachineBox(machinesByCode["CD1"], "cd1")}
-            {renderMachineBox(machinesByCode["CD2"], "cd2")}
-            {renderMachineBox(machinesByCode["CD3"], "cd3")}
-            {renderMachineBox(machinesByCode["CD4"], "cd4")}
+            <div className="cd-row">
+              {renderMachineBox(machinesByCode["CD1"], "CD1")}
+              {renderMachineBox(machinesByCode["CD2"], "CD2")}
+            </div>
+            <div className="cd-row">
+              {renderMachineBox(machinesByCode["CD3"], "CD3")}
+              {renderMachineBox(machinesByCode["CD4"], "CD4")}
+            </div>
           </div>
           
           {/* CD5-CD8 block (2x2) */}
           <div className="cd-block-2x2">
-            {renderMachineBox(machinesByCode["CD5"], "cd5")}
-            {renderMachineBox(machinesByCode["CD6"], "cd6")}
-            {renderMachineBox(machinesByCode["CD7"], "cd7")}
-            {renderMachineBox(machinesByCode["CD8"], "cd8")}
+            <div className="cd-row">
+              {renderMachineBox(machinesByCode["CD5"], "CD5")}
+              {renderMachineBox(machinesByCode["CD6"], "CD6")}
+            </div>
+            <div className="cd-row">
+              {renderMachineBox(machinesByCode["CD7"], "CD7")}
+              {renderMachineBox(machinesByCode["CD8"], "CD8")}
+            </div>
           </div>
           
-          {/* CD17-CD20 block (1x4 vertical) */}
-          <div className="cd-block-1x4">
-            {renderMachineBox(machinesByCode["CD17"], "cd17")}
-            {renderMachineBox(machinesByCode["CD18"], "cd18")}
-            {renderMachineBox(machinesByCode["CD19"], "cd19")}
-            {renderMachineBox(machinesByCode["CD20"], "cd20")}
+          {/* CD17-CD20 block (horizontal line) */}
+          <div className="cd-block-horizontal">
+            {renderMachineBox(machinesByCode["CD17"], "CD17")}
+            {renderMachineBox(machinesByCode["CD18"], "CD18")}
+            {renderMachineBox(machinesByCode["CD19"], "CD19")}
+            {renderMachineBox(machinesByCode["CD20"], "CD20")}
           </div>
         </div>
 
-        {/* Middle section */}
-        <div className="layout-16-middle">
+        {/* Middle section - CD blocks horizontally arranged */}
+        <div className="layout-16-middle-section">
           {/* CD9-CD12 block (2x2) */}
           <div className="cd-block-2x2">
-            {renderMachineBox(machinesByCode["CD9"], "cd9")}
-            {renderMachineBox(machinesByCode["CD10"], "cd10")}
-            {renderMachineBox(machinesByCode["CD11"], "cd11")}
-            {renderMachineBox(machinesByCode["CD12"], "cd12")}
+            <div className="cd-row">
+              {renderMachineBox(machinesByCode["CD9"], "CD9")}
+              {renderMachineBox(machinesByCode["CD10"], "CD10")}
+            </div>
+            <div className="cd-row">
+              {renderMachineBox(machinesByCode["CD11"], "CD11")}
+              {renderMachineBox(machinesByCode["CD12"], "CD12")}
+            </div>
           </div>
           
           {/* CD13-CD16 block (2x2) */}
           <div className="cd-block-2x2">
-            {renderMachineBox(machinesByCode["CD13"], "cd13")}
-            {renderMachineBox(machinesByCode["CD14"], "cd14")}
-            {renderMachineBox(machinesByCode["CD15"], "cd15")}
-            {renderMachineBox(machinesByCode["CD16"], "cd16")}
+            <div className="cd-row">
+              {renderMachineBox(machinesByCode["CD13"], "CD13")}
+              {renderMachineBox(machinesByCode["CD14"], "CD14")}
+            </div>
+            <div className="cd-row">
+              {renderMachineBox(machinesByCode["CD15"], "CD15")}
+              {renderMachineBox(machinesByCode["CD16"], "CD16")}
+            </div>
           </div>
           
-          {/* CD21-CD24 block (1x4 vertical) */}
-          <div className="cd-block-1x4">
-            {renderMachineBox(machinesByCode["CD21"], "cd21")}
-            {renderMachineBox(machinesByCode["CD22"], "cd22")}
-            {renderMachineBox(machinesByCode["CD23"], "cd23")}
-            {renderMachineBox(machinesByCode["CD24"], "cd24")}
+          {/* CD21-CD24 block (horizontal line) */}
+          <div className="cd-block-horizontal">
+            {renderMachineBox(machinesByCode["CD21"], "CD21")}
+            {renderMachineBox(machinesByCode["CD22"], "CD22")}
+            {renderMachineBox(machinesByCode["CD23"], "CD23")}
+            {renderMachineBox(machinesByCode["CD24"], "CD24")}
           </div>
         </div>
 
-        {/* CI section - labeled as "17 FUSOS" */}
-        <div className="layout-16-ci">
+        {/* CI section - "17 FUSOS" */}
+        <div className="layout-16-ci-section">
           <div className="ci-label">17 FUSOS</div>
-          <div className="ci-block-1x4">
-            {renderMachineBox(machinesByCode["CI1"], "ci1")}
-            {renderMachineBox(machinesByCode["CI2"], "ci2")}
-            {renderMachineBox(machinesByCode["CI3"], "ci3")}
-            {renderMachineBox(machinesByCode["CI4"], "ci4")}
+          <div className="ci-block-horizontal">
+            {renderMachineBox(machinesByCode["CI1"], "CI1")}
+            {renderMachineBox(machinesByCode["CI2"], "CI2")}
+            {renderMachineBox(machinesByCode["CI3"], "CI3")}
+            {renderMachineBox(machinesByCode["CI4"], "CI4")}
           </div>
         </div>
 
-        {/* F section - Bottom row (F23 to F1 top, F24 to F2 bottom) */}
+        {/* F section - Bottom rows */}
         <div className="layout-16-f-section">
-          <div className="f-row-top">
-            {["F23", "F21", "F19", "F17", "F15", "F13", "F11", "F9", "F7", "F5", "F3", "F1"].map(code => 
-              renderMachineBox(machinesByCode[code], code.toLowerCase())
-            )}
-          </div>
-          <div className="f-row-bottom">
-            {["F24", "F22", "F20", "F18", "F16", "F14", "F12", "F10", "F8", "F6", "F4", "F2"].map(code => 
-              renderMachineBox(machinesByCode[code], code.toLowerCase())
-            )}
+          <div className="f-row-container">
+            <div className="f-row">
+              {["F23", "F21", "F19", "F17", "F15", "F13", "F11", "F9", "F7", "F5", "F3", "F1"].map(code => 
+                renderMachineBox(machinesByCode[code], code)
+              )}
+            </div>
+            <div className="f-row">
+              {["F24", "F22", "F20", "F18", "F16", "F14", "F12", "F10", "F8", "F6", "F4", "F2"].map(code => 
+                renderMachineBox(machinesByCode[code], code)
+              )}
+            </div>
           </div>
         </div>
       </div>

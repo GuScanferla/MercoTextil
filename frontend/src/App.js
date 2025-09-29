@@ -440,32 +440,37 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     }
   };
 
-  // 16 Fusos Layout - EXACT replication with better centering and responsiveness
+  // 16 Fusos Layout - EXACT replication with stable keys
   const renderLayout16 = () => {
-    const renderMachineBox = (machine, key) => {
-      const uniqueKey = machine?.id ? `16-${machine.id}` : `16-empty-${key}`;
+    const machinesByCode = useMemo(() => {
+      const result = {};
+      machines.forEach(machine => {
+        if (machine?.code) {
+          result[machine.code] = machine;
+        }
+      });
+      return result;
+    }, [machines]);
+
+    const renderMachineBox = useCallback((machine, code) => {
+      const uniqueKey = machine?.id ? `machine-16-${machine.id}` : `empty-16-${code}`;
       
       return (
         <div key={uniqueKey} className={`machine-box-16 ${getStatusColor(machine?.status || 'verde')}`}>
           <span onClick={() => machine && handleMachineClick(machine)} className="machine-code">
-            {machine?.code || key}
+            {machine?.code || code}
           </span>
           {machine && (
-            <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
+            <button className="maintenance-btn" onClick={(e) => {
+              e.stopPropagation();
+              handleMaintenanceClick(machine);
+            }}>
               <Wrench className="h-4 w-4" />
             </button>
           )}
         </div>
       );
-    };
-
-    // Organize machines by code for easy access
-    const machinesByCode = {};
-    machines.forEach(machine => {
-      if (machine?.code) {
-        machinesByCode[machine.code] = machine;
-      }
-    });
+    }, [machines, getStatusColor, handleMachineClick, handleMaintenanceClick]);
 
     return (
       <div className="layout-16-exact-centered">

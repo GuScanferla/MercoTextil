@@ -15,7 +15,7 @@ class FusosSystemTester:
         }
         self.tests_run = 0
         self.tests_passed = 0
-        self.created_orders = []
+        self.created_espulas = []
 
     def log_test(self, name, success, details=""):
         """Log test results"""

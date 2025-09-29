@@ -679,15 +679,23 @@ body {
 
 @media (max-width: 768px) {
   .machine-box-16 {
-    width: 60px;
-    height: 60px;
-    font-size: 12px;
+    width: 70px;
+    height: 70px;
+    font-size: 14px;
+  }
+  
+  .machine-box-16 .machine-code {
+    font-size: 14px;
   }
   
   .machine-box-32 {
-    width: 55px;
-    height: 55px;
-    font-size: 12px;
+    width: 65px;
+    height: 65px;
+    font-size: 14px;
+  }
+  
+  .machine-box-32 .machine-code {
+    font-size: 14px;
   }
   
   .cd-block-horizontal,
@@ -717,16 +725,57 @@ body {
     padding: 10px;
   }
   
-  .machine-box-16,
+  .machine-box-16 {
+    width: 55px;
+    height: 55px;
+    font-size: 12px;
+  }
+  
+  .machine-box-16 .machine-code {
+    font-size: 12px;
+  }
+  
   .machine-box-32 {
     width: 50px;
     height: 50px;
-    font-size: 10px;
+    font-size: 12px;
+  }
+  
+  .machine-box-32 .machine-code {
+    font-size: 12px;
   }
   
   .ci-label {
     font-size: 18px;
   }
+}
+
+/* Maintenance button styling */
+.maintenance-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(255, 193, 7, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.machine-box-16:hover .maintenance-btn,
+.machine-box-32:hover .maintenance-btn {
+  opacity: 1;
+}
+
+.maintenance-btn:hover {
+  background: rgba(255, 193, 7, 1);
+  transform: scale(1.1);
 }
 
 /* Status indicators */

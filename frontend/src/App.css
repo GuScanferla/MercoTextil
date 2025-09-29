@@ -420,6 +420,7 @@ body {
   align-items: flex-start;
   gap: 60px;
   justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .cd-block-2x2 {
@@ -436,13 +437,12 @@ body {
 
 .cd-block-1x4 {
   display: flex;
-  flex-direction: column;
   gap: 8px;
   padding: 16px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  min-width: 100px;
+  min-width: 400px;
 }
 
 .layout-16-ci {
@@ -489,6 +489,7 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
 }
 
 /* Machine boxes for 16 fusos layout */
@@ -512,6 +513,42 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   border-color: var(--merco-red);
+}
+
+/* Responsive design for 16 fusos */
+@media (max-width: 1200px) {
+  .layout-16-top,
+  .layout-16-middle {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .cd-block-1x4 {
+    min-width: 300px;
+  }
+  
+  .f-row-top,
+  .f-row-bottom {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .machine-box-16 {
+    width: 60px;
+    height: 60px;
+    font-size: 12px;
+  }
+  
+  .cd-block-2x2 {
+    min-width: 150px;
+  }
+  
+  .cd-block-1x4 {
+    min-width: 250px;
+    flex-wrap: wrap;
+  }
 }
 
 /* 32 Fusos Layout - EXACT replication based on user image */

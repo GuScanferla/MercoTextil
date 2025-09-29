@@ -539,17 +539,14 @@ async def update_order(
 @api_router.post("/espulas", response_model=Espula)
 async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(get_current_user)):
     try:
-        # Convert string date to datetime in Brazil timezone
-        data_prevista = datetime.fromisoformat(espula_data.data_prevista_entrega)
-        data_prevista = brazil_tz.localize(data_prevista)
-        
         espula = Espula(
             cliente=espula_data.cliente,
             artigo=espula_data.artigo,
             cor=espula_data.cor,
-            quantidade=espula_data.quantidade,
+            quantidade_metros=espula_data.quantidade_metros,
+            carga=espula_data.carga,
             observacoes=espula_data.observacoes,
-            data_prevista_entrega=data_prevista,
+            data_prevista_entrega=espula_data.data_prevista_entrega,
             created_by=current_user.username
         )
         

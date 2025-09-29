@@ -443,10 +443,10 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
   // 16 Fusos Layout - EXACT replication with better centering and responsiveness
   const renderLayout16 = () => {
     const renderMachineBox = (machine, key) => {
-      if (!machine) return null;
+      const uniqueKey = machine?.id ? `16-${machine.id}` : `16-empty-${key}`;
       
       return (
-        <div key={`${key}-${machine?.id || 'empty'}`} className={`machine-box-16 ${getStatusColor(machine?.status || 'verde')}`}>
+        <div key={uniqueKey} className={`machine-box-16 ${getStatusColor(machine?.status || 'verde')}`}>
           <span onClick={() => machine && handleMachineClick(machine)} className="machine-code">
             {machine?.code || key}
           </span>

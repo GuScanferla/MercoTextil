@@ -625,10 +625,10 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Machine boxes for 32 fusos layout */
+/* Machine boxes for 32 fusos layout - Increased size */
 .machine-box-32 {
-  width: 70px;
-  height: 70px;
+  width: 85px;
+  height: 85px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -639,7 +639,7 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -647,6 +647,13 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   border-color: var(--merco-red);
+}
+
+.machine-box-32 .machine-code {
+  font-size: 16px;
+  font-weight: 800;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 /* Responsive design for both layouts */

@@ -101,3 +101,127 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Update 16 and 32 fusos layouts to match provided images exactly. In 16 fusos: CD1-CD24, CI1-CI4, F1-F24 with exact positioning. In 32 fusos: CT1-CT24, U1-U32, N1-N10 with proper organization. Add history to Espulas with start/end times. Change 'Quantidade de Espulas' to 'Quantidade em Metros' and add 'Carga' field (letters and numbers). Maintain all existing functionality including machine independence and Brasília timezone."
+
+backend:
+  - task: "Update machine initialization for 16 fusos layout"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "About to implement exact 16 fusos layout matching user image with CD1-CD24, CI1-CI4, F1-F24"
+  
+  - task: "Update machine initialization for 32 fusos layout"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "About to implement exact 32 fusos layout matching user image with CT1-CT24, U1-U32, N1-N10"
+  
+  - task: "Update Espulas model to include start/end history"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "About to add history fields for Espulas with start/end timestamps"
+  
+  - task: "Update Espulas model for Quantidade em Metros and Carga field"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "About to modify Espulas to change quantity label and add carga field"
+
+frontend:
+  - task: "Update 16 fusos layout frontend to match exact image positioning"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "About to implement exact frontend layout for 16 fusos matching provided image"
+  
+  - task: "Update 32 fusos layout frontend to match exact image positioning"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "About to implement exact frontend layout for 32 fusos matching provided image"
+  
+  - task: "Update Espulas frontend for history and new fields"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "About to update Espulas form and display for history, quantity in meters, and carga field"
+  
+  - task: "Update CSS for exact layout positioning"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "About to implement precise CSS positioning for both layouts"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Update machine initialization for 16 fusos layout"
+    - "Update machine initialization for 32 fusos layout"
+    - "Update Espulas model to include start/end history"
+    - "Update Espulas model for Quantidade em Metros and Carga field"
+    - "Update 16 fusos layout frontend to match exact image positioning"
+    - "Update 32 fusos layout frontend to match exact image positioning"
+    - "Update Espulas frontend for history and new fields"
+    - "Update CSS for exact layout positioning"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+    -agent: "main"
+    -message: "Starting implementation of layout changes to match user images exactly and updating Espulas functionality. Will implement backend models first, then frontend layouts and CSS."

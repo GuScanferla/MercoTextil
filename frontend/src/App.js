@@ -1215,21 +1215,6 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      });
-    } catch (error) {
-      return "-";
-    }
-  };
-
   // Sort espulas by priority (delivery date)
   const sortedEspulas = [...espulas].sort((a, b) => {
     if (a.status === "em_producao_aguardando" || a.status === "producao") {

@@ -553,19 +553,21 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     );
   };
 
-  // 32 Fusos Layout - EXACT replication based on the user provided image
+  // 32 Fusos Layout - EXACT replication based on the new user provided image
   const renderLayout32 = () => {
     const renderMachineBox = (machine, key) => {
       if (!machine) return null;
       
       return (
-        <div key={key} className={`machine-box-32 ${getStatusColor(machine.status)}`}>
-          <span onClick={() => handleMachineClick(machine)} className="machine-code">
-            {machine.code}
+        <div key={`${key}-${machine?.id || 'empty'}`} className={`machine-box-32 ${getStatusColor(machine?.status || 'verde')}`}>
+          <span onClick={() => machine && handleMachineClick(machine)} className="machine-code">
+            {machine?.code || key}
           </span>
-          <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
-            <Wrench className="h-4 w-4" />
-          </button>
+          {machine && (
+            <button className="maintenance-btn" onClick={() => handleMaintenanceClick(machine)}>
+              <Wrench className="h-4 w-4" />
+            </button>
+          )}
         </div>
       );
     };
@@ -573,65 +575,94 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     // Organize machines by code for easy access
     const machinesByCode = {};
     machines.forEach(machine => {
-      machinesByCode[machine.code] = machine;
+      if (machine?.code) {
+        machinesByCode[machine.code] = machine;
+      }
     });
 
     return (
-      <div className="layout-32-exact">
-        {/* Top row CT1-CT24 */}
-        <div className="ct-row-container">
-          <div className="ct-row-top">
-            {["CT1", "CT2", "CT3", "CT4", "CT5", "CT6"].map(code => 
-              renderMachineBox(machinesByCode[code], code.toLowerCase())
-            )}
-          </div>
-          <div className="ct-row-bottom">
-            {["CT13", "CT14", "CT15", "CT16", "CT17", "CT18", "CT19", "CT20", "CT21", "CT22", "CT23", "CT24"].map(code => 
-              renderMachineBox(machinesByCode[code], code.toLowerCase())
-            )}
-          </div>
-          {/* CT7-CT12 positioned separately according to image */}
-          <div className="ct-row-middle">
-            {["CT7", "CT8", "CT9", "CT10", "CT11", "CT12"].map(code => 
-              renderMachineBox(machinesByCode[code], code.toLowerCase())
-            )}
-          </div>
-        </div>
-
-        {/* U groups - 3 columns of 10 machines each */}
-        <div className="u-groups-container">
-          <div className="u-group">
-            {["U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8", "U9", "U10"].map(code => 
-              renderMachineBox(machinesByCode[code], code.toLowerCase())
-            )}
-          </div>
-          <div className="u-group">
-            {["U11", "U12", "U13", "U14", "U15", "U16", "U17", "U18", "U19", "U20"].map(code => 
-              renderMachineBox(machinesByCode[code], code.toLowerCase())
-            )}
-          </div>
-          <div className="u-group">
-            {["U21", "U22", "U23", "U24", "U25", "U26", "U27", "U28", "U29", "U30"].map(code => 
-              renderMachineBox(machinesByCode[code], code.toLowerCase())
-            )}
-          </div>
-        </div>
-
-        {/* N row (N1-N10) */}
-        <div className="n-row-container">
-          {["N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N10"].map(code => 
-            renderMachineBox(machinesByCode[code], code.toLowerCase())
+      <div className="layout-32-exact-new">
+        {/* CT Machines - Row 1: CT1-CT12 */}
+        <div className="ct-row-1">
+          {["CT1", "CT2", "CT3", "CT4", "CT5", "CT6", "CT7", "CT8", "CT9", "CT10", "CT11", "CT12"].map(code => 
+            renderMachineBox(machinesByCode[code], code)
           )}
         </div>
 
-        {/* Additional U machines (U31-U33) positioned separately */}
-        <div className="u-additional">
-          <div className="u-extra-group">
-            {renderMachineBox(machinesByCode["U32"], "u32")}
-            {renderMachineBox(machinesByCode["U31"], "u31")}
+        {/* CT Machines - Row 2: CT13-CT24 */}
+        <div className="ct-row-2">
+          {["CT13", "CT14", "CT15", "CT16", "CT17", "CT18", "CT19", "CT20", "CT21", "CT22", "CT23", "CT24"].map(code => 
+            renderMachineBox(machinesByCode[code], code)
+          )}
+        </div>
+
+        {/* U Machines - Three blocks of 10 machines each (2x5 grid) */}
+        <div className="u-machines-container">
+          {/* Left Block: U1-U10 */}
+          <div className="u-block">
+            <div className="u-column">
+              {["U1", "U3", "U5", "U7", "U9"].map(code => 
+                renderMachineBox(machinesByCode[code], code)
+              )}
+            </div>
+            <div className="u-column">
+              {["U2", "U4", "U6", "U8", "U10"].map(code => 
+                renderMachineBox(machinesByCode[code], code)
+              )}
+            </div>
           </div>
-          <div className="u-extra-single">
-            {renderMachineBox(machinesByCode["U33"], "u33")}
+
+          {/* Middle Block: U11-U20 */}
+          <div className="u-block">
+            <div className="u-column">
+              {["U11", "U13", "U15", "U17", "U19"].map(code => 
+                renderMachineBox(machinesByCode[code], code)
+              )}
+            </div>
+            <div className="u-column">
+              {["U12", "U14", "U16", "U18", "U20"].map(code => 
+                renderMachineBox(machinesByCode[code], code)
+              )}
+            </div>
+          </div>
+
+          {/* Right Block: U21-U30 */}
+          <div className="u-block">
+            <div className="u-column">
+              {["U21", "U23", "U25", "U27", "U29"].map(code => 
+                renderMachineBox(machinesByCode[code], code)
+              )}
+            </div>
+            <div className="u-column">
+              {["U22", "U24", "U26", "U28", "U30"].map(code => 
+                renderMachineBox(machinesByCode[code], code)
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* N Machines - Single row: N1-N10 */}
+        <div className="n-machines-row">
+          <div className="n-machines-confirmed">
+            {["N1", "N2", "N3", "N4", "N5", "N6"].map(code => 
+              renderMachineBox(machinesByCode[code], code)
+            )}
+          </div>
+          <div className="n-machines-dashed">
+            {["N7", "N8", "N9", "N10"].map(code => 
+              renderMachineBox(machinesByCode[code], code)
+            )}
+          </div>
+        </div>
+
+        {/* Bottom U Machines: U31-U33 */}
+        <div className="u-bottom-group">
+          <div className="u-stack">
+            {renderMachineBox(machinesByCode["U32"], "U32")}
+            {renderMachineBox(machinesByCode["U33"], "U33")}
+          </div>
+          <div className="u-single">
+            {renderMachineBox(machinesByCode["U31"], "U31")}
           </div>
         </div>
       </div>

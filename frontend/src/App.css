@@ -497,32 +497,33 @@ body {
   flex-wrap: wrap;
 }
 
-/* Machine boxes for 16 fusos layout - Increased size */
+/* Machine boxes for 16 fusos layout - Compact size for better row organization */
 .machine-box-16 {
-  width: 90px;
-  height: 90px;
+  width: 75px;
+  height: 75px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   position: relative;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 700;
-  font-size: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  margin: 2px;
 }
 
 .machine-box-16:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   border-color: var(--merco-red);
 }
 
 .machine-box-16 .machine-code {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 800;
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);

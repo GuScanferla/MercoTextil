@@ -38,7 +38,7 @@ JWT_SECRET = "fusosmanager_secret_key_2024"
 brazil_tz = pytz.timezone('America/Sao_Paulo')
 
 def get_brazil_time():
-    """Get current time in Brazil timezone"""
+    """Get current time in Brazil timezone (São Paulo)"""
     return datetime.now(brazil_tz)
 
 # Helper function to convert MongoDB documents

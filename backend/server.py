@@ -146,13 +146,18 @@ class Espula(BaseModel):
     cliente: str
     artigo: str
     cor: str
-    quantidade: str
-    observacoes: str = ""
-    data_lancamento: datetime = Field(default_factory=get_brazil_time)
-    data_prevista_entrega: datetime
+    quantidade_metros: str  # Changed from quantidade to quantidade_metros
+    carga: str  # New field for carga (letters and numbers allowed)
+    observacoes: Optional[str] = ""
     status: str = "pendente"  # pendente, em_producao_aguardando, producao, finalizado
+    data_lancamento: datetime = Field(default_factory=get_brazil_time)
+    data_prevista_entrega: str  # ISO date string
     created_by: str
-    finished_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=get_brazil_time)
+    updated_at: datetime = Field(default_factory=get_brazil_time)
+    # History fields
+    iniciado_em: Optional[datetime] = None  # When moved to em_producao_aguardando
+    finalizado_em: Optional[datetime] = None  # When moved to finalizado
 
 class EspulaCreate(BaseModel):
     cliente: str

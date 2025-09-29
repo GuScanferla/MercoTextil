@@ -494,24 +494,6 @@ class FusosSystemTester:
         """Test reports (admin only)"""
         print("\n📊 TESTING REPORTS")
         
-        # Test status history
-        success, response, status = self.make_request(
-            'GET', 'reports/status-history', token=self.tokens.get('admin')
-        )
-        
-        if success and isinstance(response, list):
-            self.log_test(
-                "Get status history (admin)", 
-                True, 
-                f"- Count: {len(response)}"
-            )
-        else:
-            self.log_test(
-                "Get status history (admin)", 
-                False, 
-                f"- Status: {status}"
-            )
-
         # Test export reports
         for layout in ["16_fusos", "32_fusos"]:
             success, response, status = self.make_request(
@@ -531,9 +513,27 @@ class FusosSystemTester:
                     f"- Status: {status}"
                 )
 
+        # Test espulas report
+        success, response, status = self.make_request(
+            'GET', 'espulas/report', token=self.tokens.get('admin')
+        )
+        
+        if success and 'espulas' in response:
+            self.log_test(
+                "Espulas report (admin)", 
+                True, 
+                f"- Espulas: {len(response['espulas'])}"
+            )
+        else:
+            self.log_test(
+                "Espulas report (admin)", 
+                False, 
+                f"- Status: {status}"
+            )
+
         # Test non-admin cannot access reports
         success, response, status = self.make_request(
-            'GET', 'reports/status-history', token=self.tokens.get('externo'), expected_status=403
+            'GET', 'reports/export?layout_type=16_fusos', token=self.tokens.get('externo'), expected_status=403
         )
         
         self.log_test(

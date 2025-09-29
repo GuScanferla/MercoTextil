@@ -529,56 +529,56 @@ body {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* 32 Fusos Layout - EXACT replication based on new image */
+/* 32 Fusos Layout - Optimized for better row organization */
 .layout-32-exact-new {
   display: flex;
   flex-direction: column;
-  gap: 30px;
-  max-width: 1400px;
+  gap: 25px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 15px;
 }
 
-/* CT Machines - Two horizontal rows */
+/* CT Machines - Two horizontal rows - more compact */
 .ct-row-1,
 .ct-row-2 {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   justify-content: center;
-  padding: 16px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   flex-wrap: wrap;
 }
 
-/* U Machines Container - Three blocks side by side */
+/* U Machines Container - Three blocks side by side - more compact */
 .u-machines-container {
   display: flex;
-  gap: 30px;
+  gap: 20px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .u-block {
   display: flex;
-  gap: 8px;
-  padding: 16px;
+  gap: 4px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .u-column {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
-/* N Machines - Single horizontal row */
+/* N Machines - Single horizontal row - more compact */
 .n-machines-row {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
@@ -587,10 +587,10 @@ body {
 .n-machines-confirmed,
 .n-machines-dashed {
   display: flex;
-  gap: 8px;
-  padding: 16px;
+  gap: 4px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -599,10 +599,10 @@ body {
   opacity: 0.7;
 }
 
-/* Bottom U Machines - U31, U32, U33 */
+/* Bottom U Machines - U31, U32, U33 - more compact */
 .u-bottom-group {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   justify-content: center;
   align-items: flex-start;
   flex-wrap: wrap;
@@ -611,18 +611,18 @@ body {
 .u-stack {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px;
+  gap: 4px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .u-single {
   display: flex;
-  padding: 16px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 

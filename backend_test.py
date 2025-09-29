@@ -94,36 +94,82 @@ class FusosSystemTester:
                 )
 
     def test_machines(self):
-        """Test machine endpoints"""
+        """Test machine endpoints with exact layout codes"""
         print("\n🏭 TESTING MACHINES")
         
-        layouts = ["16_fusos", "32_fusos"]
-        expected_counts = {"16_fusos": 24, "32_fusos": 33}
+        # Test 16 fusos layout - should have CD1-CD24, CI1-CI4, F1-F24
+        success, response, status = self.make_request(
+            'GET', 'machines/16_fusos', token=self.tokens.get('admin')
+        )
         
-        for layout in layouts:
-            success, response, status = self.make_request(
-                'GET', f'machines/{layout}', token=self.tokens.get('admin')
-            )
+        if success and isinstance(response, list):
+            machine_count = len(response)
+            expected_count = 52  # CD1-CD24 (24) + CI1-CI4 (4) + F1-F24 (24) = 52
             
-            if success and isinstance(response, list):
-                machine_count = len(response)
-                expected_count = expected_counts[layout]
-                count_correct = machine_count == expected_count
-                
-                # Check if all machines start with verde status
-                verde_count = sum(1 for m in response if m.get('status') == 'verde')
-                
-                self.log_test(
-                    f"Get machines {layout}", 
-                    count_correct, 
-                    f"- Count: {machine_count}/{expected_count}, Verde: {verde_count}"
-                )
-            else:
-                self.log_test(
-                    f"Get machines {layout}", 
-                    False, 
-                    f"- Status: {status}, Response type: {type(response)}"
-                )
+            # Check specific machine codes
+            codes = [m.get('code') for m in response]
+            cd_codes = [c for c in codes if c.startswith('CD')]
+            ci_codes = [c for c in codes if c.startswith('CI')]
+            f_codes = [c for c in codes if c.startswith('F')]
+            
+            cd_expected = [f'CD{i}' for i in range(1, 25)]  # CD1-CD24
+            ci_expected = [f'CI{i}' for i in range(1, 5)]   # CI1-CI4
+            f_expected = [f'F{i}' for i in range(1, 25)]    # F1-F24
+            
+            cd_correct = set(cd_codes) == set(cd_expected)
+            ci_correct = set(ci_codes) == set(ci_expected)
+            f_correct = set(f_codes) == set(f_expected)
+            
+            all_correct = cd_correct and ci_correct and f_correct and machine_count == expected_count
+            
+            self.log_test(
+                "Get machines 16_fusos", 
+                all_correct, 
+                f"- Total: {machine_count}/{expected_count}, CD: {len(cd_codes)}/24, CI: {len(ci_codes)}/4, F: {len(f_codes)}/24"
+            )
+        else:
+            self.log_test(
+                "Get machines 16_fusos", 
+                False, 
+                f"- Status: {status}, Response type: {type(response)}"
+            )
+
+        # Test 32 fusos layout - should have CT1-CT24, U1-U33, N1-N10
+        success, response, status = self.make_request(
+            'GET', 'machines/32_fusos', token=self.tokens.get('admin')
+        )
+        
+        if success and isinstance(response, list):
+            machine_count = len(response)
+            expected_count = 67  # CT1-CT24 (24) + U1-U33 (33) + N1-N10 (10) = 67
+            
+            # Check specific machine codes
+            codes = [m.get('code') for m in response]
+            ct_codes = [c for c in codes if c.startswith('CT')]
+            u_codes = [c for c in codes if c.startswith('U')]
+            n_codes = [c for c in codes if c.startswith('N')]
+            
+            ct_expected = [f'CT{i}' for i in range(1, 25)]  # CT1-CT24
+            u_expected = [f'U{i}' for i in range(1, 34)]    # U1-U33
+            n_expected = [f'N{i}' for i in range(1, 11)]    # N1-N10
+            
+            ct_correct = set(ct_codes) == set(ct_expected)
+            u_correct = set(u_codes) == set(u_expected)
+            n_correct = set(n_codes) == set(n_expected)
+            
+            all_correct = ct_correct and u_correct and n_correct and machine_count == expected_count
+            
+            self.log_test(
+                "Get machines 32_fusos", 
+                all_correct, 
+                f"- Total: {machine_count}/{expected_count}, CT: {len(ct_codes)}/24, U: {len(u_codes)}/33, N: {len(n_codes)}/10"
+            )
+        else:
+            self.log_test(
+                "Get machines 32_fusos", 
+                False, 
+                f"- Status: {status}, Response type: {type(response)}"
+            )
 
     def test_order_creation(self):
         """Test order creation (admin and interno only)"""

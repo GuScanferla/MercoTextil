@@ -405,8 +405,8 @@ body {
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
 }
 
-/* 16 Fusos Layout - EXACT replication based on photo */
-.layout-16-photo-exact {
+/* 16 Fusos Layout - EXACT replication based on user image */
+.layout-16-exact {
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -431,6 +431,7 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 200px;
 }
 
 .cd-block-1x4 {
@@ -441,6 +442,7 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 100px;
 }
 
 .layout-16-ci {
@@ -489,15 +491,130 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 32 Fusos Layout - Grid arrangement */
+/* Machine boxes for 16 fusos layout */
+.machine-box-16 {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.machine-box-16:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border-color: var(--merco-red);
+}
+
+/* 32 Fusos Layout - EXACT replication based on user image */
 .layout-32-exact {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(5, 1fr);
-  gap: 12px;
-  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+.ct-row-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ct-row-top,
+.ct-row-middle,
+.ct-row-bottom {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.u-groups-container {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.u-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.n-row-container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.u-additional {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.u-extra-group {
+  display: flex;
+  gap: 8px;
+}
+
+.u-extra-single {
+  display: flex;
+  justify-content: center;
+}
+
+/* Machine boxes for 32 fusos layout */
+.machine-box-32 {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.machine-box-32:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  border-color: var(--merco-red);
 }
 
 /* Status indicators */

@@ -505,7 +505,7 @@ async def finish_maintenance(maintenance_id: str, current_user: User = Depends(g
         {
             "$set": {
                 "status": "finalizada",
-                "finished_at": get_brazil_time(),
+                "finished_at": get_utc_now(),
                 "finished_by": current_user.username
             }
         }

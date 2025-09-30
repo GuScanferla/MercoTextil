@@ -1059,7 +1059,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
                   <Clock className="h-5 w-5 text-orange-400" />
                   <div>
                     <span className="font-medium text-gray-400">Iniciado:</span>
-                    <p className="text-white">{formatDateTime(order.started_at)}</p>
+                    <p className="text-white">{formatDateTimeBrazil(order.started_at)}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">

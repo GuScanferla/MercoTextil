@@ -593,7 +593,7 @@ async def update_order(
     # Update machine status
     await db.machines.update_one(
         {"id": order["machine_id"]},
-        {"$set": {"status": machine_status, "updated_at": get_brazil_time()}}
+        {"$set": {"status": machine_status, "updated_at": get_utc_now()}}
     )
     
     return {"message": "Order updated successfully"}

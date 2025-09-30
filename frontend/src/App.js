@@ -1460,7 +1460,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                   </div>
                   <div>
                     <span className="font-medium text-gray-400">Entrega Prevista:</span>
-                    <p className="text-white">{formatDate(espula.data_prevista_entrega)}</p>
+                    <p className="text-white">{formatDateBrazil(espula.data_prevista_entrega)}</p>
                   </div>
                 </div>
 

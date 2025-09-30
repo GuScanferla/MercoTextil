@@ -634,12 +634,12 @@ async def update_espula(
     if not espula:
         raise HTTPException(status_code=404, detail="Espula not found")
     
-    update_data = {"status": espula_update.status, "updated_at": get_brazil_time()}
+    update_data = {"status": espula_update.status, "updated_at": get_utc_now()}
     
     if espula_update.status == "em_producao_aguardando" and not espula.get("iniciado_em"):
-        update_data["iniciado_em"] = get_brazil_time()
+        update_data["iniciado_em"] = get_utc_now()
     elif espula_update.status == "finalizado":
-        update_data["finalizado_em"] = get_brazil_time()
+        update_data["finalizado_em"] = get_utc_now()
     
     await db.espulas.update_one({"id": espula_id}, {"$set": update_data})
     

@@ -378,13 +378,56 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     motivo: ""
   });
 
+  // Função para obter cor do status - incluindo desativada
   const getStatusColor = (status) => {
     switch (status) {
       case "verde": return "status-verde";
       case "amarelo": return "status-amarelo";
       case "vermelho": return "status-vermelho";
       case "azul": return "status-azul";
+      case "desativada": return "status-desativada";
       default: return "status-verde";
+    }
+  };
+
+  // Função para admin ativar/desativar máquina
+  const toggleMachineActive = async (machineId) => {
+    if (user?.role !== "admin") {
+      toast.error("Apenas administradores podem ativar/desativar máquinas");
+      return;
+    }
+    
+    try {
+      const response = await axios.put(`${API}/machines/${machineId}/toggle-active`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success(response.data.message);
+      onMachineUpdate(); // Refresh machines
+    } catch (error) {
+      toast.error("Erro ao alterar status da máquina");
+    }
+  };
+
+  // CORRIGIR FORMATAÇÃO DE HORÁRIO - CONVERSÃO CORRETA UTC PARA BRASÍLIA
+  const formatDateTimeBrazil = (utcString) => {
+    if (!utcString) return "-";
+    try {
+      // Parse UTC string e converte para horário de Brasília
+      const utcDate = new Date(utcString + (utcString.includes('Z') ? '' : 'Z'));
+      
+      return new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        day: '2-digit',
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(utcDate);
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return "-";
     }
   };
 

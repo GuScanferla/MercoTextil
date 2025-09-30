@@ -1091,10 +1091,11 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     data_prevista_entrega: ""
   });
 
-  // Funções de formatação de data/hora - HORÁRIO DE BRASÍLIA OBRIGATÓRIO
+  // Funções de formatação de data/hora - ASSUME UTC DO BACKEND, CONVERTE PARA BRASÍLIA
   const formatDateTime = (dateString) => {
     if (!dateString) return "-";
     try {
+      // Assume que o backend sempre envia UTC
       const date = new Date(dateString);
       return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
@@ -1104,7 +1105,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
-      }).format(date);
+      }).format(date).replace(',', '');
     } catch (error) {
       return "-";
     }
@@ -1113,6 +1114,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     try {
+      // Assume que o backend sempre envia UTC
       const date = new Date(dateString);
       return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',

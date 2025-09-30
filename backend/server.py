@@ -581,11 +581,11 @@ async def update_order(
     
     if order_update.status == "em_producao":
         update_data["status"] = "em_producao"
-        update_data["started_at"] = get_brazil_time()
+        update_data["started_at"] = get_utc_now()
         machine_status = "vermelho"
     elif order_update.status == "finalizado":
         update_data["status"] = "finalizado"
-        update_data["finished_at"] = get_brazil_time()
+        update_data["finished_at"] = get_utc_now()
         machine_status = "verde"
     
     await db.orders.update_one({"id": order_id}, {"$set": update_data})

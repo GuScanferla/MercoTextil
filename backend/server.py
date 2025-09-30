@@ -86,7 +86,7 @@ class User(BaseModel):
     email: str
     role: str  # admin, operador_interno, operador_externo
     active: bool = True
-    created_at: datetime = Field(default_factory=get_brazil_time)
+    created_at: datetime = Field(default_factory=get_utc_now)
 
 class UserCreate(BaseModel):
     username: str

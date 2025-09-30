@@ -1089,20 +1089,20 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     data_prevista_entrega: ""
   });
 
-  // Date formatting functions
+  // Funções de formatação de data/hora - HORÁRIO DE BRASÍLIA OBRIGATÓRIO
   const formatDateTime = (dateString) => {
     if (!dateString) return "-";
     try {
       const date = new Date(dateString);
-      return date.toLocaleString('pt-BR', {
+      return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit'
-      });
+        hour12: false
+      }).format(date);
     } catch (error) {
       return "-";
     }
@@ -1112,12 +1112,12 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     if (!dateString) return "-";
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', {
+      return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
-      });
+      }).format(date);
     } catch (error) {
       return "-";
     }

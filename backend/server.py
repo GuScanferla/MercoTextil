@@ -480,7 +480,7 @@ async def create_maintenance(maintenance_data: MaintenanceCreate, current_user: 
     # Update machine status to azul (maintenance)
     await db.machines.update_one(
         {"id": maintenance_data.machine_id},
-        {"$set": {"status": "azul", "updated_at": get_brazil_time()}}
+        {"$set": {"status": "azul", "updated_at": get_utc_now()}}
     )
     
     return maintenance

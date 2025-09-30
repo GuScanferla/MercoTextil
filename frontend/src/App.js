@@ -868,19 +868,20 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
     }
   };
 
+  // Funções de formatação de data/hora - HORÁRIO DE BRASÍLIA OBRIGATÓRIO
   const formatDateTime = (dateString) => {
     if (!dateString) return "-";
     try {
       const date = new Date(dateString);
-      return date.toLocaleString('pt-BR', {
+      return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit'
-      });
+        hour12: false
+      }).format(date);
     } catch (error) {
       return "-";
     }
@@ -890,12 +891,12 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
     if (!dateString) return "-";
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR', {
+      return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
-      });
+      }).format(date);
     } catch (error) {
       return "-";
     }
@@ -905,26 +906,29 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
     if (!dateString) return "-";
     try {
       const date = new Date(dateString);
-      return date.toLocaleTimeString('pt-BR', {
+      return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
         hour: '2-digit',
-        minute: '2-digit'
-      });
+        minute: '2-digit',
+        hour12: false
+      }).format(date);
     } catch (error) {
       return "-";
     }
   };
 
   const getCurrentBrazilTime = () => {
-    return new Date().toLocaleString('pt-BR', {
+    const now = new Date();
+    return new Intl.DateTimeFormat('pt-BR', {
       timeZone: 'America/Sao_Paulo',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
-    });
+      second: '2-digit',
+      hour12: false
+    }).format(now);
   };
 
   return (

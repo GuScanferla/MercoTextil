@@ -868,10 +868,11 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
     }
   };
 
-  // Funções de formatação de data/hora - HORÁRIO DE BRASÍLIA OBRIGATÓRIO
+  // Funções de formatação de data/hora - ASSUME UTC DO BACKEND, CONVERTE PARA BRASÍLIA
   const formatDateTime = (dateString) => {
     if (!dateString) return "-";
     try {
+      // Assume que o backend sempre envia UTC
       const date = new Date(dateString);
       return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
@@ -881,7 +882,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
-      }).format(date);
+      }).format(date).replace(',', '');
     } catch (error) {
       return "-";
     }
@@ -890,6 +891,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     try {
+      // Assume que o backend sempre envia UTC
       const date = new Date(dateString);
       return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
@@ -905,6 +907,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
   const formatTime = (dateString) => {
     if (!dateString) return "-";
     try {
+      // Assume que o backend sempre envia UTC
       const date = new Date(dateString);
       return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
@@ -926,9 +929,8 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
       hour12: false
-    }).format(now);
+    }).format(now).replace(',', '');
   };
 
   return (

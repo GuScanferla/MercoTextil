@@ -939,38 +939,42 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
     }
   };
 
-  // Funções de formatação de data/hora - ASSUME UTC DO BACKEND, CONVERTE PARA BRASÍLIA
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "-";
+  // CORRIGIR FORMATAÇÃO DE HORÁRIO - CONVERSÃO CORRETA UTC PARA BRASÍLIA  
+  const formatDateTimeBrazil = (utcString) => {
+    if (!utcString) return "-";
     try {
-      // Assume que o backend sempre envia UTC
-      const date = new Date(dateString);
+      // Parse UTC string e converte para horário de Brasília
+      const utcDate = new Date(utcString + (utcString.includes('Z') ? '' : 'Z'));
+      
       return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
-        year: 'numeric',
-        month: '2-digit',
         day: '2-digit',
+        month: '2-digit', 
+        year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
-      }).format(date).replace(',', '');
+      }).format(utcDate);
     } catch (error) {
+      console.error('Error formatting date:', error);
       return "-";
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
+  const formatDateBrazil = (utcString) => {
+    if (!utcString) return "-";
     try {
-      // Assume que o backend sempre envia UTC
-      const date = new Date(dateString);
+      // Parse UTC string e converte para horário de Brasília
+      const utcDate = new Date(utcString + (utcString.includes('Z') ? '' : 'Z'));
+      
       return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
-        year: 'numeric',
+        day: '2-digit',
         month: '2-digit',
-        day: '2-digit'
-      }).format(date);
+        year: 'numeric'
+      }).format(utcDate);
     } catch (error) {
+      console.error('Error formatting date:', error);
       return "-";
     }
   };

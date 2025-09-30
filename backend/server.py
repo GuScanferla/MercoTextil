@@ -9,11 +9,11 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 import jwt
 import hashlib
 from passlib.context import CryptContext
-import pytz
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -34,12 +34,12 @@ security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 JWT_SECRET = "fusosmanager_secret_key_2024"
 
-# Brazil timezone
-brazil_tz = pytz.timezone('America/Sao_Paulo')
+# Brazil timezone usando zoneinfo (padrão Python 3.9+)
+BRAZIL_TZ = ZoneInfo("America/Sao_Paulo")
 
 def get_brazil_time():
-    """Get current time in Brazil timezone (São Paulo)"""
-    return datetime.now(brazil_tz)
+    """Get current time in Brazil timezone (America/Sao_Paulo) using zoneinfo"""
+    return datetime.now(BRAZIL_TZ)
 
 # Helper function to convert MongoDB documents
 def serialize_doc(doc):

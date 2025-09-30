@@ -514,7 +514,7 @@ async def finish_maintenance(maintenance_id: str, current_user: User = Depends(g
     # Update machine status back to verde (available)
     await db.machines.update_one(
         {"id": maintenance["machine_id"]},
-        {"$set": {"status": "verde", "updated_at": get_brazil_time()}}
+        {"$set": {"status": "verde", "updated_at": get_utc_now()}}
     )
     
     return {"message": "Maintenance finished successfully"}

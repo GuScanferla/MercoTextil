@@ -550,7 +550,7 @@ async def create_order(order_data: OrderCreate, current_user: User = Depends(get
     # Update machine status to amarelo (pending)
     await db.machines.update_one(
         {"id": order_data.machine_id},
-        {"$set": {"status": "amarelo", "updated_at": get_brazil_time()}}
+        {"$set": {"status": "amarelo", "updated_at": get_utc_now()}}
     )
     
     return order

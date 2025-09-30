@@ -165,11 +165,11 @@ class Espula(BaseModel):
     carga: str  # New field for carga (letters and numbers allowed)
     observacoes: Optional[str] = ""
     status: str = "pendente"  # pendente, em_producao_aguardando, producao, finalizado
-    data_lancamento: datetime = Field(default_factory=get_brazil_time)
+    data_lancamento: datetime = Field(default_factory=get_utc_now)  # Save in UTC
     data_prevista_entrega: str  # ISO date string
     created_by: str
-    created_at: datetime = Field(default_factory=get_brazil_time)
-    updated_at: datetime = Field(default_factory=get_brazil_time)
+    created_at: datetime = Field(default_factory=get_utc_now)  # Save in UTC
+    updated_at: datetime = Field(default_factory=get_utc_now)  # Save in UTC
     # History fields
     iniciado_em: Optional[datetime] = None  # When moved to em_producao_aguardando
     finalizado_em: Optional[datetime] = None  # When moved to finalizado

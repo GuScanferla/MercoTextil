@@ -764,7 +764,7 @@ body {
   }
 }
 
-/* Maintenance button styling */
+/* Botões de controle das máquinas */
 .maintenance-btn {
   position: absolute;
   top: 2px;
@@ -782,14 +782,49 @@ body {
   opacity: 0;
 }
 
+.admin-toggle-btn {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: rgba(220, 53, 69, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+}
+
 .machine-box-16:hover .maintenance-btn,
-.machine-box-32:hover .maintenance-btn {
+.machine-box-32:hover .maintenance-btn,
+.machine-box-16:hover .admin-toggle-btn,
+.machine-box-32:hover .admin-toggle-btn {
   opacity: 1;
 }
 
 .maintenance-btn:hover {
   background: rgba(255, 193, 7, 1);
   transform: scale(1.1);
+}
+
+.admin-toggle-btn:hover {
+  background: rgba(220, 53, 69, 1);
+  transform: scale(1.1);
+}
+
+.status-desativada .admin-toggle-btn {
+  background: rgba(40, 167, 69, 0.8);
+}
+
+.status-desativada .admin-toggle-btn:hover {
+  background: rgba(40, 167, 69, 1);
 }
 
 /* Status indicators */

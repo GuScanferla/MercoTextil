@@ -1264,7 +1264,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         'Carga': espula.carga,
         'Observações': espula.observacoes || '-',
         'Data Lançamento': formatDateTimeBrazil(espula.created_at),
-        'Data Prevista': formatDate(espula.data_prevista_entrega),
+        'Data Prevista': formatDateBrazil(espula.data_prevista_entrega),
         'Iniciado em': formatDateTime(espula.iniciado_em),
         'Finalizado em': formatDateTime(espula.finalizado_em),
         'Status': 'FINALIZADO',

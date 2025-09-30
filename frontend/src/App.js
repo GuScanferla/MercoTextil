@@ -1592,7 +1592,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                     <Clock className="h-5 w-5 text-yellow-400" />
                     <div>
                       <span className="font-medium text-gray-400">Iniciado:</span>
-                      <p className="text-white">{formatDateTime(espula.iniciado_em)}</p>
+                      <p className="text-white">{formatDateTimeBrazil(espula.iniciado_em)}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">

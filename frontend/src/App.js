@@ -1470,7 +1470,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                     <Clock className="h-5 w-5 text-blue-400" />
                     <div>
                       <span className="font-medium text-gray-400">Lançado:</span>
-                      <p className="text-white">{formatDateTime(espula.created_at)}</p>
+                      <p className="text-white">{formatDateTimeBrazil(espula.created_at)}</p>
                     </div>
                   </div>
                   {espula.iniciado_em && (
@@ -1585,7 +1585,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                     <Clock className="h-5 w-5 text-blue-400" />
                     <div>
                       <span className="font-medium text-gray-400">Lançado:</span>
-                      <p className="text-white">{formatDateTime(espula.created_at)}</p>
+                      <p className="text-white">{formatDateTimeBrazil(espula.created_at)}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">

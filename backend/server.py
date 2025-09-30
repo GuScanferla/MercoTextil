@@ -137,7 +137,7 @@ class Order(BaseModel):
     observacao: str = ""
     status: str = "pendente"  # pendente, em_producao, finalizado
     created_by: str
-    created_at: datetime = Field(default_factory=get_brazil_time)
+    created_at: datetime = Field(default_factory=get_utc_now)
     started_at: Optional[datetime] = None
     finished_at: Optional[datetime] = None
     observacao_liberacao: str = ""

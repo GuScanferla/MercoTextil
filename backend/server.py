@@ -117,7 +117,7 @@ class Maintenance(BaseModel):
     motivo: str
     status: str = "em_manutencao"  # em_manutencao, finalizada
     created_by: str
-    created_at: datetime = Field(default_factory=get_brazil_time)
+    created_at: datetime = Field(default_factory=get_utc_now)
     finished_at: Optional[datetime] = None
     finished_by: Optional[str] = None
 

@@ -520,6 +520,39 @@ async def finish_maintenance(maintenance_id: str, current_user: User = Depends(g
     
     return {"message": "Maintenance finished successfully"}
 
+# Admin-only endpoint to activate/deactivate machines
+@api_router.put("/machines/{machine_id}/toggle-active")
+async def toggle_machine_active(machine_id: str, current_user: User = Depends(get_current_user)):
+    # Verify admin user
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can activate/deactivate machines")
+    
+    machine = await db.machines.find_one({"id": machine_id})
+    if not machine:
+        raise HTTPException(status_code=404, detail="Machine not found")
+    
+    # Toggle active status
+    new_active_status = not machine.get("active", True)
+    new_status = "desativada" if not new_active_status else "verde"
+    
+    await db.machines.update_one(
+        {"id": machine_id},
+        {
+            "$set": {
+                "active": new_active_status,
+                "status": new_status,
+                "updated_at": get_utc_now()
+            }
+        }
+    )
+    
+    return {
+        "message": f"Machine {'deactivated' if not new_active_status else 'activated'} successfully",
+        "machine_id": machine_id,
+        "active": new_active_status,
+        "status": new_status
+    }
+
 # Order routes
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: User = Depends(get_current_user)):

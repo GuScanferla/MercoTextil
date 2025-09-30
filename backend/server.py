@@ -37,9 +37,24 @@ JWT_SECRET = "fusosmanager_secret_key_2024"
 # Brazil timezone usando zoneinfo (padrão Python 3.9+)
 BRAZIL_TZ = ZoneInfo("America/Sao_Paulo")
 
+def get_utc_now():
+    """Get current UTC time - MongoDB best practice"""
+    return datetime.now(timezone.utc)
+
 def get_brazil_time():
-    """Get current time in Brazil timezone (America/Sao_Paulo) using zoneinfo"""
-    return datetime.now(BRAZIL_TZ)
+    """Get current time in Brazil timezone for display purposes"""
+    utc_now = datetime.now(timezone.utc)
+    return utc_now.astimezone(BRAZIL_TZ)
+
+def convert_utc_to_brazil(utc_datetime):
+    """Convert UTC datetime to Brazil timezone"""
+    if utc_datetime is None:
+        return None
+    if isinstance(utc_datetime, str):
+        utc_datetime = datetime.fromisoformat(utc_datetime.replace('Z', '+00:00'))
+    if utc_datetime.tzinfo is None:
+        utc_datetime = utc_datetime.replace(tzinfo=timezone.utc)
+    return utc_datetime.astimezone(BRAZIL_TZ)
 
 # Helper function to convert MongoDB documents
 def serialize_doc(doc):

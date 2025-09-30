@@ -1562,10 +1562,11 @@ const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUp
     }
   };
 
-  // Formatação de data/hora - HORÁRIO DE BRASÍLIA OBRIGATÓRIO
+  // Formatação de data/hora - ASSUME UTC DO BACKEND, CONVERTE PARA BRASÍLIA
   const formatDateTime = (dateString) => {
     if (!dateString) return "-";
     try {
+      // Assume que o backend sempre envia UTC
       const date = new Date(dateString);
       return new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
@@ -1575,7 +1576,7 @@ const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUp
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
-      }).format(date);
+      }).format(date).replace(',', '');
     } catch (error) {
       return "-";
     }

@@ -1066,7 +1066,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
                   <Clock className="h-5 w-5 text-green-400" />
                   <div>
                     <span className="font-medium text-gray-400">Finalizado:</span>
-                    <p className="text-white">{formatDateTime(order.finished_at)}</p>
+                    <p className="text-white">{formatDateTimeBrazil(order.finished_at)}</p>
                   </div>
                 </div>
               </div>

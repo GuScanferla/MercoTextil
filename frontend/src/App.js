@@ -1687,7 +1687,7 @@ const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUp
                   <Clock className="h-5 w-5 text-blue-400" />
                   <div>
                     <span className="font-medium text-gray-400">Iniciado:</span>
-                    <p className="text-white">{formatDateTime(maintenance.created_at)}</p>
+                    <p className="text-white">{formatDateTimeBrazil(maintenance.created_at)}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">

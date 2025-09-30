@@ -648,20 +648,34 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
       
       return (
         <div key={uniqueKey} className={`machine-box-32 ${getStatusColor(machine?.status || 'verde')}`}>
-          <span onClick={() => machine && handleMachineClick(machine)} className="machine-code">
+          <span onClick={() => machine && machine.status !== 'desativada' && handleMachineClick(machine)} className="machine-code">
             {machine?.code || code}
           </span>
           {machine && (
-            <button className="maintenance-btn" onClick={(e) => {
-              e.stopPropagation();
-              handleMaintenanceClick(machine);
-            }}>
-              <Wrench className="h-4 w-4" />
-            </button>
+            <>
+              <button className="maintenance-btn" onClick={(e) => {
+                e.stopPropagation();
+                handleMaintenanceClick(machine);
+              }}>
+                <Wrench className="h-4 w-4" />
+              </button>
+              {user?.role === "admin" && (
+                <button 
+                  className="admin-toggle-btn" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleMachineActive(machine.id);
+                  }}
+                  title={machine.status === 'desativada' ? 'Reativar máquina' : 'Desativar máquina'}
+                >
+                  {machine.status === 'desativada' ? '✓' : '✕'}
+                </button>
+              )}
+            </>
           )}
         </div>
       );
-    }, [machines, getStatusColor, handleMachineClick, handleMaintenanceClick]);
+    }, [machines, getStatusColor, handleMachineClick, handleMaintenanceClick, toggleMachineActive, user]);
 
     return (
       <div className="layout-32-exact-new">

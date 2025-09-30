@@ -106,8 +106,9 @@ class Machine(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     code: str  # CD1, CD2, CI1, F1, etc.
     position: str  # unique position identifier
-    status: str = "verde"  # verde, amarelo, vermelho, azul (manutenção)
+    status: str = "verde"  # verde, amarelo, vermelho, azul (manutenção), desativada
     layout_type: str  # 16_fusos or 32_fusos
+    active: bool = True  # True = ativa, False = desativada
     updated_at: datetime = Field(default_factory=get_utc_now)
 
 class Maintenance(BaseModel):

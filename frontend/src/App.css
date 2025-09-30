@@ -575,7 +575,7 @@ body {
   gap: 4px;
 }
 
-/* N Machines - Single horizontal row - more compact */
+/* N Machines - Single horizontal row - DESIGN PADRONIZADO SEM PONTILHADO */
 .n-machines-row {
   display: flex;
   gap: 15px;
@@ -592,10 +592,22 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  /* REMOVIDO: border dashed e opacity diferente */
 }
 
-.n-machines-dashed {
-  border: 1px dashed rgba(255, 255, 255, 0.3);
+/* Status colors - incluindo nova cor para máquinas desativadas */
+.status-verde { background: linear-gradient(145deg, #28a745, #20c997); }
+.status-amarelo { background: linear-gradient(145deg, #ffc107, #fd7e14); }
+.status-vermelho { background: linear-gradient(145deg, #dc3545, #e83e8c); }
+.status-azul { background: linear-gradient(145deg, #007bff, #6f42c1); }
+.status-desativada { 
+  background: linear-gradient(145deg, #6c757d, #495057);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status-desativada .machine-code {
+  text-decoration: line-through;
   opacity: 0.7;
 }
 

@@ -1263,7 +1263,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         'Quantidade (m)': espula.quantidade_metros,
         'Carga': espula.carga,
         'Observações': espula.observacoes || '-',
-        'Data Lançamento': formatDateTime(espula.created_at),
+        'Data Lançamento': formatDateTimeBrazil(espula.created_at),
         'Data Prevista': formatDate(espula.data_prevista_entrega),
         'Iniciado em': formatDateTime(espula.iniciado_em),
         'Finalizado em': formatDateTime(espula.finalizado_em),

@@ -194,7 +194,7 @@ class StatusHistory(BaseModel):
     old_status: str
     new_status: str
     changed_by: str
-    changed_at: datetime = Field(default_factory=get_brazil_time)
+    changed_at: datetime = Field(default_factory=get_utc_now)
     order_id: Optional[str] = None
     maintenance_id: Optional[str] = None
 

@@ -1155,6 +1155,8 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
 const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   const [showForm, setShowForm] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showAllOrders, setShowAllOrders] = useState(false); // Nova funcionalidade
+  const [allSystemOrders, setAllSystemOrders] = useState([]); // Todos os pedidos do sistema
   const [espulaData, setEspulaData] = useState({
     cliente: "",
     artigo: "",
@@ -1164,6 +1166,64 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     observacoes: "",
     data_prevista_entrega: ""
   });
+
+  // Função para carregar TODOS os pedidos do sistema (Orders + Maintenance)
+  const loadAllSystemOrders = async () => {
+    try {
+      const [ordersResponse, maintenanceResponse] = await Promise.all([
+        axios.get(`${API}/orders`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }),
+        axios.get(`${API}/maintenance`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        })
+      ]);
+
+      // Combinar e formatar todos os tipos de pedidos
+      const allOrders = [
+        ...ordersResponse.data.map(order => ({
+          ...order,
+          type: 'order',
+          typeLabel: 'Pedido',
+          description: `${order.cliente} - ${order.artigo} (${order.cor})`,
+          machine: order.machine_code,
+          status_display: order.status || 'Concluído'
+        })),
+        ...maintenanceResponse.data.map(maintenance => ({
+          ...maintenance,
+          type: 'maintenance', 
+          typeLabel: 'Manutenção',
+          description: maintenance.reason,
+          machine: maintenance.machine_code,
+          status_display: maintenance.status === 'em_manutencao' ? 'Em Manutenção' : 'Finalizada'
+        })),
+        ...espulas.map(espula => ({
+          ...espula,
+          type: 'espula',
+          typeLabel: 'Espula',
+          description: `${espula.cliente} - ${espula.artigo} (${espula.cor})`,
+          machine: 'N/A',
+          status_display: espula.status === 'pendente' ? 'Pendente' : 
+                         espula.status === 'em_producao_aguardando' ? 'Aguardando' :
+                         espula.status === 'producao' ? 'Produção' : 'Finalizado'
+        }))
+      ];
+
+      // Ordenar por data de criação (mais recente primeiro)
+      allOrders.sort((a, b) => new Date(b.created_at || b.updated_at) - new Date(a.created_at || a.updated_at));
+      setAllSystemOrders(allOrders);
+    } catch (error) {
+      console.error('Error loading all system orders:', error);
+      toast.error("Erro ao carregar histórico completo");
+    }
+  };
+
+  // Carregar dados quando mostrar histórico completo
+  useEffect(() => {
+    if (showAllOrders) {
+      loadAllSystemOrders();
+    }
+  }, [showAllOrders, espulas]);
 
   // CORRIGIR FORMATAÇÃO DE HORÁRIO - CONVERSÃO CORRETA UTC PARA BRASÍLIA  
   const formatDateTimeBrazil = (utcString) => {

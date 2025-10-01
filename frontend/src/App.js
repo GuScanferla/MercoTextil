@@ -115,8 +115,7 @@ const LoginPage = ({ onLogin }) => {
               </div>
             </div>
           </div>
-          <h1 className="login-title">Merco Têxtil</h1>
-          <p className="login-subtitle">Sistema Industrial de Controle</p>
+          <p className="login-subtitle">Sistema de Controle de Máquinas</p>
         </CardHeader>
         <CardContent className="form-merco">
           <form onSubmit={handleSubmit} className="space-y-4">

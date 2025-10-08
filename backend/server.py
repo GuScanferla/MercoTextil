@@ -32,7 +32,7 @@ api_router = APIRouter(prefix="/api")
 # Security
 security = HTTPBearer()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-JWT_SECRET = "fusosmanager_secret_key_2024"
+JWT_SECRET = os.getenv("JWT_SECRET", "fusosmanager_secret_key_2024")
 
 # Brazil timezone usando zoneinfo (padrão Python 3.9+)
 BRAZIL_TZ = ZoneInfo("America/Sao_Paulo")

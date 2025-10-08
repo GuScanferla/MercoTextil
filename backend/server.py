@@ -741,7 +741,9 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
-    await init_data()
+    machines_count = await db.machines.count_documents({})
+    if machines_count == 0:
+        await init_data()
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

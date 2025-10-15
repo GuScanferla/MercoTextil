@@ -1162,6 +1162,571 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
   );
 };
 
+// Ordem de Producao Panel
+const OrdemProducaoPanel = ({ user }) => {
+  const [ordens, setOrdens] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [ordemData, setOrdemData] = useState({
+    cliente: "",
+    artigo: "",
+    cor: "",
+    metragem: "",
+    data_entrega: "",
+    observacao: ""
+  });
+
+  useEffect(() => {
+    loadOrdens();
+  }, []);
+
+  const loadOrdens = async () => {
+    try {
+      const response = await axios.get(`${API}/ordens-producao`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setOrdens(response.data);
+    } catch (error) {
+      toast.error("Erro ao carregar ordens de produção");
+    }
+  };
+
+  const createOrdem = async () => {
+    try {
+      await axios.post(`${API}/ordens-producao`, ordemData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Ordem de produção criada com sucesso!");
+      setOrdemData({
+        cliente: "",
+        artigo: "",
+        cor: "",
+        metragem: "",
+        data_entrega: "",
+        observacao: ""
+      });
+      setShowForm(false);
+      loadOrdens();
+    } catch (error) {
+      toast.error("Erro ao criar ordem de produção");
+    }
+  };
+
+  const formatDateTimeBrazil = (utcString) => {
+    if (!utcString) return "-";
+    try {
+      const utcDate = new Date(utcString + (utcString.includes('Z') ? '' : 'Z'));
+      return new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(utcDate);
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const formatDateBrazil = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(date);
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "pendente": return "bg-yellow-600 text-yellow-100";
+      case "em_producao": return "bg-blue-600 text-blue-100";
+      case "finalizado": return "bg-green-600 text-green-100";
+      default: return "bg-gray-600 text-gray-100";
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case "pendente": return "Pendente";
+      case "em_producao": return "Em Produção";
+      case "finalizado": return "Finalizado";
+      default: return status;
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold text-white">Ordens de Produção</h2>
+        <Button onClick={() => setShowForm(!showForm)} className="btn-merco">
+          {showForm ? "Cancelar" : "+ Lançar"}
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card className="card-merco">
+          <CardHeader className="card-header-merco">
+            <CardTitle className="card-title-merco">Nova Ordem de Produção</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 form-merco">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cliente">Cliente *</Label>
+                <Input
+                  id="cliente"
+                  value={ordemData.cliente}
+                  onChange={(e) => setOrdemData({...ordemData, cliente: e.target.value})}
+                  placeholder="Nome do cliente"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="artigo">Artigo *</Label>
+                <Input
+                  id="artigo"
+                  value={ordemData.artigo}
+                  onChange={(e) => setOrdemData({...ordemData, artigo: e.target.value})}
+                  placeholder="Artigo"
+                  required
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cor">Cor *</Label>
+                <Input
+                  id="cor"
+                  value={ordemData.cor}
+                  onChange={(e) => setOrdemData({...ordemData, cor: e.target.value})}
+                  placeholder="Cor"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="metragem">Metragem *</Label>
+                <Input
+                  id="metragem"
+                  value={ordemData.metragem}
+                  onChange={(e) => setOrdemData({...ordemData, metragem: e.target.value})}
+                  placeholder="Metragem"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="data_entrega">Data de Entrega *</Label>
+              <Input
+                id="data_entrega"
+                type="date"
+                value={ordemData.data_entrega}
+                onChange={(e) => setOrdemData({...ordemData, data_entrega: e.target.value})}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="observacao">Observação</Label>
+              <Textarea
+                id="observacao"
+                value={ordemData.observacao}
+                onChange={(e) => setOrdemData({...ordemData, observacao: e.target.value})}
+                placeholder="Observações"
+              />
+            </div>
+            <Button 
+              onClick={createOrdem} 
+              className="w-full btn-merco"
+              disabled={!ordemData.cliente || !ordemData.artigo || !ordemData.cor || !ordemData.metragem || !ordemData.data_entrega}
+            >
+              Criar Ordem
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {ordens.map((ordem) => (
+          <Card key={ordem.id} className="card-merco">
+            <CardHeader className="card-header-merco pb-3">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="card-title-merco text-lg">OS {ordem.numero_os}</CardTitle>
+                  <p className="text-sm text-gray-400 mt-1">{ordem.cliente}</p>
+                </div>
+                <Badge className={getStatusBadge(ordem.status)}>
+                  {getStatusText(ordem.status)}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-gray-400">Artigo</p>
+                  <p className="text-white font-medium">{ordem.artigo}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Cor</p>
+                  <p className="text-white font-medium">{ordem.cor}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-gray-400">Metragem</p>
+                  <p className="text-white font-medium">{ordem.metragem}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Entrega</p>
+                  <p className="text-white font-medium">{formatDateBrazil(ordem.data_entrega)}</p>
+                </div>
+              </div>
+              {ordem.observacao && (
+                <div>
+                  <p className="text-gray-400">Observação</p>
+                  <p className="text-white text-xs">{ordem.observacao}</p>
+                </div>
+              )}
+              <div className="pt-2 border-t border-gray-700">
+                <p className="text-xs text-gray-400">Criado: {formatDateTimeBrazil(ordem.criado_em)}</p>
+                {ordem.iniciado_em && (
+                  <p className="text-xs text-gray-400">Iniciado: {formatDateTimeBrazil(ordem.iniciado_em)}</p>
+                )}
+                {ordem.finalizado_em && (
+                  <p className="text-xs text-gray-400">Finalizado: {formatDateTimeBrazil(ordem.finalizado_em)}</p>
+                )}
+                <p className="text-xs text-gray-400">Por: {ordem.criado_por}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Relatorios Panel - Shows only pending ordens
+const RelatoriosPanel = ({ user }) => {
+  const [ordensPendentes, setOrdensPendentes] = useState([]);
+  const [selectedOrdem, setSelectedOrdem] = useState(null);
+  const [showEspulaForm, setShowEspulaForm] = useState(false);
+  const [espulaData, setEspulaData] = useState({
+    numero_os: "",
+    maquina: "",
+    mat_prima: "",
+    qtde_fios: "",
+    quantidade_metros: "",
+    carga: "",
+    carga_fracao_1: "",
+    carga_fracao_2: "",
+    carga_fracao_3: "",
+    carga_fracao_4: "",
+    carga_fracao_5: "",
+    observacoes: ""
+  });
+
+  useEffect(() => {
+    loadOrdensPendentes();
+    const interval = setInterval(loadOrdensPendentes, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadOrdensPendentes = async () => {
+    try {
+      const response = await axios.get(`${API}/ordens-producao/pendentes`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setOrdensPendentes(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar ordens pendentes:", error);
+    }
+  };
+
+  const handleOrdemClick = (ordem) => {
+    setSelectedOrdem(ordem);
+    setEspulaData({
+      numero_os: ordem.numero_os,
+      maquina: "",
+      mat_prima: "",
+      qtde_fios: "",
+      quantidade_metros: ordem.metragem,
+      carga: "",
+      carga_fracao_1: "",
+      carga_fracao_2: "",
+      carga_fracao_3: "",
+      carga_fracao_4: "",
+      carga_fracao_5: "",
+      observacoes: ordem.observacao || ""
+    });
+    setShowEspulaForm(true);
+  };
+
+  const createEspulaFromOrdem = async () => {
+    try {
+      const espulaPayload = {
+        ordem_producao_id: selectedOrdem.id,
+        numero_os: espulaData.numero_os,
+        cliente: selectedOrdem.cliente,
+        artigo: selectedOrdem.artigo,
+        cor: selectedOrdem.cor,
+        maquina: espulaData.maquina,
+        mat_prima: espulaData.mat_prima,
+        qtde_fios: espulaData.qtde_fios,
+        quantidade_metros: espulaData.quantidade_metros,
+        carga: espulaData.carga,
+        carga_fracao_1: espulaData.carga_fracao_1,
+        carga_fracao_2: espulaData.carga_fracao_2,
+        carga_fracao_3: espulaData.carga_fracao_3,
+        carga_fracao_4: espulaData.carga_fracao_4,
+        carga_fracao_5: espulaData.carga_fracao_5,
+        observacoes: espulaData.observacoes,
+        data_prevista_entrega: selectedOrdem.data_entrega
+      };
+
+      await axios.post(`${API}/espulas`, espulaPayload, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Espula criada com sucesso! Ordem movida para produção.");
+      setShowEspulaForm(false);
+      setSelectedOrdem(null);
+      loadOrdensPendentes();
+    } catch (error) {
+      toast.error("Erro ao criar espula");
+    }
+  };
+
+  const formatDateBrazil = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(date);
+    } catch (error) {
+      return "-";
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold text-white">Relatórios - Ordens Pendentes</h2>
+        <Button onClick={loadOrdensPendentes} variant="outline" className="gap-2">
+          <RefreshCw className="h-4 w-4" />
+          Atualizar
+        </Button>
+      </div>
+
+      {ordensPendentes.length === 0 ? (
+        <Card className="card-merco">
+          <CardContent className="py-12 text-center">
+            <p className="text-gray-400 text-lg">Nenhuma ordem pendente no momento</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {ordensPendentes.map((ordem) => (
+            <Card 
+              key={ordem.id} 
+              className="card-merco cursor-pointer hover:border-blue-500 transition-colors"
+              onClick={() => handleOrdemClick(ordem)}
+            >
+              <CardHeader className="card-header-merco pb-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="card-title-merco text-lg">OS {ordem.numero_os}</CardTitle>
+                    <p className="text-sm text-gray-400 mt-1">{ordem.cliente}</p>
+                  </div>
+                  <Badge className="bg-yellow-600 text-yellow-100">Pendente</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-gray-400">Artigo</p>
+                    <p className="text-white font-medium">{ordem.artigo}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Cor</p>
+                    <p className="text-white font-medium">{ordem.cor}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-gray-400">Metragem</p>
+                    <p className="text-white font-medium">{ordem.metragem}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Entrega</p>
+                    <p className="text-white font-medium">{formatDateBrazil(ordem.data_entrega)}</p>
+                  </div>
+                </div>
+                <div className="pt-2 text-center">
+                  <p className="text-xs text-blue-400">Clique para criar espula</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Dialog to create Espula from Ordem */}
+      <Dialog open={showEspulaForm} onOpenChange={setShowEspulaForm}>
+        <DialogContent className="dialog-merco max-w-3xl">
+          <DialogHeader className="dialog-header">
+            <DialogTitle className="dialog-title">
+              Criar Espula - OS {selectedOrdem?.numero_os}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 p-6 form-merco max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-800 rounded">
+              <div>
+                <p className="text-xs text-gray-400">Cliente</p>
+                <p className="text-white font-medium">{selectedOrdem?.cliente}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">Artigo</p>
+                <p className="text-white font-medium">{selectedOrdem?.artigo}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">Cor</p>
+                <p className="text-white font-medium">{selectedOrdem?.cor}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">Data Entrega</p>
+                <p className="text-white font-medium">{formatDateBrazil(selectedOrdem?.data_entrega)}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="maquina">Máquina *</Label>
+                <Input
+                  id="maquina"
+                  value={espulaData.maquina}
+                  onChange={(e) => setEspulaData({...espulaData, maquina: e.target.value})}
+                  placeholder="Ex: CD1, F2"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="mat_prima">Matéria Prima *</Label>
+                <Input
+                  id="mat_prima"
+                  value={espulaData.mat_prima}
+                  onChange={(e) => setEspulaData({...espulaData, mat_prima: e.target.value})}
+                  placeholder="Matéria prima"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="qtde_fios">Qtde Fios *</Label>
+                <Input
+                  id="qtde_fios"
+                  value={espulaData.qtde_fios}
+                  onChange={(e) => setEspulaData({...espulaData, qtde_fios: e.target.value})}
+                  placeholder="Quantidade"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="quantidade_metros">Qtde Metros *</Label>
+                <Input
+                  id="quantidade_metros"
+                  value={espulaData.quantidade_metros}
+                  onChange={(e) => setEspulaData({...espulaData, quantidade_metros: e.target.value})}
+                  placeholder="Metros"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="carga">Carga *</Label>
+                <Input
+                  id="carga"
+                  value={espulaData.carga}
+                  onChange={(e) => setEspulaData({...espulaData, carga: e.target.value})}
+                  placeholder="Carga"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label>Cargas e Fração (até 5 valores - opcional)</Label>
+              <div className="grid grid-cols-5 gap-2 mt-2">
+                <Input
+                  value={espulaData.carga_fracao_1}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_1: e.target.value})}
+                  placeholder="1"
+                  type="text"
+                />
+                <Input
+                  value={espulaData.carga_fracao_2}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_2: e.target.value})}
+                  placeholder="2"
+                  type="text"
+                />
+                <Input
+                  value={espulaData.carga_fracao_3}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_3: e.target.value})}
+                  placeholder="3"
+                  type="text"
+                />
+                <Input
+                  value={espulaData.carga_fracao_4}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_4: e.target.value})}
+                  placeholder="4"
+                  type="text"
+                />
+                <Input
+                  value={espulaData.carga_fracao_5}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_5: e.target.value})}
+                  placeholder="5"
+                  type="text"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="observacoes">Observações</Label>
+              <Textarea
+                id="observacoes"
+                value={espulaData.observacoes}
+                onChange={(e) => setEspulaData({...espulaData, observacoes: e.target.value})}
+                placeholder="Observações adicionais"
+              />
+            </div>
+
+            <div className="flex space-x-3">
+              <Button 
+                onClick={createEspulaFromOrdem} 
+                className="flex-1 btn-merco"
+                disabled={!espulaData.maquina || !espulaData.mat_prima || !espulaData.qtde_fios || !espulaData.quantidade_metros || !espulaData.carga}
+              >
+                Criar Espula
+              </Button>
+              <Button variant="outline" onClick={() => setShowEspulaForm(false)} className="flex-1">
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
 const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   const [showForm, setShowForm] = useState(false);
   const [showHistory, setShowHistory] = useState(false);

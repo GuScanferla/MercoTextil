@@ -226,7 +226,7 @@ const Dashboard = ({ user, onLogout }) => {
       });
       setEspulas(response.data);
     } catch (error) {
-      toast.error("Erro ao carregar espulas");
+      toast.error("Erro ao carregar espulagem");
     }
   };
 

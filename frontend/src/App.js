@@ -1795,7 +1795,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
       
-      toast.success("Espula lançada com sucesso!");
+      toast.success("Espulagem lançada com sucesso!");
       setEspulaData({
         numero_os: "",
         maquina: "",

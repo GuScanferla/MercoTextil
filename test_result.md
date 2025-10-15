@@ -315,17 +315,20 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Create OrdemProducao model and CRUD endpoints"
-    - "Update Espulas model with new fields"
-    - "Update GET espulas endpoint to return all espulas"
     - "Create Ordem de Produção tab and panel"
     - "Create Relatórios tab and panel"
     - "Update Espulas panel with new fields"
     - "Remove 'Ver Histórico Completo' and update history"
+    - "Update 16 fusos layout frontend to match exact image positioning"
+    - "Update 32 fusos layout frontend to match exact image positioning"
+    - "Update Espulas frontend for history and new fields"
+    - "Update CSS for exact layout positioning"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
     -agent: "main"
     -message: "Implemented complete Ordem de Produção and Relatórios system. Backend: Created OrdemProducao model with sequential numbering (0001, 0002...), full CRUD endpoints including /pendentes for reports tab. Updated Espulas model with new fields (numero_os, ordem_producao_id, maquina, mat_prima, qtde_fios, 5 carga_fracao fields). Espula creation now updates ordem status to em_producao. Frontend: Added 2 new tabs (Ordem de Produção, Relatórios), updated Espulas form and display with all new fields. Removed 'Ver Histórico Completo', updated history to show all espulas. Ready for backend testing."
+    -agent: "testing"
+    -message: "✅ BACKEND TESTING COMPLETE: All Ordem de Produção and Espulas functionality working perfectly. Tested 19 specific scenarios including: sequential OS numbering (0001-0012), ordem creation/retrieval, pendentes filtering, espula creation with new fields, automatic ordem status updates, espula-ordem linking, finalized espula history retention, validation scenarios. All 45/45 backend tests passed. Backend APIs are production-ready. Frontend testing needed next."

@@ -835,6 +835,17 @@ async def update_espula(
         update_data["iniciado_em"] = get_utc_now()
     elif espula_update.status == "finalizado":
         update_data["finalizado_em"] = get_utc_now()
+        
+        # If espula is linked to an ordem de producao, update the ordem status to finalizado
+        if espula.get("ordem_producao_id"):
+            await db.ordens_producao.update_one(
+                {"id": espula["ordem_producao_id"]},
+                {"$set": {
+                    "status": "finalizado",
+                    "finalizado_em": get_utc_now(),
+                    "updated_at": get_utc_now()
+                }}
+            )
     
     await db.espulas.update_one({"id": espula_id}, {"$set": update_data})
     

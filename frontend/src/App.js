@@ -1730,14 +1730,21 @@ const RelatoriosPanel = ({ user }) => {
 const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   const [showForm, setShowForm] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [showAllOrders, setShowAllOrders] = useState(false); // Nova funcionalidade
-  const [allSystemOrders, setAllSystemOrders] = useState([]); // Todos os pedidos do sistema
   const [espulaData, setEspulaData] = useState({
+    numero_os: "",
+    maquina: "",
+    mat_prima: "",
+    qtde_fios: "",
     cliente: "",
     artigo: "",
     cor: "",
-    quantidade_metros: "", // Changed from quantidade to quantidade_metros
-    carga: "", // New field
+    quantidade_metros: "",
+    carga: "",
+    carga_fracao_1: "",
+    carga_fracao_2: "",
+    carga_fracao_3: "",
+    carga_fracao_4: "",
+    carga_fracao_5: "",
     observacoes: "",
     data_prevista_entrega: ""
   });

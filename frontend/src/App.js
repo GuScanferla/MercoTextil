@@ -1797,11 +1797,20 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       
       toast.success("Espula lançada com sucesso!");
       setEspulaData({
+        numero_os: "",
+        maquina: "",
+        mat_prima: "",
+        qtde_fios: "",
         cliente: "",
         artigo: "",
         cor: "",
         quantidade_metros: "",
         carga: "",
+        carga_fracao_1: "",
+        carga_fracao_2: "",
+        carga_fracao_3: "",
+        carga_fracao_4: "",
+        carga_fracao_5: "",
         observacoes: "",
         data_prevista_entrega: ""
       });

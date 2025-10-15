@@ -1817,7 +1817,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       setShowForm(false);
       onEspulaUpdate();
     } catch (error) {
-      toast.error("Erro ao lançar espula");
+      toast.error("Erro ao lançar espulagem");
     }
   };
 

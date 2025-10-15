@@ -298,7 +298,7 @@ const Dashboard = ({ user, onLogout }) => {
         <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="tabs-merco">
             <TabsTrigger value="dashboard" className="tab-merco">Dashboard</TabsTrigger>
-            <TabsTrigger value="orders" className="tab-merco">Pedidos</TabsTrigger>
+            <TabsTrigger value="orders" className="tab-merco">Produção</TabsTrigger>
             <TabsTrigger value="ordemproducao" className="tab-merco">Ordem de Produção</TabsTrigger>
             <TabsTrigger value="relatorios" className="tab-merco">Relatórios</TabsTrigger>
             <TabsTrigger value="espulas" className="tab-merco">Espulas</TabsTrigger>

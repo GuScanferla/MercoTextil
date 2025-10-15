@@ -814,8 +814,8 @@ async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(
 
 @api_router.get("/espulas", response_model=List[Espula])
 async def get_espulas(current_user: User = Depends(get_current_user)):
-    # Get only non-finished espulas, sorted by delivery date
-    espulas = await db.espulas.find({"status": {"$ne": "finalizado"}}).sort("data_prevista_entrega", 1).to_list(1000)
+    # Get ALL espulas (including finished), sorted by delivery date
+    espulas = await db.espulas.find().sort("data_prevista_entrega", 1).to_list(1000)
     return [Espula(**espula) for espula in espulas]
 
 @api_router.put("/espulas/{espula_id}")

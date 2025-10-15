@@ -1864,9 +1864,9 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       }));
       
       const ws = XLSX.utils.json_to_sheet(espulasData);
-      XLSX.utils.book_append_sheet(wb, ws, "Espulas Finalizadas");
+      XLSX.utils.book_append_sheet(wb, ws, "Espulagem Finalizada");
       
-      XLSX.writeFile(wb, `espulas_finalizadas_${new Date().toISOString().split('T')[0]}.xlsx`);
+      XLSX.writeFile(wb, `espulagem_finalizada_${new Date().toISOString().split('T')[0]}.xlsx`);
       toast.success("Relatório exportado com sucesso!");
       
     } catch (error) {

@@ -231,7 +231,7 @@ const Dashboard = ({ user, onLogout }) => {
   };
 
   const resetDatabase = async () => {
-    if (window.confirm("Tem certeza que deseja resetar o banco de dados? Isso apagará todos os pedidos, espulas e manutenções.")) {
+    if (window.confirm("Tem certeza que deseja resetar o banco de dados? Isso apagará todos os pedidos, espulagem e manutenções.")) {
       try {
         await axios.post(`${API}/reset-database`, {}, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }

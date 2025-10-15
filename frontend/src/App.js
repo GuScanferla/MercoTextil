@@ -1570,7 +1570,7 @@ const RelatoriosPanel = ({ user }) => {
                   </div>
                 </div>
                 <div className="pt-2 text-center">
-                  <p className="text-xs text-blue-400">Clique para criar espula</p>
+                  <p className="text-xs text-blue-400">Clique para criar espulagem</p>
                 </div>
               </CardContent>
             </Card>

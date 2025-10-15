@@ -2114,7 +2114,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-bold text-white text-xl">
-                      OS #{espula.id.slice(-8)} - {espula.cliente}
+                      {espula.numero_os ? `OS ${espula.numero_os}` : `OS #${espula.id.slice(-8)}`} - {espula.cliente}
                     </h3>
                     <p className="text-gray-400 text-lg">Artigo: <span className="text-white">{espula.artigo}</span></p>
                   </div>
@@ -2124,12 +2124,30 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                 </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base mb-4">
+                  {espula.maquina && (
+                    <div>
+                      <span className="font-medium text-gray-400">Máquina:</span>
+                      <p className="text-white">{espula.maquina}</p>
+                    </div>
+                  )}
                   <div>
                     <span className="font-medium text-gray-400">Cor:</span>
                     <p className="text-white">{espula.cor}</p>
                   </div>
+                  {espula.mat_prima && (
+                    <div>
+                      <span className="font-medium text-gray-400">Mat. Prima:</span>
+                      <p className="text-white">{espula.mat_prima}</p>
+                    </div>
+                  )}
+                  {espula.qtde_fios && (
+                    <div>
+                      <span className="font-medium text-gray-400">Qtde Fios:</span>
+                      <p className="text-white">{espula.qtde_fios}</p>
+                    </div>
+                  )}
                   <div>
-                    <span className="font-medium text-gray-400">Quantidade (m):</span>
+                    <span className="font-medium text-gray-400">Qtde Metros:</span>
                     <p className="text-white">{espula.quantidade_metros}</p>
                   </div>
                   <div>
@@ -2137,10 +2155,24 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                     <p className="text-white">{espula.carga}</p>
                   </div>
                   <div>
-                    <span className="font-medium text-gray-400">Entrega Prevista:</span>
+                    <span className="font-medium text-gray-400">Data Entrega:</span>
                     <p className="text-white">{formatDateBrazil(espula.data_prevista_entrega)}</p>
                   </div>
                 </div>
+
+                {/* Cargas e Fração */}
+                {(espula.carga_fracao_1 || espula.carga_fracao_2 || espula.carga_fracao_3 || espula.carga_fracao_4 || espula.carga_fracao_5) && (
+                  <div className="mb-4 p-3 bg-gray-800/50 rounded">
+                    <span className="font-medium text-gray-400">Cargas e Fração:</span>
+                    <div className="flex gap-3 mt-2">
+                      {espula.carga_fracao_1 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_1}</span>}
+                      {espula.carga_fracao_2 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_2}</span>}
+                      {espula.carga_fracao_3 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_3}</span>}
+                      {espula.carga_fracao_4 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_4}</span>}
+                      {espula.carga_fracao_5 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_5}</span>}
+                    </div>
+                  </div>
+                )}
 
                 {/* Time history */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base mb-4 p-4 bg-gray-900/50 rounded-lg">

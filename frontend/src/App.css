@@ -1067,4 +1067,237 @@ footer {
   border-top: 2px solid rgba(200, 16, 46, 0.3);
   padding: 24px 0;
   margin-top: 48px;
+
+
+/* ==================== RESPONSIVIDADE MOBILE ==================== */
+
+/* Tablets e telas médias */
+@media (max-width: 1024px) {
+  .max-w-7xl {
+    padding: 0 16px;
+  }
+  
+  .tabs-merco {
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  
+  .tabs-merco::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .tab-merco {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+}
+
+/* Mobile - Smartphones */
+@media (max-width: 768px) {
+  /* Header responsive */
+  header {
+    padding: 12px 16px;
+  }
+  
+  .merco-logo-text {
+    font-size: 24px;
+  }
+  
+  /* Cards responsivos */
+  .card-merco,
+  .card-merco-large {
+    margin: 8px 0;
+  }
+  
+  /* Grid de cards - 1 coluna em mobile */
+  .grid.md\:grid-cols-2,
+  .grid.lg\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Formulários - campos em coluna única */
+  .grid.grid-cols-2,
+  .grid.grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Botões responsivos */
+  .flex.space-x-3 {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .flex.space-x-3 > button {
+    width: 100%;
+  }
+  
+  /* Layout switcher */
+  .layout-switcher {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .layout-btn {
+    width: 100%;
+    font-size: 14px;
+    padding: 12px;
+  }
+  
+  /* Títulos menores */
+  h2 {
+    font-size: 24px !important;
+  }
+  
+  h3 {
+    font-size: 20px !important;
+  }
+  
+  /* Cargas e fração - scroll horizontal em mobile */
+  .grid.grid-cols-5 {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .grid.grid-cols-5 input {
+    min-width: 60px;
+    flex-shrink: 0;
+  }
+  
+  /* Tabela de usuários responsiva */
+  .space-y-2 {
+    overflow-x: auto;
+  }
+  
+  /* Dialog/Modal responsivo */
+  .dialog-merco {
+    max-width: 95vw !important;
+    margin: 8px;
+  }
+  
+  .max-h-\[70vh\] {
+    max-height: 60vh !important;
+  }
+}
+
+/* Mobile pequeno - Smartphones pequenos */
+@media (max-width: 480px) {
+  /* Padding geral reduzido */
+  main {
+    padding: 16px 8px !important;
+  }
+  
+  /* Cards mais compactos */
+  .p-6 {
+    padding: 16px !important;
+  }
+  
+  .p-4 {
+    padding: 12px !important;
+  }
+  
+  /* Títulos ainda menores */
+  h2 {
+    font-size: 20px !important;
+  }
+  
+  h3 {
+    font-size: 18px !important;
+  }
+  
+  /* Botões menores */
+  button {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+  
+  .btn-merco,
+  .btn-merco-large {
+    height: auto;
+    min-height: 44px;
+  }
+  
+  /* Inputs menores */
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* Evita zoom no iOS */
+    padding: 10px;
+  }
+  
+  /* Grid de informações - 1 coluna */
+  .grid.grid-cols-4,
+  .grid.gap-4 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  
+  /* Badges menores */
+  .text-sm {
+    font-size: 12px;
+  }
+  
+  /* Máquinas - layout reduzido */
+  .machine-box-16,
+  .machine-box-32 {
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 11px !important;
+  }
+  
+  .machine-code {
+    font-size: 11px !important;
+  }
+  
+  /* Tabs mais compactas */
+  .tab-merco {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  /* Footer compacto */
+  footer {
+    padding: 16px 0;
+    font-size: 12px;
+  }
+}
+
+/* Landscape em mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .layout-16-exact-centered,
+  .layout-32-exact-new {
+    padding: 8px;
+  }
+  
+  .machine-box-16,
+  .machine-box-32 {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Áreas de toque maiores */
+  button,
+  .machine-box-16,
+  .machine-box-32,
+  .tab-merco {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Remove hover effects em touch devices */
+  *:hover {
+    transition: none;
+  }
+}
+
 }

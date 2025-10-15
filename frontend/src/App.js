@@ -1967,19 +1967,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         <h2 className="text-3xl font-bold text-white">Gerenciamento de Espulas</h2>
         <div className="flex space-x-3">
           <Button 
-            onClick={() => {
-              setShowAllOrders(!showAllOrders);
-              if (showHistory) setShowHistory(false);
-            }} 
-            className="bg-purple-600 hover:bg-purple-700 text-white"
-          >
-            {showAllOrders ? "Ocultar Histórico Completo" : "Ver Histórico Completo"}
-          </Button>
-          <Button 
-            onClick={() => {
-              setShowHistory(!showHistory);
-              if (showAllOrders) setShowAllOrders(false);
-            }} 
+            onClick={() => setShowHistory(!showHistory)} 
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {showHistory ? "Ocultar Histórico Espulas" : "Ver Histórico Espulas"}

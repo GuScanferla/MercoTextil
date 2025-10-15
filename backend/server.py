@@ -685,11 +685,106 @@ async def update_order(
     
     return {"message": "Order updated successfully"}
 
+# Ordem de Producao routes
+@api_router.get("/ordens-producao/next-number")
+async def get_next_ordem_number(current_user: User = Depends(get_current_user)):
+    """Get the next sequential OS number"""
+    try:
+        # Find the highest numero_os
+        ordens = await db.ordens_producao.find().sort("numero_os", -1).limit(1).to_list(1)
+        
+        if not ordens:
+            return {"numero_os": "0001"}
+        
+        last_number = int(ordens[0]["numero_os"])
+        next_number = last_number + 1
+        
+        # Format with leading zeros (minimum 4 digits)
+        next_os = str(next_number).zfill(max(4, len(str(next_number))))
+        
+        return {"numero_os": next_os}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error getting next number: {str(e)}")
+
+@api_router.post("/ordens-producao", response_model=OrdemProducao)
+async def create_ordem_producao(ordem_data: OrdemProducaoCreate, current_user: User = Depends(get_current_user)):
+    try:
+        # Get next OS number
+        next_number_response = await get_next_ordem_number(current_user)
+        numero_os = next_number_response["numero_os"]
+        
+        ordem = OrdemProducao(
+            numero_os=numero_os,
+            cliente=ordem_data.cliente,
+            artigo=ordem_data.artigo,
+            cor=ordem_data.cor,
+            metragem=ordem_data.metragem,
+            data_entrega=ordem_data.data_entrega,
+            observacao=ordem_data.observacao,
+            criado_por=current_user.username
+        )
+        
+        await db.ordens_producao.insert_one(ordem.dict())
+        return ordem
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error creating ordem de producao: {str(e)}")
+
+@api_router.get("/ordens-producao", response_model=List[OrdemProducao])
+async def get_ordens_producao(current_user: User = Depends(get_current_user)):
+    ordens = await db.ordens_producao.find().sort("criado_em", -1).to_list(1000)
+    return [OrdemProducao(**ordem) for ordem in ordens]
+
+@api_router.get("/ordens-producao/pendentes", response_model=List[OrdemProducao])
+async def get_ordens_producao_pendentes(current_user: User = Depends(get_current_user)):
+    """Get only pending ordens de producao for Relatorios tab"""
+    ordens = await db.ordens_producao.find({"status": "pendente"}).sort("criado_em", -1).to_list(1000)
+    return [OrdemProducao(**ordem) for ordem in ordens]
+
+@api_router.get("/ordens-producao/{ordem_id}", response_model=OrdemProducao)
+async def get_ordem_producao(ordem_id: str, current_user: User = Depends(get_current_user)):
+    ordem = await db.ordens_producao.find_one({"id": ordem_id})
+    if not ordem:
+        raise HTTPException(status_code=404, detail="Ordem de producao not found")
+    return OrdemProducao(**ordem)
+
+@api_router.put("/ordens-producao/{ordem_id}")
+async def update_ordem_producao(
+    ordem_id: str,
+    ordem_update: OrdemProducaoUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    ordem = await db.ordens_producao.find_one({"id": ordem_id})
+    if not ordem:
+        raise HTTPException(status_code=404, detail="Ordem de producao not found")
+    
+    update_data = {"status": ordem_update.status, "updated_at": get_utc_now()}
+    
+    if ordem_update.status == "em_producao" and not ordem.get("iniciado_em"):
+        update_data["iniciado_em"] = get_utc_now()
+    elif ordem_update.status == "finalizado":
+        update_data["finalizado_em"] = get_utc_now()
+    
+    await db.ordens_producao.update_one({"id": ordem_id}, {"$set": update_data})
+    
+    return {"message": "Ordem de producao updated successfully"}
+
 # Espulas routes
 @api_router.post("/espulas", response_model=Espula)
 async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(get_current_user)):
     try:
         espula = Espula(
+            # New fields
+            numero_os=espula_data.numero_os,
+            ordem_producao_id=espula_data.ordem_producao_id,
+            maquina=espula_data.maquina,
+            mat_prima=espula_data.mat_prima,
+            qtde_fios=espula_data.qtde_fios,
+            carga_fracao_1=espula_data.carga_fracao_1,
+            carga_fracao_2=espula_data.carga_fracao_2,
+            carga_fracao_3=espula_data.carga_fracao_3,
+            carga_fracao_4=espula_data.carga_fracao_4,
+            carga_fracao_5=espula_data.carga_fracao_5,
+            # Existing fields
             cliente=espula_data.cliente,
             artigo=espula_data.artigo,
             cor=espula_data.cor,
@@ -701,6 +796,18 @@ async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(
         )
         
         await db.espulas.insert_one(espula.dict())
+        
+        # If espula is linked to an ordem de producao, update the ordem status
+        if espula_data.ordem_producao_id:
+            await db.ordens_producao.update_one(
+                {"id": espula_data.ordem_producao_id},
+                {"$set": {
+                    "status": "em_producao",
+                    "iniciado_em": get_utc_now(),
+                    "updated_at": get_utc_now()
+                }}
+            )
+        
         return espula
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error creating espula: {str(e)}")

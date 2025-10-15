@@ -306,14 +306,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Update machine initialization for 16 fusos layout"
-    - "Update machine initialization for 32 fusos layout"
-    - "Update Espulas model to include start/end history"
-    - "Update Espulas model for Quantidade em Metros and Carga field"
-    - "Update 16 fusos layout frontend to match exact image positioning"
-    - "Update 32 fusos layout frontend to match exact image positioning"
-    - "Update Espulas frontend for history and new fields"
-    - "Update CSS for exact layout positioning"
+    - "Create OrdemProducao model and CRUD endpoints"
+    - "Update Espulas model with new fields"
+    - "Update GET espulas endpoint to return all espulas"
+    - "Create Ordem de Produção tab and panel"
+    - "Create Relatórios tab and panel"
+    - "Update Espulas panel with new fields"
+    - "Remove 'Ver Histórico Completo' and update history"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"

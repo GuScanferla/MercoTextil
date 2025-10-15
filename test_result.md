@@ -202,6 +202,54 @@ backend:
         -comment: "✅ VERIFIED: POST /api/espulas now accepts quantidade_metros (instead of quantidade) and carga field (alphanumeric). GET /api/espulas returns updated field names. All CRUD operations working correctly with new field structure."
 
 frontend:
+  - task: "Create Ordem de Produção tab and panel"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created new tab 'Ordem de Produção' after 'Pedidos'. Created OrdemProducaoPanel component with +Lançar button, form to create ordem (cliente, artigo, cor, metragem, data_entrega, observacao), displays all ordens with numero_os, status badges, timestamps (criado, iniciado, finalizado), and criado_por. Auto-generates sequential OS numbers (0001, 0002...)."
+  
+  - task: "Create Relatórios tab and panel"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created new tab 'Relatórios' showing only pending ordens de producao. Click on ordem opens dialog to create espula with pre-filled data from ordem. Dialog includes all new espula fields. When espula is created with ordem_producao_id, ordem automatically moves to em_producao status and disappears from pending list."
+  
+  - task: "Update Espulas panel with new fields"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Updated Espulas form to include: OS (optional), MAQUINA, MAT PRIMA, QTDE FIOS, ARTIGO, COR, QTDE METROS, DATA ENTREGA, CARGA, and 5 CARGAS E FRAÇÃO fields (optional manual input). Updated espula display cards to show all new fields including cargas fracao as badges. Form validation requires maquina, mat_prima, cliente, artigo, cor, qtde_fios, quantidade_metros, carga, data_entrega."
+  
+  - task: "Remove 'Ver Histórico Completo' and update history"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Removed 'Ver Histórico Completo' button and entire loadAllSystemOrders functionality. Updated 'Ver Histórico Espulas' to show ALL espulas (pendentes + finalizadas) sorted by delivery date, not just finalized ones. Maintained ordenation by data_prevista_entrega."
+  
   - task: "Update 16 fusos layout frontend to match exact image positioning"
     implemented: true
     working: "NA"

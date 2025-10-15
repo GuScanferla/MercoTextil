@@ -1936,7 +1936,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       {showForm && (
         <Card className="card-merco-large">
           <CardHeader>
-            <CardTitle className="text-white text-xl">Nova Ordem de Serviço - Espula</CardTitle>
+            <CardTitle className="text-white text-xl">Nova Ordem de Serviço - Espulagem</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 form-merco">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

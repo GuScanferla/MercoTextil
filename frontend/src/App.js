@@ -1915,7 +1915,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold text-white">Gerenciamento de Espulas</h2>
+        <h2 className="text-3xl font-bold text-white">Gerenciamento de Espulagem</h2>
         <div className="flex space-x-3">
           <Button 
             onClick={() => setShowHistory(!showHistory)} 

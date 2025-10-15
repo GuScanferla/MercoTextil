@@ -2501,14 +2501,124 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       }));
       
       const ordersWS = XLSX.utils.json_to_sheet(ordersData);
-      XLSX.utils.book_append_sheet(wb, ordersWS, "Pedidos");
+      XLSX.utils.book_append_sheet(wb, ordersWS, "Produção");
       
-      const fileName = `relatorio_merco_textil_${layoutType}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const fileName = `relatorio_producao_${layoutType}_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, fileName);
       
       toast.success("Relatório exportado com sucesso!");
     } catch (error) {
       toast.error("Erro ao exportar relatório");
+    }
+  };
+
+  const exportCompleteReport = async () => {
+    try {
+      // Fetch all data from all endpoints
+      const [ordersResponse, ordensResponse, espulasResponse, maintenanceResponse] = await Promise.all([
+        axios.get(`${API}/orders`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }),
+        axios.get(`${API}/ordens-producao`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }),
+        axios.get(`${API}/espulas`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }),
+        axios.get(`${API}/maintenance`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        })
+      ]);
+
+      const wb = XLSX.utils.book_new();
+      
+      // Sheet 1: Produção (Orders)
+      const ordersData = ordersResponse.data.map(order => ({
+        'ID': order.id,
+        'Máquina': order.machine_code,
+        'Layout': order.layout_type,
+        'Cliente': order.cliente,
+        'Artigo': order.artigo,
+        'Cor': order.cor,
+        'Quantidade': order.quantidade,
+        'Status': order.status,
+        'Criado por': order.created_by,
+        'Criado em': new Date(order.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
+        'Iniciado em': order.started_at ? new Date(order.started_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
+        'Finalizado em': order.finished_at ? new Date(order.finished_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
+        'Observação': order.observacao,
+        'Obs. Liberação': order.observacao_liberacao,
+        'Laudo Final': order.laudo_final
+      }));
+      const ordersWS = XLSX.utils.json_to_sheet(ordersData);
+      XLSX.utils.book_append_sheet(wb, ordersWS, "Produção");
+
+      // Sheet 2: Ordens de Produção
+      const ordensData = ordensResponse.data.map(ordem => ({
+        'Número OS': ordem.numero_os,
+        'Cliente': ordem.cliente,
+        'Artigo': ordem.artigo,
+        'Cor': ordem.cor,
+        'Metragem': ordem.metragem,
+        'Data Entrega': new Date(ordem.data_entrega).toLocaleDateString('pt-BR'),
+        'Observação': ordem.observacao,
+        'Status': ordem.status === 'pendente' ? 'Pendente' : ordem.status === 'em_producao' ? 'Em Produção' : 'Finalizado',
+        'Criado por': ordem.criado_por,
+        'Criado em': new Date(ordem.criado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
+        'Iniciado em': ordem.iniciado_em ? new Date(ordem.iniciado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
+        'Finalizado em': ordem.finalizado_em ? new Date(ordem.finalizado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : ''
+      }));
+      const ordensWS = XLSX.utils.json_to_sheet(ordensData);
+      XLSX.utils.book_append_sheet(wb, ordensWS, "Ordem de Produção");
+
+      // Sheet 3: Espulagem
+      const espulasData = espulasResponse.data.map(espula => ({
+        'OS': espula.numero_os || espula.id.slice(-8),
+        'Cliente': espula.cliente,
+        'Artigo': espula.artigo,
+        'Máquina': espula.maquina,
+        'Cor': espula.cor,
+        'Mat. Prima': espula.mat_prima,
+        'Qtde Fios': espula.qtde_fios,
+        'Qtde Metros': espula.quantidade_metros,
+        'Carga': espula.carga,
+        'Fração 1': espula.carga_fracao_1 || '',
+        'Fração 2': espula.carga_fracao_2 || '',
+        'Fração 3': espula.carga_fracao_3 || '',
+        'Fração 4': espula.carga_fracao_4 || '',
+        'Fração 5': espula.carga_fracao_5 || '',
+        'Data Entrega': new Date(espula.data_prevista_entrega).toLocaleDateString('pt-BR'),
+        'Observações': espula.observacoes,
+        'Status': espula.status === 'pendente' ? 'Pendente' : espula.status === 'em_producao_aguardando' ? 'Em Produção (Aguardando)' : espula.status === 'producao' ? 'Produção' : 'Finalizado',
+        'Criado por': espula.created_by,
+        'Lançado em': new Date(espula.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
+        'Iniciado em': espula.iniciado_em ? new Date(espula.iniciado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
+        'Finalizado em': espula.finalizado_em ? new Date(espula.finalizado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : ''
+      }));
+      const espulasWS = XLSX.utils.json_to_sheet(espulasData);
+      XLSX.utils.book_append_sheet(wb, espulasWS, "Espulagem");
+
+      // Sheet 4: Manutenção
+      const maintenanceData = maintenanceResponse.data.map(maint => ({
+        'ID': maint.id,
+        'Máquina': maint.machine_code,
+        'Motivo': maint.motivo,
+        'Status': maint.status === 'em_manutencao' ? 'Em Manutenção' : 'Finalizada',
+        'Criado por': maint.created_by,
+        'Criado em': new Date(maint.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
+        'Finalizado em': maint.finished_at ? new Date(maint.finished_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
+        'Finalizado por': maint.finished_by || ''
+      }));
+      const maintenanceWS = XLSX.utils.json_to_sheet(maintenanceData);
+      XLSX.utils.book_append_sheet(wb, maintenanceWS, "Manutenção");
+      
+      const fileName = `relatorio_completo_merco_textil_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      
+      toast.success("Relatório completo exportado com sucesso!");
+    } catch (error) {
+      console.error('Error exporting complete report:', error);
+      toast.error("Erro ao exportar relatório completo");
     }
   };
 

@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Update 16 and 32 fusos layouts to match provided images exactly. In 16 fusos: CD1-CD24, CI1-CI4, F1-F24 with exact positioning. In 32 fusos: CT1-CT24, U1-U32, N1-N10 with proper organization. Add history to Espulas with start/end times. Change 'Quantidade de Espulas' to 'Quantidade em Metros' and add 'Carga' field (letters and numbers). Maintain all existing functionality including machine independence and Brasília timezone."
+user_problem_statement: "Adicionar duas novas abas: 1) 'Ordem de Produção' ao lado de Espulas com botão +Lançar para criar ordens com cliente, artigo, cor, metragem, data de entrega, observação e número OS sequencial (0001, 0002...). Mostra criado, iniciado e finalizado. 2) 'Relatórios' mostrando apenas ordens pendentes. Ao clicar em ordem pendente, abre painel para criar espula. Quando espula é criada, ordem sai de pendente. Modificar Espulas: novos campos OS, ARTIGO, MAQUINA, COR, MAT PRIMA, QTDE FIOS, DATA ENTREGA, QTDE METROS, e 5 campos de CARGAS E FRAÇÃO (preenchimento manual). Remover 'Ver Histórico Completo'. 'Ver Histórico Espulas' mostra todas (pendentes + finalizadas)."
 
 backend:
   - task: "Update machine initialization for 16 fusos layout"

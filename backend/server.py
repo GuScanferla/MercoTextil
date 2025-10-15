@@ -157,8 +157,49 @@ class OrderUpdate(BaseModel):
     observacao_liberacao: str = ""
     laudo_final: str = ""
 
+class OrdemProducao(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    numero_os: str  # Sequential number: 0001, 0002, etc.
+    cliente: str
+    artigo: str
+    cor: str
+    metragem: str
+    data_entrega: str  # ISO date string
+    observacao: str = ""
+    status: str = "pendente"  # pendente, em_producao, finalizado
+    criado_em: datetime = Field(default_factory=get_utc_now)
+    iniciado_em: Optional[datetime] = None
+    finalizado_em: Optional[datetime] = None
+    criado_por: str
+    created_at: datetime = Field(default_factory=get_utc_now)
+    updated_at: datetime = Field(default_factory=get_utc_now)
+
+class OrdemProducaoCreate(BaseModel):
+    cliente: str
+    artigo: str
+    cor: str
+    metragem: str
+    data_entrega: str
+    observacao: str = ""
+
+class OrdemProducaoUpdate(BaseModel):
+    status: str
+
 class Espula(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    # New fields
+    numero_os: Optional[str] = ""  # OS number from ordem de producao
+    ordem_producao_id: Optional[str] = None  # Link to ordem de producao
+    maquina: Optional[str] = ""  # Machine code
+    mat_prima: Optional[str] = ""  # Raw material
+    qtde_fios: Optional[str] = ""  # Number of threads
+    # Cargas e fração - 5 optional numeric fields
+    carga_fracao_1: Optional[str] = ""
+    carga_fracao_2: Optional[str] = ""
+    carga_fracao_3: Optional[str] = ""
+    carga_fracao_4: Optional[str] = ""
+    carga_fracao_5: Optional[str] = ""
+    # Existing fields
     cliente: str
     artigo: str
     cor: str
@@ -176,6 +217,18 @@ class Espula(BaseModel):
     finalizado_em: Optional[datetime] = None  # When moved to finalizado
 
 class EspulaCreate(BaseModel):
+    # New optional fields
+    numero_os: Optional[str] = ""
+    ordem_producao_id: Optional[str] = None
+    maquina: Optional[str] = ""
+    mat_prima: Optional[str] = ""
+    qtde_fios: Optional[str] = ""
+    carga_fracao_1: Optional[str] = ""
+    carga_fracao_2: Optional[str] = ""
+    carga_fracao_3: Optional[str] = ""
+    carga_fracao_4: Optional[str] = ""
+    carga_fracao_5: Optional[str] = ""
+    # Existing fields
     cliente: str
     artigo: str
     cor: str

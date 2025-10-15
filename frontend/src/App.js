@@ -2717,7 +2717,18 @@ const AdminPanel = ({ users, onUserUpdate }) => {
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h3 className="text-white font-medium mb-3 text-lg">Relatórios de Produção</h3>
+              <h3 className="text-white font-medium mb-3 text-lg">Relatório Completo - Todas as Abas</h3>
+              <Button
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-14 text-lg font-semibold"
+                onClick={exportCompleteReport}
+              >
+                <Download className="h-6 w-6 mr-2" />
+                Exportar Relatório Completo (Produção, Ordem, Espulagem, Manutenção)
+              </Button>
+            </div>
+            
+            <div className="border-t border-gray-700 pt-4">
+              <h3 className="text-white font-medium mb-3 text-lg">Relatórios Individuais de Produção</h3>
               <div className="space-y-3">
                 <Button
                   className="w-full bg-green-600 hover:bg-green-700 text-white h-12"

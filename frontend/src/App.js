@@ -2098,7 +2098,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
               className="w-full btn-merco-large"
               disabled={!espulaData.maquina || !espulaData.mat_prima || !espulaData.cliente || !espulaData.artigo || !espulaData.cor || !espulaData.qtde_fios || !espulaData.quantidade_metros || !espulaData.carga || !espulaData.data_prevista_entrega}
             >
-              + LANÇAR ESPULA
+              + LANÇAR ESPULAGEM
             </Button>
           </CardContent>
         </Card>

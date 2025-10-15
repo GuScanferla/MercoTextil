@@ -1497,7 +1497,7 @@ const RelatoriosPanel = ({ user }) => {
       setSelectedOrdem(null);
       loadOrdensPendentes();
     } catch (error) {
-      toast.error("Erro ao criar espula");
+      toast.error("Erro ao criar espulagem");
     }
   };
 

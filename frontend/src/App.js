@@ -1921,7 +1921,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
             onClick={() => setShowHistory(!showHistory)} 
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {showHistory ? "Ocultar Histórico Espulas" : "Ver Histórico Espulas"}
+            {showHistory ? "Ocultar Histórico Espulagem" : "Ver Histórico Espulagem"}
           </Button>
           <Button onClick={exportEspulasReport} className="bg-green-600 hover:bg-green-700 text-white">
             <Download className="h-4 w-4 mr-2" />

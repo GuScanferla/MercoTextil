@@ -918,6 +918,14 @@ class FusosSystemTester:
             
         self.test_user_info()
         self.test_machines()
+        
+        # NEW ORDEM DE PRODUÇÃO AND ESPULAS TESTS
+        self.test_ordem_producao_functionality()
+        self.test_updated_espulas_functionality()
+        self.test_sequential_os_numbers()
+        self.test_validation_scenarios()
+        
+        # EXISTING TESTS
         self.test_espulas_creation()
         self.test_espulas_status_updates()
         self.test_espulas_list()

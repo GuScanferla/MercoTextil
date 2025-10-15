@@ -1542,7 +1542,7 @@ const RelatoriosPanel = ({ user }) => {
               <CardHeader className="card-header-merco pb-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="card-title-merco text-lg">OS {ordem.numero_os}</CardTitle>
+                    <CardTitle className="text-lg text-white font-bold">OS {ordem.numero_os}</CardTitle>
                     <p className="text-sm text-gray-400 mt-1">{ordem.cliente}</p>
                   </div>
                   <Badge className="bg-yellow-600 text-yellow-100">Pendente</Badge>

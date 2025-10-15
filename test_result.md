@@ -105,6 +105,42 @@
 user_problem_statement: "Adicionar duas novas abas: 1) 'Ordem de Produção' ao lado de Espulas com botão +Lançar para criar ordens com cliente, artigo, cor, metragem, data de entrega, observação e número OS sequencial (0001, 0002...). Mostra criado, iniciado e finalizado. 2) 'Relatórios' mostrando apenas ordens pendentes. Ao clicar em ordem pendente, abre painel para criar espula. Quando espula é criada, ordem sai de pendente. Modificar Espulas: novos campos OS, ARTIGO, MAQUINA, COR, MAT PRIMA, QTDE FIOS, DATA ENTREGA, QTDE METROS, e 5 campos de CARGAS E FRAÇÃO (preenchimento manual). Remover 'Ver Histórico Completo'. 'Ver Histórico Espulas' mostra todas (pendentes + finalizadas)."
 
 backend:
+  - task: "Create OrdemProducao model and CRUD endpoints"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Created OrdemProducao model with numero_os (sequential), cliente, artigo, cor, metragem, data_entrega, observacao, status (pendente/em_producao/finalizado), timestamps (criado_em, iniciado_em, finalizado_em), criado_por. Endpoints: POST /api/ordens-producao, GET /api/ordens-producao, GET /api/ordens-producao/pendentes, GET /api/ordens-producao/{id}, PUT /api/ordens-producao/{id}, GET /api/ordens-producao/next-number for sequential numbering."
+  
+  - task: "Update Espulas model with new fields"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Updated Espulas model to include: numero_os, ordem_producao_id (link to ordem), maquina, mat_prima, qtde_fios, carga_fracao_1 through carga_fracao_5 (5 optional fields for manual division). Modified create espula endpoint to accept new fields and automatically update ordem status to em_producao when linked."
+  
+  - task: "Update GET espulas endpoint to return all espulas"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Changed GET /api/espulas to return ALL espulas including finalized ones, not just active ones. This supports the new history view requirement."
+  
   - task: "Update machine initialization for 16 fusos layout"
     implemented: true
     working: true

@@ -285,6 +285,7 @@ async def init_data():
     # Clear existing data except users
     await db.orders.delete_many({})
     await db.espulas.delete_many({})
+    await db.ordens_producao.delete_many({})
     await db.maintenance.delete_many({})
     await db.status_history.delete_many({})
     await db.machines.delete_many({})

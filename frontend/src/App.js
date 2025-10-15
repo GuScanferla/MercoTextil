@@ -1583,7 +1583,7 @@ const RelatoriosPanel = ({ user }) => {
         <DialogContent className="dialog-merco max-w-3xl">
           <DialogHeader className="dialog-header">
             <DialogTitle className="dialog-title">
-              Criar Espula - OS {selectedOrdem?.numero_os}
+              Criar Espulagem - OS {selectedOrdem?.numero_os}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 p-6 form-merco max-h-[70vh] overflow-y-auto">

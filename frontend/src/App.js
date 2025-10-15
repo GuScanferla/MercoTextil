@@ -2244,7 +2244,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           {activeEspulas.length === 0 && (
             <Card className="card-merco-large">
               <CardContent className="p-6 text-center">
-                <p className="text-gray-400 text-lg">Nenhuma espula ativa. Clique em "+ LANÇAR" para criar a primeira.</p>
+                <p className="text-gray-400 text-lg">Nenhuma espulagem ativa. Clique em "+ LANÇAR" para criar a primeira.</p>
               </CardContent>
             </Card>
           )}

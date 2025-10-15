@@ -301,7 +301,7 @@ const Dashboard = ({ user, onLogout }) => {
             <TabsTrigger value="orders" className="tab-merco">Produção</TabsTrigger>
             <TabsTrigger value="ordemproducao" className="tab-merco">Ordem de Produção</TabsTrigger>
             <TabsTrigger value="relatorios" className="tab-merco">Relatórios</TabsTrigger>
-            <TabsTrigger value="espulas" className="tab-merco">Espulas</TabsTrigger>
+            <TabsTrigger value="espulas" className="tab-merco">Espulagem</TabsTrigger>
             <TabsTrigger value="maintenance" className="tab-merco">Manutenção</TabsTrigger>
             {user.role === "admin" && <TabsTrigger value="admin" className="tab-merco">Administração</TabsTrigger>}
           </TabsList>

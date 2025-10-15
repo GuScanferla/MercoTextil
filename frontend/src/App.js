@@ -1939,7 +1939,39 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
             <CardTitle className="text-white text-xl">Nova Ordem de Serviço - Espula</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 form-merco">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="numero_os">OS (Opcional)</Label>
+                <Input
+                  id="numero_os"
+                  value={espulaData.numero_os}
+                  onChange={(e) => setEspulaData({...espulaData, numero_os: e.target.value})}
+                  placeholder="Número da OS"
+                />
+              </div>
+              <div>
+                <Label htmlFor="maquina">Máquina *</Label>
+                <Input
+                  id="maquina"
+                  value={espulaData.maquina}
+                  onChange={(e) => setEspulaData({...espulaData, maquina: e.target.value})}
+                  placeholder="Ex: CD1, F2"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="mat_prima">Matéria Prima *</Label>
+                <Input
+                  id="mat_prima"
+                  value={espulaData.mat_prima}
+                  onChange={(e) => setEspulaData({...espulaData, mat_prima: e.target.value})}
+                  placeholder="Matéria prima"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="cliente">Cliente *</Label>
                 <Input
@@ -1970,28 +2002,31 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                   required
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="quantidade_metros">Quantidade em Metros *</Label>
+                <Label htmlFor="qtde_fios">Qtde Fios *</Label>
+                <Input
+                  id="qtde_fios"
+                  value={espulaData.qtde_fios}
+                  onChange={(e) => setEspulaData({...espulaData, qtde_fios: e.target.value})}
+                  placeholder="Quantidade de fios"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="quantidade_metros">Qtde Metros *</Label>
                 <Input
                   id="quantidade_metros"
                   value={espulaData.quantidade_metros}
                   onChange={(e) => setEspulaData({...espulaData, quantidade_metros: e.target.value})}
-                  placeholder="Ex: 1000, 500m, etc"
+                  placeholder="Ex: 1000"
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="carga">Carga *</Label>
-                <Input
-                  id="carga"
-                  value={espulaData.carga}
-                  onChange={(e) => setEspulaData({...espulaData, carga: e.target.value})}
-                  placeholder="Ex: A1, B2, C123, etc"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="data_prevista_entrega">Data Prevista de Entrega *</Label>
+                <Label htmlFor="data_prevista_entrega">Data Entrega *</Label>
                 <Input
                   id="data_prevista_entrega"
                   type="date"
@@ -2001,6 +2036,54 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                 />
               </div>
             </div>
+
+            <div>
+              <Label htmlFor="carga">Carga *</Label>
+              <Input
+                id="carga"
+                value={espulaData.carga}
+                onChange={(e) => setEspulaData({...espulaData, carga: e.target.value})}
+                placeholder="Ex: A1, B2, C123, etc"
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Cargas e Fração (até 5 valores - opcional)</Label>
+              <div className="grid grid-cols-5 gap-2 mt-2">
+                <Input
+                  value={espulaData.carga_fracao_1}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_1: e.target.value})}
+                  placeholder="1"
+                  type="text"
+                />
+                <Input
+                  value={espulaData.carga_fracao_2}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_2: e.target.value})}
+                  placeholder="2"
+                  type="text"
+                />
+                <Input
+                  value={espulaData.carga_fracao_3}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_3: e.target.value})}
+                  placeholder="3"
+                  type="text"
+                />
+                <Input
+                  value={espulaData.carga_fracao_4}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_4: e.target.value})}
+                  placeholder="4"
+                  type="text"
+                />
+                <Input
+                  value={espulaData.carga_fracao_5}
+                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_5: e.target.value})}
+                  placeholder="5"
+                  type="text"
+                />
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="observacoes">Observações</Label>
               <Textarea
@@ -2013,7 +2096,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
             <Button 
               onClick={createEspula} 
               className="w-full btn-merco-large"
-              disabled={!espulaData.cliente || !espulaData.artigo || !espulaData.cor || !espulaData.quantidade_metros || !espulaData.carga || !espulaData.data_prevista_entrega}
+              disabled={!espulaData.maquina || !espulaData.mat_prima || !espulaData.cliente || !espulaData.artigo || !espulaData.cor || !espulaData.qtde_fios || !espulaData.quantidade_metros || !espulaData.carga || !espulaData.data_prevista_entrega}
             >
               + LANÇAR ESPULA
             </Button>

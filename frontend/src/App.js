@@ -1492,7 +1492,7 @@ const RelatoriosPanel = ({ user }) => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
       
-      toast.success("Espula criada com sucesso! Ordem movida para produção.");
+      toast.success("Espulagem criada com sucesso! Ordem movida para produção.");
       setShowEspulaForm(false);
       setSelectedOrdem(null);
       loadOrdensPendentes();

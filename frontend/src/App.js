@@ -1714,7 +1714,7 @@ const RelatoriosPanel = ({ user }) => {
                 className="flex-1 btn-merco"
                 disabled={!espulaData.maquina || !espulaData.mat_prima || !espulaData.qtde_fios || !espulaData.quantidade_metros || !espulaData.carga}
               >
-                Criar Espula
+                Criar Espulagem
               </Button>
               <Button variant="outline" onClick={() => setShowEspulaForm(false)} className="flex-1">
                 Cancelar

@@ -1,0 +1,1071 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  color: #ffffff;
+  line-height: 1.6;
+}
+
+.App {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+}
+
+/* Merco Têxtil Brand Colors */
+:root {
+  --merco-red: #C8102E;
+  --merco-gray: #D3D3D3;
+  --merco-dark: #0a0a0a;
+  --merco-light-gray: #f5f5f5;
+  --merco-accent: #ff1744;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--merco-red);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--merco-accent);
+}
+
+/* Merco Logo Styles */
+.merco-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.merco-logo-bg {
+  background: #000000;
+  padding: 24px 36px;
+  border-radius: 12px;
+  border: 3px solid var(--merco-red);
+  display: flex;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(200, 16, 46, 0.4);
+}
+
+.merco-text {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--merco-gray);
+  margin-right: 10px;
+}
+
+.merco-t-line {
+  width: 50px;
+  height: 6px;
+  background: var(--merco-red);
+  margin: 0 6px;
+  position: relative;
+  top: -3px;
+}
+
+.merco-textil {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--merco-red);
+  margin-left: 6px;
+}
+
+/* Header Logo */
+.merco-logo-header {
+  display: flex;
+  align-items: center;
+}
+
+.merco-logo-bg-small {
+  background: #000000;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 2px solid var(--merco-red);
+  display: flex;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(200, 16, 46, 0.3);
+}
+
+.merco-text-small {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--merco-gray);
+  margin-right: 6px;
+}
+
+.merco-t-line-small {
+  width: 24px;
+  height: 3px;
+  background: var(--merco-red);
+  margin: 0 3px;
+  position: relative;
+  top: -1px;
+}
+
+.merco-textil-small {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--merco-red);
+  margin-left: 3px;
+}
+
+/* Header styles */
+.merco-header {
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  border-bottom: 4px solid var(--merco-red);
+  color: white;
+  box-shadow: 0 8px 32px rgba(200, 16, 46, 0.4);
+}
+
+/* Login page */
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #0a0a0a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.login-card {
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(24px);
+  border: 3px solid var(--merco-red);
+  border-radius: 20px;
+  box-shadow: 0 24px 48px rgba(200, 16, 46, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-title {
+  color: var(--merco-gray);
+  font-size: 36px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.login-subtitle {
+  color: var(--merco-red);
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 36px;
+  font-weight: 500;
+}
+
+/* Buttons */
+.btn-merco {
+  background: linear-gradient(135deg, var(--merco-red) 0%, var(--merco-accent) 100%);
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 12px 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.btn-merco-large {
+  background: linear-gradient(135deg, var(--merco-red) 0%, var(--merco-accent) 100%);
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  padding: 16px 32px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  height: 56px;
+}
+
+.btn-merco::before,
+.btn-merco-large::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-merco:hover::before,
+.btn-merco-large:hover::before {
+  left: 100%;
+}
+
+.btn-merco:hover,
+.btn-merco-large:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(200, 16, 46, 0.5);
+}
+
+/* Form inputs */
+.form-merco input,
+.form-merco textarea,
+.form-merco select {
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(211, 211, 211, 0.3);
+  border-radius: 8px;
+  color: white;
+  padding: 14px 18px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.form-merco input:focus,
+.form-merco textarea:focus,
+.form-merco select:focus {
+  border-color: var(--merco-red);
+  background: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.2);
+  outline: none;
+}
+
+.form-merco label {
+  color: var(--merco-gray);
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Cards */
+.card-merco {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(211, 211, 211, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.card-merco-large {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(24px);
+  border: 2px solid rgba(211, 211, 211, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.card-merco:hover,
+.card-merco-large:hover {
+  border-color: rgba(200, 16, 46, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* Machine boxes - Large and professional */
+.machine-box-large {
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  border: 3px solid var(--merco-gray);
+  border-radius: 12px;
+  color: white;
+  font-weight: 800;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 80px;
+  min-width: 120px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.machine-box-large::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transition: left 0.5s;
+}
+
+.machine-box-large:hover::before {
+  left: 100%;
+}
+
+.machine-box-large:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.machine-code {
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.maintenance-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
+  color: #D3D3D3;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.maintenance-btn:hover {
+  background: rgba(200, 16, 46, 0.9);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Status colors - Enhanced */
+.status-verde {
+  background: linear-gradient(135deg, #2e7d2e, #4caf4c) !important;
+  border-color: #4caf4c !important;
+  box-shadow: 0 6px 20px rgba(76, 175, 76, 0.4);
+}
+
+.status-verde:hover {
+  background: linear-gradient(135deg, #4caf4c, #66bb66) !important;
+  box-shadow: 0 12px 32px rgba(76, 175, 76, 0.6);
+}
+
+.status-amarelo {
+  background: linear-gradient(135deg, #f57c00, #ff9800) !important;
+  border-color: #ff9800 !important;
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+}
+
+.status-amarelo:hover {
+  background: linear-gradient(135deg, #ff9800, #ffb74d) !important;
+  box-shadow: 0 12px 32px rgba(255, 152, 0, 0.6);
+}
+
+.status-vermelho {
+  background: linear-gradient(135deg, var(--merco-red), var(--merco-accent)) !important;
+  border-color: var(--merco-accent) !important;
+  box-shadow: 0 6px 20px rgba(200, 16, 46, 0.4);
+}
+
+.status-vermelho:hover {
+  background: linear-gradient(135deg, var(--merco-accent), #ff4569) !important;
+  box-shadow: 0 12px 32px rgba(200, 16, 46, 0.6);
+}
+
+.status-azul {
+  background: linear-gradient(135deg, #2196f3, #42a5f5) !important;
+  border-color: #42a5f5 !important;
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+}
+
+.status-azul:hover {
+  background: linear-gradient(135deg, #42a5f5, #64b5f6) !important;
+  box-shadow: 0 12px 32px rgba(33, 150, 243, 0.6);
+}
+
+/* Fusos container */
+.fusos-container {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(24px);
+  border: 3px solid rgba(200, 16, 46, 0.4);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+/* 16 Fusos Layout - Better organized rows */
+.layout-16-exact-centered {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px;
+}
+
+.layout-16-top-section,
+.layout-16-middle-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cd-block-2x2 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cd-row {
+  display: flex;
+  gap: 4px;
+}
+
+.cd-block-horizontal {
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.layout-16-ci-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ci-label {
+  color: var(--merco-red);
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+  padding: 6px 14px;
+  background: rgba(200, 16, 46, 0.2);
+  border-radius: 8px;
+  border: 2px solid var(--merco-red);
+}
+
+.ci-block-horizontal {
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.layout-16-f-section {
+  display: flex;
+  justify-content: center;
+}
+
+.f-row-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.f-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Machine boxes for 16 fusos layout - Compact size for better row organization */
+.machine-box-16 {
+  width: 75px;
+  height: 75px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  margin: 2px;
+}
+
+.machine-box-16:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  border-color: var(--merco-red);
+}
+
+.machine-box-16 .machine-code {
+  font-size: 14px;
+  font-weight: 800;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* 32 Fusos Layout - Optimized for better row organization */
+.layout-32-exact-new {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 15px;
+}
+
+/* CT Machines - Two horizontal rows - more compact */
+.ct-row-1,
+.ct-row-2 {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+}
+
+/* U Machines Container - Three blocks side by side - more compact */
+.u-machines-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.u-block {
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.u-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* N Machines - Single horizontal row - DESIGN PADRONIZADO SEM PONTILHADO */
+.n-machines-row {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.n-machines-confirmed,
+.n-machines-dashed {
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* REMOVIDO: border dashed e opacity diferente */
+}
+
+/* Status colors - incluindo nova cor para máquinas desativadas */
+.status-verde { background: linear-gradient(145deg, #28a745, #20c997); }
+.status-amarelo { background: linear-gradient(145deg, #ffc107, #fd7e14); }
+.status-vermelho { background: linear-gradient(145deg, #dc3545, #e83e8c); }
+.status-azul { background: linear-gradient(145deg, #007bff, #6f42c1); }
+.status-desativada { 
+  background: linear-gradient(145deg, #6c757d, #495057);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status-desativada .machine-code {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Bottom U Machines - U31, U32, U33 - more compact */
+.u-bottom-group {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.u-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.u-single {
+  display: flex;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Machine boxes for 32 fusos layout - Compact size for better row organization */
+.machine-box-32 {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  margin: 2px;
+}
+
+.machine-box-32:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  border-color: var(--merco-red);
+}
+
+.machine-box-32 .machine-code {
+  font-size: 14px;
+  font-weight: 800;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Responsive design for both layouts */
+@media (max-width: 1200px) {
+  .layout-16-top-section,
+  .layout-16-middle-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .u-machines-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .ct-row-1,
+  .ct-row-2 {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .machine-box-16 {
+    width: 70px;
+    height: 70px;
+    font-size: 14px;
+  }
+  
+  .machine-box-16 .machine-code {
+    font-size: 14px;
+  }
+  
+  .machine-box-32 {
+    width: 65px;
+    height: 65px;
+    font-size: 14px;
+  }
+  
+  .machine-box-32 .machine-code {
+    font-size: 14px;
+  }
+  
+  .cd-block-horizontal,
+  .ci-block-horizontal {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .f-row {
+    justify-content: center;
+  }
+  
+  .n-machines-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .u-bottom-group {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-16-exact-centered,
+  .layout-32-exact-new {
+    padding: 10px;
+  }
+  
+  .machine-box-16 {
+    width: 55px;
+    height: 55px;
+    font-size: 12px;
+  }
+  
+  .machine-box-16 .machine-code {
+    font-size: 12px;
+  }
+  
+  .machine-box-32 {
+    width: 50px;
+    height: 50px;
+    font-size: 12px;
+  }
+  
+  .machine-box-32 .machine-code {
+    font-size: 12px;
+  }
+  
+  .ci-label {
+    font-size: 18px;
+  }
+}
+
+/* Botões de controle das máquinas */
+.maintenance-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(255, 193, 7, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.admin-toggle-btn {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: rgba(220, 53, 69, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.machine-box-16:hover .maintenance-btn,
+.machine-box-32:hover .maintenance-btn,
+.machine-box-16:hover .admin-toggle-btn,
+.machine-box-32:hover .admin-toggle-btn {
+  opacity: 1;
+}
+
+.maintenance-btn:hover {
+  background: rgba(255, 193, 7, 1);
+  transform: scale(1.1);
+}
+
+.admin-toggle-btn:hover {
+  background: rgba(220, 53, 69, 1);
+  transform: scale(1.1);
+}
+
+.status-desativada .admin-toggle-btn {
+  background: rgba(40, 167, 69, 0.8);
+}
+
+.status-desativada .admin-toggle-btn:hover {
+  background: rgba(40, 167, 69, 1);
+}
+
+/* Status indicators */
+.status-legend {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--merco-gray);
+}
+
+.status-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.status-dot.verde {
+  background: linear-gradient(135deg, #2e7d2e, #4caf4c);
+}
+
+.status-dot.amarelo {
+  background: linear-gradient(135deg, #f57c00, #ff9800);
+}
+
+.status-dot.vermelho {
+  background: linear-gradient(135deg, var(--merco-red), var(--merco-accent));
+}
+
+.status-dot.azul {
+  background: linear-gradient(135deg, #2196f3, #42a5f5);
+}
+
+/* Tabs - Enhanced */
+.tabs-merco {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 16px;
+  padding: 6px;
+  border: 2px solid rgba(200, 16, 46, 0.4);
+}
+
+.tab-merco {
+  background: transparent;
+  color: var(--merco-gray);
+  border: none;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.tab-merco.active {
+  background: linear-gradient(135deg, var(--merco-red), var(--merco-accent));
+  color: white;
+  box-shadow: 0 6px 16px rgba(200, 16, 46, 0.4);
+}
+
+.tab-merco:hover:not(.active) {
+  background: rgba(200, 16, 46, 0.2);
+}
+
+/* Layout switcher - Enhanced */
+.layout-switcher {
+  display: flex;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px;
+  border-radius: 12px;
+  border: 2px solid rgba(200, 16, 46, 0.4);
+}
+
+.layout-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--merco-gray);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.layout-btn.active {
+  background: var(--merco-red);
+  color: white;
+  box-shadow: 0 4px 12px rgba(200, 16, 46, 0.3);
+}
+
+.layout-btn:hover:not(.active) {
+  background: rgba(200, 16, 46, 0.3);
+}
+
+/* Badges - Enhanced */
+.badge-merco {
+  background: linear-gradient(135deg, var(--merco-red), var(--merco-accent));
+  color: white;
+  padding: 6px 16px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-admin {
+  background: linear-gradient(135deg, #4caf4c, #66bb66);
+}
+
+.badge-interno {
+  background: linear-gradient(135deg, #2196f3, #42a5f5);
+}
+
+.badge-externo {
+  background: linear-gradient(135deg, #ff9800, #ffb74d);
+}
+
+/* Dialog - Enhanced */
+.dialog-merco {
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(24px);
+  border: 3px solid var(--merco-red);
+  border-radius: 20px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+}
+
+.dialog-header {
+  border-bottom: 2px solid rgba(200, 16, 46, 0.4);
+  padding: 24px;
+}
+
+.dialog-title {
+  color: var(--merco-gray);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* Loading - Enhanced */
+.loading-spinner {
+  width: 64px;
+  height: 64px;
+  border: 6px solid rgba(200, 16, 46, 0.3);
+  border-top: 6px solid var(--merco-red);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive design - Enhanced */
+@media (max-width: 768px) {
+  .layout-16-top,
+  .layout-16-middle {
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+  
+  .machine-box-large {
+    min-height: 70px;
+    min-width: 100px;
+    font-size: 16px;
+  }
+  
+  .layout-32-exact {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .merco-text, .merco-textil {
+    font-size: 28px;
+  }
+
+  .login-title {
+    font-size: 28px;
+  }
+
+  .cd-block-2x2,
+  .cd-block-1x4,
+  .ci-block-1x4 {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .machine-box-large {
+    min-height: 60px;
+    min-width: 80px;
+    font-size: 14px;
+  }
+  
+  .layout-switcher {
+    flex-direction: column;
+  }
+  
+  .status-legend {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .layout-32-exact {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Accessibility */
+.machine-box-large:focus {
+  outline: 4px solid var(--merco-red);
+  outline-offset: 3px;
+}
+
+/* Toasts - Enhanced */
+.toast-success {
+  background: linear-gradient(135deg, #2e7d2e, #4caf4c);
+  border-left: 6px solid #4caf4c;
+}
+
+.toast-error {
+  background: linear-gradient(135deg, var(--merco-red), var(--merco-accent));
+  border-left: 6px solid var(--merco-accent);
+}
+
+/* Footer */
+footer {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(20px);
+  border-top: 2px solid rgba(200, 16, 46, 0.3);
+  padding: 24px 0;
+  margin-top: 48px;
+}

@@ -255,15 +255,7 @@ const Dashboard = ({ user, onLogout }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-6">
-              <div className="merco-logo-header">
-                <div className="merco-logo-bg-small">
-                  <span className="merco-text-small">Merco</span>
-                  <div className="merco-t-line-small"></div>
-                  <span className="merco-textil-small">Têxtil</span>
-                </div>
-              </div>
-              <div className="h-8 w-px bg-gray-600"></div>
-              <span className="text-2xl font-bold text-white">MercoTêxtil</span>
+              <span className="text-3xl font-bold text-white">MercoTêxtil</span>
               <Badge className={`${badge.class} badge-merco`}>
                 {badge.text}
               </Badge>

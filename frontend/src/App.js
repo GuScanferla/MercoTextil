@@ -1434,7 +1434,7 @@ const RelatoriosPanel = ({ user }) => {
 
   useEffect(() => {
     loadOrdensPendentes();
-    const interval = setInterval(loadOrdensPendentes, 10000);
+    const interval = setInterval(loadOrdensPendentes, 5000); // Auto-refresh every 5 seconds
     return () => clearInterval(interval);
   }, []);
 

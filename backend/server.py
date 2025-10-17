@@ -86,6 +86,16 @@ class User(BaseModel):
     email: str
     role: str  # admin, operador_interno, operador_externo
     active: bool = True
+    # Permissões por aba
+    permissions: dict = Field(default_factory=lambda: {
+        "dashboard": True,
+        "producao": True,
+        "ordem_producao": True,
+        "relatorios": True,
+        "espulagem": True,
+        "manutencao": True,
+        "administracao": False
+    })
     created_at: datetime = Field(default_factory=get_utc_now)
 
 class UserCreate(BaseModel):
@@ -93,6 +103,7 @@ class UserCreate(BaseModel):
     email: str
     password: str
     role: str
+    permissions: Optional[dict] = None
 
 class UserLogin(BaseModel):
     username: str

@@ -1177,6 +1177,8 @@ const OrdemProducaoPanel = ({ user }) => {
 
   useEffect(() => {
     loadOrdens();
+    const interval = setInterval(loadOrdens, 5000); // Auto-refresh every 5 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const loadOrdens = async () => {

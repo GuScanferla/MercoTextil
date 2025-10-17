@@ -1536,45 +1536,55 @@ const RelatoriosPanel = ({ user }) => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-3">
           {ordensPendentes.map((ordem) => (
             <Card 
               key={ordem.id} 
               className="card-merco cursor-pointer hover:border-blue-500 transition-colors"
               onClick={() => handleOrdemClick(ordem)}
             >
-              <CardHeader className="card-header-merco pb-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg text-white font-bold">OS {ordem.numero_os}</CardTitle>
-                    <p className="text-sm text-gray-400 mt-1">{ordem.cliente}</p>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="flex-shrink-0">
+                      <div className="text-white font-bold text-lg">OS {ordem.numero_os}</div>
+                      <Badge className="bg-yellow-600 text-yellow-100 mt-1">Pendente</Badge>
+                    </div>
+                    <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3 min-w-0">
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-400">Cliente</p>
+                        <p className="text-white font-medium truncate">{ordem.cliente}</p>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-400">Artigo</p>
+                        <p className="text-white font-medium truncate">{ordem.artigo}</p>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-400">Cor</p>
+                        <p className="text-white font-medium truncate">{ordem.cor}</p>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-gray-400">Metragem</p>
+                        <p className="text-white font-medium">{ordem.metragem}</p>
+                      </div>
+                    </div>
                   </div>
-                  <Badge className="bg-yellow-600 text-yellow-100">Pendente</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <p className="text-gray-400">Artigo</p>
-                    <p className="text-white font-medium">{ordem.artigo}</p>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="text-right">
+                      <p className="text-xs text-gray-400">Data Entrega</p>
+                      <p className="text-white font-bold">{formatDateBrazil(ordem.data_entrega)}</p>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="bg-blue-600 hover:bg-blue-700"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOrdemClick(ordem);
+                      }}
+                    >
+                      Criar Espulagem
+                    </Button>
                   </div>
-                  <div>
-                    <p className="text-gray-400">Cor</p>
-                    <p className="text-white font-medium">{ordem.cor}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <p className="text-gray-400">Metragem</p>
-                    <p className="text-white font-medium">{ordem.metragem}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400">Entrega</p>
-                    <p className="text-white font-medium">{formatDateBrazil(ordem.data_entrega)}</p>
-                  </div>
-                </div>
-                <div className="pt-2 text-center">
-                  <p className="text-xs text-blue-400">Clique para criar espulagem</p>
                 </div>
               </CardContent>
             </Card>

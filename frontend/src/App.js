@@ -297,13 +297,13 @@ const Dashboard = ({ user, onLogout }) => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="tabs-merco">
-            <TabsTrigger value="dashboard" className="tab-merco">Dashboard</TabsTrigger>
-            <TabsTrigger value="orders" className="tab-merco">Produção</TabsTrigger>
-            <TabsTrigger value="ordemproducao" className="tab-merco">Ordem de Produção</TabsTrigger>
-            <TabsTrigger value="relatorios" className="tab-merco">Relatórios</TabsTrigger>
-            <TabsTrigger value="espulas" className="tab-merco">Espulagem</TabsTrigger>
-            <TabsTrigger value="maintenance" className="tab-merco">Manutenção</TabsTrigger>
-            {user.role === "admin" && <TabsTrigger value="admin" className="tab-merco">Administração</TabsTrigger>}
+            {user.permissions?.dashboard !== false && <TabsTrigger value="dashboard" className="tab-merco">Dashboard</TabsTrigger>}
+            {user.permissions?.producao !== false && <TabsTrigger value="orders" className="tab-merco">Produção</TabsTrigger>}
+            {user.permissions?.ordem_producao !== false && <TabsTrigger value="ordemproducao" className="tab-merco">Ordem de Produção</TabsTrigger>}
+            {user.permissions?.relatorios !== false && <TabsTrigger value="relatorios" className="tab-merco">Relatórios</TabsTrigger>}
+            {user.permissions?.espulagem !== false && <TabsTrigger value="espulas" className="tab-merco">Espulagem</TabsTrigger>}
+            {user.permissions?.manutencao !== false && <TabsTrigger value="maintenance" className="tab-merco">Manutenção</TabsTrigger>}
+            {(user.role === "admin" || user.permissions?.administracao === true) && <TabsTrigger value="admin" className="tab-merco">Administração</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">

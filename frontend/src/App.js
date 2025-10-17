@@ -2722,6 +2722,74 @@ const AdminPanel = ({ users, onUserUpdate }) => {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label className="mb-3 block text-lg">Permissões por Aba</Label>
+              <div className="grid grid-cols-2 gap-3 p-4 bg-black/40 rounded border border-gray-700">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newUser.permissions.dashboard}
+                    onChange={() => togglePermission('dashboard')}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-white text-sm">Dashboard</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newUser.permissions.producao}
+                    onChange={() => togglePermission('producao')}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-white text-sm">Produção</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newUser.permissions.ordem_producao}
+                    onChange={() => togglePermission('ordem_producao')}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-white text-sm">Ordem de Produção</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newUser.permissions.relatorios}
+                    onChange={() => togglePermission('relatorios')}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-white text-sm">Relatórios</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newUser.permissions.espulagem}
+                    onChange={() => togglePermission('espulagem')}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-white text-sm">Espulagem</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newUser.permissions.manutencao}
+                    onChange={() => togglePermission('manutencao')}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-white text-sm">Manutenção</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer col-span-2">
+                  <input
+                    type="checkbox"
+                    checked={newUser.permissions.administracao}
+                    onChange={() => togglePermission('administracao')}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-white text-sm font-bold">Administração</span>
+                </label>
+              </div>
+            </div>
             <Button onClick={createUser} className="w-full btn-merco-large">
               Criar Usuário
             </Button>

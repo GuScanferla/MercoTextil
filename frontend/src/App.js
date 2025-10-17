@@ -2453,6 +2453,25 @@ const AdminPanel = ({ users, onUserUpdate }) => {
     }
   });
 
+  const [editingUser, setEditingUser] = useState(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editUser, setEditUser] = useState({
+    username: "",
+    email: "",
+    password: "",
+    role: "",
+    active: true,
+    permissions: {
+      dashboard: true,
+      producao: true,
+      ordem_producao: true,
+      relatorios: true,
+      espulagem: true,
+      manutencao: true,
+      administracao: false
+    }
+  });
+
   const togglePermission = (permission) => {
     setNewUser({
       ...newUser,
@@ -2461,6 +2480,65 @@ const AdminPanel = ({ users, onUserUpdate }) => {
         [permission]: !newUser.permissions[permission]
       }
     });
+  };
+
+  const toggleEditPermission = (permission) => {
+    setEditUser({
+      ...editUser,
+      permissions: {
+        ...editUser.permissions,
+        [permission]: !editUser.permissions[permission]
+      }
+    });
+  };
+
+  const openEditDialog = (user) => {
+    setEditingUser(user);
+    setEditUser({
+      username: user.username,
+      email: user.email,
+      password: "",
+      role: user.role,
+      active: user.active,
+      permissions: user.permissions || {
+        dashboard: true,
+        producao: true,
+        ordem_producao: true,
+        relatorios: true,
+        espulagem: true,
+        manutencao: true,
+        administracao: false
+      }
+    });
+    setShowEditDialog(true);
+  };
+
+  const updateUser = async () => {
+    try {
+      const updateData = {
+        username: editUser.username,
+        email: editUser.email,
+        role: editUser.role,
+        active: editUser.active,
+        permissions: editUser.permissions
+      };
+      
+      // Only include password if it's not empty
+      if (editUser.password && editUser.password.trim() !== "") {
+        updateData.password = editUser.password;
+      }
+
+      await axios.put(`${API}/users/${editingUser.id}`, updateData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Usuário atualizado com sucesso!");
+      setShowEditDialog(false);
+      setEditingUser(null);
+      onUserUpdate();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erro ao atualizar usuário");
+    }
   };
 
   const createUser = async () => {

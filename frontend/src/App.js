@@ -106,15 +106,7 @@ const LoginPage = ({ onLogin }) => {
     <div className="login-container">
       <Card className="w-full max-w-md login-card">
         <CardHeader className="text-center pb-8">
-          <div className="merco-logo mb-6">
-            <div className="merco-logo-container">
-              <div className="merco-logo-bg">
-                <span className="merco-text">Merco</span>
-                <div className="merco-t-line"></div>
-                <span className="merco-textil">Têxtil</span>
-              </div>
-            </div>
-          </div>
+          <h1 className="text-5xl font-bold text-white mb-4">MercoTêxtil</h1>
           <p className="login-subtitle">Sistema de Controle de Máquinas</p>
         </CardHeader>
         <CardContent className="form-merco">

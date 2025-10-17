@@ -271,7 +271,7 @@ const Dashboard = ({ user, onLogout }) => {
                 </div>
               </div>
               <div className="h-8 w-px bg-gray-600"></div>
-              <span className="text-2xl font-bold text-white">Merco Têxtil</span>
+              <span className="text-2xl font-bold text-white">MercoTêxtil</span>
               <Badge className={`${badge.class} badge-merco`}>
                 {badge.text}
               </Badge>

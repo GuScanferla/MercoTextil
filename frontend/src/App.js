@@ -2661,7 +2661,7 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       const maintenanceWS = XLSX.utils.json_to_sheet(maintenanceData);
       XLSX.utils.book_append_sheet(wb, maintenanceWS, "Manutenção");
       
-      const fileName = `relatorio_completo_merco_textil_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const fileName = `relatorio_completo_MercoTextil_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, fileName);
       
       toast.success("Relatório completo exportado com sucesso!");

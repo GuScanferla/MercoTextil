@@ -307,7 +307,16 @@ async def init_data():
         admin_user = User(
             username="admin",
             email="admin@mercotextil.com",
-            role="admin"
+            role="admin",
+            permissions={
+                "dashboard": True,
+                "producao": True,
+                "ordem_producao": True,
+                "relatorios": True,
+                "espulagem": True,
+                "manutencao": True,
+                "administracao": True
+            }
         )
         admin_dict = admin_user.dict()
         admin_dict["password"] = hash_password("admin123")
@@ -318,7 +327,16 @@ async def init_data():
         interno_user = User(
             username="interno",
             email="interno@mercotextil.com",
-            role="operador_interno"
+            role="operador_interno",
+            permissions={
+                "dashboard": True,
+                "producao": True,
+                "ordem_producao": True,
+                "relatorios": True,
+                "espulagem": True,
+                "manutencao": True,
+                "administracao": False
+            }
         )
         interno_dict = interno_user.dict()
         interno_dict["password"] = hash_password("interno123")

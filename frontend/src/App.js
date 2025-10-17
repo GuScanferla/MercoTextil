@@ -2457,8 +2457,27 @@ const AdminPanel = ({ users, onUserUpdate }) => {
     username: "",
     email: "",
     password: "",
-    role: ""
+    role: "",
+    permissions: {
+      dashboard: true,
+      producao: true,
+      ordem_producao: true,
+      relatorios: true,
+      espulagem: true,
+      manutencao: true,
+      administracao: false
+    }
   });
+
+  const togglePermission = (permission) => {
+    setNewUser({
+      ...newUser,
+      permissions: {
+        ...newUser.permissions,
+        [permission]: !newUser.permissions[permission]
+      }
+    });
+  };
 
   const createUser = async () => {
     try {
@@ -2467,7 +2486,21 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       });
       
       toast.success("Usuário criado com sucesso!");
-      setNewUser({ username: "", email: "", password: "", role: "" });
+      setNewUser({ 
+        username: "", 
+        email: "", 
+        password: "", 
+        role: "",
+        permissions: {
+          dashboard: true,
+          producao: true,
+          ordem_producao: true,
+          relatorios: true,
+          espulagem: true,
+          manutencao: true,
+          administracao: false
+        }
+      });
       onUserUpdate();
     } catch (error) {
       toast.error("Erro ao criar usuário");

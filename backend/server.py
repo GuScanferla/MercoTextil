@@ -105,6 +105,14 @@ class UserCreate(BaseModel):
     role: str
     permissions: Optional[dict] = None
 
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    role: Optional[str] = None
+    permissions: Optional[dict] = None
+    active: Optional[bool] = None
+
 class UserLogin(BaseModel):
     username: str
     password: str

@@ -2902,6 +2902,155 @@ const AdminPanel = ({ users, onUserUpdate }) => {
           </CardContent>
         </Card>
 
+        {/* Dialog de Edição de Usuário */}
+        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+          <DialogContent className="dialog-merco max-w-2xl">
+            <DialogHeader className="dialog-header">
+              <DialogTitle className="dialog-title">Editar Usuário</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 p-6 form-merco max-h-[70vh] overflow-y-auto">
+              <div>
+                <Label>Nome de Usuário *</Label>
+                <Input
+                  value={editUser.username}
+                  onChange={(e) => setEditUser({...editUser, username: e.target.value})}
+                  placeholder="Nome de usuário"
+                />
+              </div>
+              <div>
+                <Label>Email *</Label>
+                <Input
+                  type="email"
+                  value={editUser.email}
+                  onChange={(e) => setEditUser({...editUser, email: e.target.value})}
+                  placeholder="Email"
+                />
+              </div>
+              <div>
+                <Label>Nova Senha (deixe em branco para manter a atual)</Label>
+                <Input
+                  type="password"
+                  value={editUser.password}
+                  onChange={(e) => setEditUser({...editUser, password: e.target.value})}
+                  placeholder="Digite nova senha ou deixe em branco"
+                />
+              </div>
+              <div>
+                <Label>Tipo de Usuário *</Label>
+                <Select value={editUser.role} onValueChange={(value) => setEditUser({...editUser, role: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="operador_interno">Operador Interno</SelectItem>
+                    <SelectItem value="operador_externo">Operador Externo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="mb-3 block">Status do Usuário</Label>
+                <label className="flex items-center space-x-2 cursor-pointer p-3 bg-black/40 rounded border border-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={editUser.active}
+                    onChange={(e) => setEditUser({...editUser, active: e.target.checked})}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-white text-sm font-medium">Usuário Ativo</span>
+                </label>
+              </div>
+
+              <div>
+                <Label className="mb-3 block text-lg">Permissões por Aba</Label>
+                <div className="grid grid-cols-2 gap-3 p-4 bg-black/40 rounded border border-gray-700">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editUser.permissions.dashboard}
+                      onChange={() => toggleEditPermission('dashboard')}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-white text-sm">Dashboard</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editUser.permissions.producao}
+                      onChange={() => toggleEditPermission('producao')}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-white text-sm">Produção</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editUser.permissions.ordem_producao}
+                      onChange={() => toggleEditPermission('ordem_producao')}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-white text-sm">Ordem de Produção</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editUser.permissions.relatorios}
+                      onChange={() => toggleEditPermission('relatorios')}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-white text-sm">Relatórios</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editUser.permissions.espulagem}
+                      onChange={() => toggleEditPermission('espulagem')}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-white text-sm">Espulagem</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editUser.permissions.manutencao}
+                      onChange={() => toggleEditPermission('manutencao')}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-white text-sm">Manutenção</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer col-span-2">
+                    <input
+                      type="checkbox"
+                      checked={editUser.permissions.administracao}
+                      onChange={() => toggleEditPermission('administracao')}
+                      className="w-4 h-4"
+                    />
+                    <span className="text-white text-sm font-bold">Administração</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <Button 
+                  onClick={updateUser} 
+                  className="flex-1 btn-merco"
+                  disabled={!editUser.username || !editUser.email || !editUser.role}
+                >
+                  Salvar Alterações
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditDialog(false)} 
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <Card className="card-merco-large">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-white text-xl">

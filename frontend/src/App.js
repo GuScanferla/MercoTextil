@@ -13,7 +13,7 @@ import { Textarea } from "./components/ui/textarea";
 import { Badge } from "./components/ui/badge";
 import { toast } from "sonner";
 import { Toaster } from "./components/ui/sonner";
-import { LogOut, Users, Download, Settings, Factory, Trash2, Wrench, Clock, RefreshCw } from "lucide-react";
+import { LogOut, Users, Download, Settings, Factory, Trash2, Wrench, Clock, RefreshCw, Edit } from "lucide-react";
 import * as XLSX from 'xlsx';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;

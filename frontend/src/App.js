@@ -1441,7 +1441,11 @@ const RelatoriosPanel = ({ user }) => {
       const response = await axios.get(`${API}/ordens-producao/pendentes`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
-      setOrdensPendentes(response.data);
+      // Ordenar por data de entrega (mais próximo primeiro)
+      const sortedOrdens = response.data.sort((a, b) => {
+        return new Date(a.data_entrega) - new Date(b.data_entrega);
+      });
+      setOrdensPendentes(sortedOrdens);
     } catch (error) {
       console.error("Erro ao carregar ordens pendentes:", error);
     }

@@ -2861,25 +2861,40 @@ const AdminPanel = ({ users, onUserUpdate }) => {
               <div className="space-y-3">
                 {users.map((user) => (
                   <div key={user.id} className="flex justify-between items-center p-4 bg-black/40 rounded-lg border border-gray-700">
-                    <div className="flex items-center space-x-4">
-                      <span className="text-white text-base">{user.username}</span>
-                      <Badge className={`${
-                        user.role === "admin" ? "badge-admin" : 
-                        user.role === "operador_interno" ? "badge-interno" : 
-                        "badge-externo"
-                      } badge-merco`}>
-                        {user.role === "admin" ? "Admin" : 
-                         user.role === "operador_interno" ? "Interno" : "Externo"}
-                      </Badge>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-4 mb-2">
+                        <span className="text-white text-base font-medium">{user.username}</span>
+                        <Badge className={`${
+                          user.role === "admin" ? "badge-admin" : 
+                          user.role === "operador_interno" ? "badge-interno" : 
+                          "badge-externo"
+                        } badge-merco`}>
+                          {user.role === "admin" ? "Admin" : 
+                           user.role === "operador_interno" ? "Interno" : "Externo"}
+                        </Badge>
+                        {!user.active && <Badge className="bg-gray-600 text-gray-200">Inativo</Badge>}
+                      </div>
+                      <div className="text-sm text-gray-400">{user.email}</div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => deleteUser(user.id)}
-                      className="text-red-400 border-red-600 hover:bg-red-600 hover:text-white"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openEditDialog(user)}
+                        className="text-blue-400 border-blue-600 hover:bg-blue-600 hover:text-white"
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Editar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => deleteUser(user.id)}
+                        className="text-red-400 border-red-600 hover:bg-red-600 hover:text-white"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

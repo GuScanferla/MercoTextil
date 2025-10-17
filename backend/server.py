@@ -540,6 +540,51 @@ async def get_users(current_user: User = Depends(get_current_user)):
     users = await db.users.find().to_list(1000)
     return [User(**user) for user in users]
 
+@api_router.put("/users/{user_id}", response_model=User)
+async def update_user(user_id: str, user_data: UserUpdate, current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Check if user exists
+    existing_user = await db.users.find_one({"id": user_id})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Don't allow admin to remove their own admin role
+    if user_id == current_user.id and user_data.role and user_data.role != "admin":
+        raise HTTPException(status_code=400, detail="Cannot change your own admin role")
+    
+    # Build update dict with only provided fields
+    update_data = {"updated_at": get_utc_now()}
+    
+    if user_data.username is not None:
+        # Check if username is already taken by another user
+        username_exists = await db.users.find_one({"username": user_data.username, "id": {"$ne": user_id}})
+        if username_exists:
+            raise HTTPException(status_code=400, detail="Username already exists")
+        update_data["username"] = user_data.username
+    
+    if user_data.email is not None:
+        update_data["email"] = user_data.email
+    
+    if user_data.password is not None and user_data.password != "":
+        update_data["password"] = hash_password(user_data.password)
+    
+    if user_data.role is not None:
+        update_data["role"] = user_data.role
+    
+    if user_data.permissions is not None:
+        update_data["permissions"] = user_data.permissions
+    
+    if user_data.active is not None:
+        update_data["active"] = user_data.active
+    
+    await db.users.update_one({"id": user_id}, {"$set": update_data})
+    
+    # Return updated user
+    updated_user = await db.users.find_one({"id": user_id})
+    return User(**updated_user)
+
 @api_router.delete("/users/{user_id}")
 async def delete_user(user_id: str, current_user: User = Depends(get_current_user)):
     if current_user.role != "admin":

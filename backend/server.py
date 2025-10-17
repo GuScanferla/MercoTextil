@@ -502,10 +502,22 @@ async def create_user(user_data: UserCreate, current_user: User = Depends(get_cu
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
     
+    # Default permissions if not provided
+    permissions = user_data.permissions if user_data.permissions else {
+        "dashboard": True,
+        "producao": True,
+        "ordem_producao": True,
+        "relatorios": True,
+        "espulagem": True,
+        "manutencao": True,
+        "administracao": user_data.role == "admin"
+    }
+    
     user = User(
         username=user_data.username,
         email=user_data.email,
-        role=user_data.role
+        role=user_data.role,
+        permissions=permissions
     )
     user_dict = user.dict()
     user_dict["password"] = hash_password(user_data.password)

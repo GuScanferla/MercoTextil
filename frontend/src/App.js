@@ -1645,8 +1645,11 @@ const RelatoriosPanel = ({ user }) => {
                 <Input
                   id="quantidade_metros"
                   value={espulaData.quantidade_metros}
-                  onChange={(e) => setEspulaData({...espulaData, quantidade_metros: e.target.value})}
-                  placeholder="Metros"
+                  onChange={(e) => {
+                    const formatted = formatNumber(e.target.value);
+                    setEspulaData({...espulaData, quantidade_metros: formatted});
+                  }}
+                  placeholder="Ex: 1000 ou 1.000"
                   required
                 />
               </div>

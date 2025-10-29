@@ -1946,9 +1946,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     return new Date(b.created_at) - new Date(a.created_at);
   });
 
-  // Separate active and finalized espulas
   const activeEspulas = sortedEspulas.filter(e => e.status !== "finalizado");
-  const finalizedEspulas = sortedHistory.filter(e => e.status === "finalizado");
 
   return (
     <div className="space-y-6">

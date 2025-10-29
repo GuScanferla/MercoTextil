@@ -1947,6 +1947,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   });
 
   const activeEspulas = sortedEspulas.filter(e => e.status !== "finalizado");
+  const finalizedEspulas = sortedHistory.filter(e => e.status === "finalizado");
 
   return (
     <div className="space-y-6">

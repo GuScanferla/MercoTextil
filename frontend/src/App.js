@@ -1749,6 +1749,20 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     data_prevista_entrega: ""
   });
 
+  // Função para formatar número (adiciona pontos de milhar)
+  const formatNumber = (value) => {
+    // Remove tudo que não é dígito
+    const numbers = value.replace(/\D/g, '');
+    // Adiciona pontos de milhar
+    return numbers.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  // Função para lidar com mudança de metros
+  const handleMetrosChange = (value) => {
+    const formatted = formatNumber(value);
+    setEspulaData({...espulaData, quantidade_metros: formatted});
+  };
+
   // CORRIGIR FORMATAÇÃO DE HORÁRIO - CONVERSÃO CORRETA UTC PARA BRASÍLIA  
   const formatDateTimeBrazil = (utcString) => {
     if (!utcString) return "-";

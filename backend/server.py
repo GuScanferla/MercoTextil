@@ -867,6 +867,23 @@ async def update_ordem_producao(
 @api_router.post("/espulas", response_model=Espula)
 async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(get_current_user)):
     try:
+        # If espula has numero_os but no ordem_producao_id, create ordem to reserve the number
+        if espula_data.numero_os and not espula_data.ordem_producao_id:
+            # Create ordem de producao to reserve this OS number
+            ordem = OrdemProducao(
+                numero_os=espula_data.numero_os,
+                cliente=espula_data.cliente,
+                artigo=espula_data.artigo,
+                cor=espula_data.cor,
+                metragem=espula_data.quantidade_metros,
+                data_entrega=espula_data.data_prevista_entrega,
+                observacao=espula_data.observacoes,
+                status="em_producao",  # Already in production since espula is being created
+                iniciado_em=get_utc_now(),
+                criado_por=current_user.username
+            )
+            await db.ordens_producao.insert_one(ordem.dict())
+        
         espula = Espula(
             # New fields
             numero_os=espula_data.numero_os,
@@ -892,7 +909,7 @@ async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(
         
         await db.espulas.insert_one(espula.dict())
         
-        # If espula is linked to an ordem de producao, update the ordem status
+        # If espula is linked to an existing ordem de producao, update the ordem status
         if espula_data.ordem_producao_id:
             await db.ordens_producao.update_one(
                 {"id": espula_data.ordem_producao_id},

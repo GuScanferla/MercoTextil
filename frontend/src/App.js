@@ -1919,7 +1919,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     }
   };
 
-  // Sort espulas by priority (delivery date)
+  // Sort espulas by priority (delivery date) for active view
   const sortedEspulas = [...espulas].sort((a, b) => {
     if (a.status === "em_producao_aguardando" || a.status === "producao") {
       if (b.status === "em_producao_aguardando" || b.status === "producao") {
@@ -1933,9 +1933,22 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     return new Date(a.data_prevista_entrega) - new Date(b.data_prevista_entrega);
   });
 
+  // Sort history by finalized date (most recent first)
+  const sortedHistory = [...espulas].sort((a, b) => {
+    // Se ambos têm finalizado_em, ordenar por data de finalização (mais recente primeiro)
+    if (a.finalizado_em && b.finalizado_em) {
+      return new Date(b.finalizado_em) - new Date(a.finalizado_em);
+    }
+    // Se apenas um tem finalizado_em, o que tem vem primeiro
+    if (a.finalizado_em) return -1;
+    if (b.finalizado_em) return 1;
+    // Se nenhum tem finalizado_em, ordenar por data de criação (mais recente primeiro)
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+
   // Separate active and finalized espulas
   const activeEspulas = sortedEspulas.filter(e => e.status !== "finalizado");
-  const finalizedEspulas = sortedEspulas.filter(e => e.status === "finalizado");
+  const finalizedEspulas = sortedHistory.filter(e => e.status === "finalizado");
 
   return (
     <div className="space-y-6">

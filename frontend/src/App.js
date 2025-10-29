@@ -2001,7 +2001,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
             <Download className="h-4 w-4 mr-2" />
             Exportar Relatório
           </Button>
-          <Button onClick={() => setShowForm(!showForm)} className="btn-merco-large">
+          <Button onClick={() => showForm ? setShowForm(false) : openForm()} className="btn-merco-large">
             {showForm ? "Cancelar" : "+ LANÇAR"}
           </Button>
         </div>

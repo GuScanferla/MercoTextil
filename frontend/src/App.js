@@ -2045,8 +2045,8 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                 <Input
                   id="quantidade_metros"
                   value={espulaData.quantidade_metros}
-                  onChange={(e) => setEspulaData({...espulaData, quantidade_metros: e.target.value})}
-                  placeholder="Ex: 1000"
+                  onChange={(e) => handleMetrosChange(e.target.value)}
+                  placeholder="Ex: 1000 ou 1.000"
                   required
                 />
               </div>

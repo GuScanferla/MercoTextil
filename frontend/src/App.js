@@ -2015,12 +2015,14 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           <CardContent className="space-y-4 form-merco">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="numero_os">OS (Opcional)</Label>
+                <Label htmlFor="numero_os">OS (Automático) *</Label>
                 <Input
                   id="numero_os"
                   value={espulaData.numero_os}
-                  onChange={(e) => setEspulaData({...espulaData, numero_os: e.target.value})}
-                  placeholder="Número da OS"
+                  readOnly
+                  disabled
+                  className="bg-gray-800 cursor-not-allowed"
+                  placeholder="Número gerado automaticamente"
                 />
               </div>
               <div>

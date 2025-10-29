@@ -1774,6 +1774,43 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     setEspulaData({...espulaData, quantidade_metros: formatted});
   };
 
+  // Função para buscar próximo número de OS
+  const getNextOSNumber = async () => {
+    try {
+      const response = await axios.get(`${API}/ordens-producao/next-number`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      return response.data.numero_os;
+    } catch (error) {
+      console.error("Erro ao buscar próximo número:", error);
+      return "";
+    }
+  };
+
+  // Abrir formulário com próximo número de OS
+  const openForm = async () => {
+    const nextNumber = await getNextOSNumber();
+    setEspulaData({
+      numero_os: nextNumber,
+      maquina: "",
+      mat_prima: "",
+      qtde_fios: "",
+      cliente: "",
+      artigo: "",
+      cor: "",
+      quantidade_metros: "",
+      carga: "",
+      carga_fracao_1: "",
+      carga_fracao_2: "",
+      carga_fracao_3: "",
+      carga_fracao_4: "",
+      carga_fracao_5: "",
+      observacoes: "",
+      data_prevista_entrega: ""
+    });
+    setShowForm(true);
+  };
+
   // CORRIGIR FORMATAÇÃO DE HORÁRIO - CONVERSÃO CORRETA UTC PARA BRASÍLIA  
   const formatDateTimeBrazil = (utcString) => {
     if (!utcString) return "-";

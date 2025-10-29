@@ -2297,12 +2297,12 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-bold text-white text-xl">
-                      OS #{espula.id.slice(-8)} - {espula.cliente}
+                      {espula.numero_os ? `OS ${espula.numero_os}` : `OS #${espula.id.slice(-8)}`} - {espula.cliente}
                     </h3>
                     <p className="text-gray-400 text-lg">Artigo: <span className="text-white">{espula.artigo}</span></p>
                   </div>
-                  <Badge className="bg-green-600 text-green-100 font-semibold text-sm">
-                    FINALIZADO
+                  <Badge className={`${getStatusBadge(espula.status)} font-semibold text-sm`}>
+                    {getStatusText(espula.status)}
                   </Badge>
                 </div>
                 

@@ -1437,6 +1437,14 @@ const RelatoriosPanel = ({ user }) => {
     }
   };
 
+  // Função para formatar número (adiciona pontos de milhar)
+  const formatNumber = (value) => {
+    // Remove tudo que não é dígito
+    const numbers = value.replace(/\D/g, '');
+    // Adiciona pontos de milhar
+    return numbers.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
   const handleOrdemClick = (ordem) => {
     setSelectedOrdem(ordem);
     setEspulaData({
@@ -1444,7 +1452,7 @@ const RelatoriosPanel = ({ user }) => {
       maquina: "",
       mat_prima: "",
       qtde_fios: "",
-      quantidade_metros: ordem.metragem,
+      quantidade_metros: formatNumber(ordem.metragem),
       carga: "",
       carga_fracao_1: "",
       carga_fracao_2: "",

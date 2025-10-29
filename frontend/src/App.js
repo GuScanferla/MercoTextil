@@ -2291,7 +2291,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       {showHistory && (
         <div className="grid gap-6">
           <h3 className="text-2xl font-bold text-white">Histórico - Toda Espulagem</h3>
-          {sortedEspulas.map((espula) => (
+          {sortedHistory.map((espula) => (
             <Card key={espula.id} className="card-merco-large opacity-75">
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">

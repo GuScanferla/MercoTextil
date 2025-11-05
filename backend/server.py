@@ -162,6 +162,12 @@ class Order(BaseModel):
     finished_at: Optional[datetime] = None
     observacao_liberacao: str = ""
     laudo_final: str = ""
+    # New fields for machine queue management
+    espulagem_id: Optional[str] = None  # Link to espulagem if created from espulagem
+    ordem_producao_id: Optional[str] = None  # Link to ordem de producao
+    numero_os: Optional[str] = None  # OS number
+    origem: str = "manual"  # manual, espulagem, ordem
+    queue_position: int = 0  # Position in machine queue
 
 class OrderCreate(BaseModel):
     machine_id: str

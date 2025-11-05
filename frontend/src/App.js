@@ -1173,6 +1173,34 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
     laudo_final: ""
   });
 
+  const startOrderFromList = async (order) => {
+    try {
+      await axios.put(`${API}/machines/${order.machine_code}/orders/${order.id}/start`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Produção iniciada com sucesso!");
+      onOrderUpdate();
+      onMachineUpdate();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erro ao iniciar produção");
+    }
+  };
+
+  const finishOrderFromList = async (order) => {
+    try {
+      await axios.put(`${API}/machines/${order.machine_code}/orders/${order.id}/finish`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Pedido finalizado com sucesso!");
+      onOrderUpdate();
+      onMachineUpdate();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erro ao finalizar pedido");
+    }
+  };
+
   const updateOrder = async (orderId, status, observacao = "", laudo = "") => {
     try {
       await axios.put(`${API}/orders/${orderId}`, {

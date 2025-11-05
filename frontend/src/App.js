@@ -3199,13 +3199,16 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       // Sheet 1: Produção (Orders)
       const ordersData = ordersResponse.data.map(order => ({
         'ID': order.id,
+        'Número OS': order.numero_os || '-',
+        'Origem': order.origem === 'manual' ? 'Manual' : order.origem === 'espulagem' ? 'Espulagem' : 'Ordem',
+        'Posição na Fila': order.queue_position || '-',
         'Máquina': order.machine_code,
-        'Layout': order.layout_type,
+        'Layout': order.layout_type === '16_fusos' ? '16 Fusos' : '32 Fusos',
         'Cliente': order.cliente,
         'Artigo': order.artigo,
         'Cor': order.cor,
         'Quantidade': order.quantidade,
-        'Status': order.status,
+        'Status': order.status === 'pendente' ? 'Pendente' : order.status === 'em_producao' ? 'Em Produção' : 'Finalizado',
         'Criado por': order.created_by,
         'Criado em': new Date(order.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
         'Iniciado em': order.started_at ? new Date(order.started_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',

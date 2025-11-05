@@ -1781,6 +1781,63 @@ const RelatoriosPanel = ({ user }) => {
               </div>
             </div>
 
+            <div className="border-t border-gray-700 pt-4">
+              <div className="flex justify-between items-center mb-3">
+                <Label className="text-lg">Seleção de Máquinas (até 5) *</Label>
+                {machineAllocations.length < 5 && (
+                  <Button size="sm" onClick={addMachineAllocation} variant="outline">
+                    + Adicionar Máquina
+                  </Button>
+                )}
+              </div>
+              
+              {machineAllocations.map((allocation, index) => (
+                <div key={index} className="grid grid-cols-3 gap-3 mb-3 p-3 bg-black/40 rounded border border-gray-700">
+                  <div className="col-span-2">
+                    <Label>Máquina</Label>
+                    <Select 
+                      value={allocation.machine_code} 
+                      onValueChange={(value) => updateMachineAllocation(index, 'machine', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a máquina" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {machines.map((machine) => (
+                          <SelectItem key={machine.id} value={machine.code}>
+                            {machine.code} - {machine.layout_type === '16_fusos' ? '16 Fusos' : '32 Fusos'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="relative">
+                    <Label>Quantidade</Label>
+                    <Input
+                      value={allocation.quantidade}
+                      onChange={(e) => updateMachineAllocation(index, 'quantidade', e.target.value)}
+                      placeholder="Ex: 1.000"
+                    />
+                    {machineAllocations.length > 1 && (
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="absolute top-0 right-0 text-red-400"
+                        onClick={() => removeMachineAllocation(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              
+              <div className="flex justify-between items-center p-3 bg-blue-900/30 rounded mt-2">
+                <span className="text-white font-medium">Total:</span>
+                <span className="text-white text-lg font-bold">{getTotalQuantidade().toLocaleString('pt-BR')}</span>
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="observacoes">Observações</Label>
               <Textarea
@@ -1795,7 +1852,7 @@ const RelatoriosPanel = ({ user }) => {
               <Button 
                 onClick={createEspulaFromOrdem} 
                 className="flex-1 btn-merco"
-                disabled={!espulaData.maquina || !espulaData.mat_prima || !espulaData.qtde_fios || !espulaData.quantidade_metros || !espulaData.carga}
+                disabled={!espulaData.maquina || !espulaData.mat_prima || !espulaData.qtde_fios || !espulaData.quantidade_metros || !espulaData.carga || machineAllocations.filter(a => a.machine_code && a.quantidade).length === 0}
               >
                 Criar Espulagem
               </Button>

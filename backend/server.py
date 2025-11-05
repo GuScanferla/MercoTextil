@@ -256,6 +256,7 @@ class EspulaCreate(BaseModel):
     maquina: Optional[str] = ""
     mat_prima: Optional[str] = ""
     qtde_fios: Optional[str] = ""
+    machine_allocations: list[MachineAllocation] = Field(default_factory=list)
     carga_fracao_1: Optional[str] = ""
     carga_fracao_2: Optional[str] = ""
     carga_fracao_3: Optional[str] = ""

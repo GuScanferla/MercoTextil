@@ -783,7 +783,16 @@ async def update_order(
     elif order_update.status == "finalizado":
         update_data["status"] = "finalizado"
         update_data["finished_at"] = get_utc_now()
-        machine_status = "verde"
+        
+        # Check if there are other pending orders for this machine
+        pending_orders = await db.orders.find({
+            "machine_id": order["machine_id"],
+            "status": "pendente",
+            "id": {"$ne": order_id}
+        }).to_list(1)
+        
+        # If there are pending orders, keep machine yellow, otherwise green
+        machine_status = "amarelo" if pending_orders else "verde"
     
     await db.orders.update_one({"id": order_id}, {"$set": update_data})
     

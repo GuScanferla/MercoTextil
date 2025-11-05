@@ -1529,6 +1529,14 @@ const RelatoriosPanel = ({ user }) => {
 
   const createEspulaFromOrdem = async () => {
     try {
+      // Validar alocações de máquinas
+      const validAllocations = machineAllocations.filter(a => a.machine_code && a.quantidade);
+      
+      if (validAllocations.length === 0) {
+        toast.error("Selecione pelo menos uma máquina com quantidade");
+        return;
+      }
+
       const espulaPayload = {
         ordem_producao_id: selectedOrdem.id,
         numero_os: espulaData.numero_os,
@@ -1545,6 +1553,7 @@ const RelatoriosPanel = ({ user }) => {
         carga_fracao_3: espulaData.carga_fracao_3,
         carga_fracao_4: espulaData.carga_fracao_4,
         carga_fracao_5: espulaData.carga_fracao_5,
+        machine_allocations: validAllocations,
         observacoes: espulaData.observacoes,
         data_prevista_entrega: selectedOrdem.data_entrega
       };

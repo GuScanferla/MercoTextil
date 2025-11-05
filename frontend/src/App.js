@@ -2466,12 +2466,24 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                       </Button>
                     )}
                     {espula.status === "producao" && (
-                      <Button
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={() => updateEspulaStatus(espula.id, "finalizado")}
-                      >
-                        Finalizar
-                      </Button>
+                      <>
+                        {espula.machine_allocations && espula.machine_allocations.length > 0 ? (
+                          <Button
+                            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                            onClick={() => finalizeEspulaWithMachines(espula.id)}
+                          >
+                            <Factory className="h-4 w-4" />
+                            Finalizar e Enviar para Máquinas
+                          </Button>
+                        ) : (
+                          <Button
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => updateEspulaStatus(espula.id, "finalizado")}
+                          >
+                            Finalizar
+                          </Button>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

@@ -2004,9 +2004,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
 
   const updateEspulaStatus = async (espulaId, newStatus) => {
     try {
-      await axios.put(`${API}/espulas/${espulaId}`, {
-        status: newStatus
-      }, {
+      await axios.put(`${API}/espulas/${espulaId}`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
       
@@ -2014,6 +2012,19 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       onEspulaUpdate();
     } catch (error) {
       toast.error("Erro ao atualizar status");
+    }
+  };
+
+  const finalizeEspulaWithMachines = async (espulaId) => {
+    try {
+      const response = await axios.post(`${API}/espulas/${espulaId}/finalize-with-machines`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success(`Espulagem finalizada! ${response.data.orders_created} pedidos criados nas máquinas.`);
+      onEspulaUpdate();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erro ao finalizar espulagem");
     }
   };
 

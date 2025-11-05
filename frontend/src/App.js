@@ -2404,6 +2404,38 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                   </p>
                 )}
 
+                {/* Máquinas Alocadas */}
+                {espula.machine_allocations && espula.machine_allocations.length > 0 && (
+                  <div className="mb-4 p-4 bg-blue-900/20 rounded border border-blue-700">
+                    <h4 className="font-bold text-white text-lg mb-3 flex items-center">
+                      <Factory className="h-5 w-5 mr-2" />
+                      Máquinas Alocadas ({espula.machine_allocations.length})
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {espula.machine_allocations.map((allocation, index) => (
+                        <div key={index} className="p-3 bg-black/40 rounded border border-gray-700">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="font-bold text-white text-lg">{allocation.machine_code}</span>
+                            <Badge className="bg-gray-700 text-gray-200 text-xs">
+                              {allocation.layout_type === '16_fusos' ? '16 Fusos' : '32 Fusos'}
+                            </Badge>
+                          </div>
+                          <div className="text-sm">
+                            <span className="text-gray-400">Quantidade:</span>
+                            <span className="text-white font-bold ml-2">{allocation.quantidade}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-blue-700/50 flex justify-between items-center">
+                      <span className="text-gray-400">Total Geral:</span>
+                      <span className="text-white text-xl font-bold">
+                        {espula.machine_allocations.reduce((sum, a) => sum + parseInt(a.quantidade.replace(/\D/g, '') || 0), 0).toLocaleString('pt-BR')}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 {espula.status !== "finalizado" && (
                   <div className="flex space-x-3">
                     {espula.status === "pendente" && (

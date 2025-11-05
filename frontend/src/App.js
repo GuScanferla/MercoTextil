@@ -1842,7 +1842,7 @@ const RelatoriosPanel = ({ user }) => {
               <Button 
                 onClick={createEspulaFromOrdem} 
                 className="flex-1 btn-merco"
-                disabled={!espulaData.maquina || !espulaData.mat_prima || !espulaData.qtde_fios || !espulaData.quantidade_metros || !espulaData.carga || machineAllocations.filter(a => a.machine_code && a.quantidade).length === 0}
+                disabled={!espulaData.mat_prima || !espulaData.qtde_fios || !espulaData.quantidade_metros || !espulaData.carga || machineAllocations.filter(a => a.machine_code && a.quantidade).length === 0}
               >
                 Criar Espulagem
               </Button>

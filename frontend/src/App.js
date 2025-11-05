@@ -841,11 +841,11 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
             {(user.role === "admin" || user.role === "operador_interno") && (
               <Button 
                 onClick={() => {
-                  const freeMachines = machines.filter(m => m.status === "verde");
-                  if (freeMachines.length > 0) {
-                    openManualOrderDialog(freeMachines[0]);
+                  const availableMachines = machines.filter(m => m.status === "verde" || m.status === "amarelo");
+                  if (availableMachines.length > 0) {
+                    openManualOrderDialog(availableMachines[0]);
                   } else {
-                    toast.error("Nenhuma máquina livre disponível");
+                    toast.error("Todas as máquinas estão em uso ou manutenção");
                   }
                 }} 
                 className="bg-blue-600 hover:bg-blue-700 text-white"

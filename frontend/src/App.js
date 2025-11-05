@@ -360,6 +360,11 @@ const Dashboard = ({ user, onLogout }) => {
 const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, onMaintenanceUpdate }) => {
   const [selectedMachine, setSelectedMachine] = useState(null);
   const [maintenanceMachine, setMaintenanceMachine] = useState(null);
+  const [showQueue, setShowQueue] = useState(false);
+  const [queueMachine, setQueueMachine] = useState(null);
+  const [machineOrders, setMachineOrders] = useState([]);
+  const [showManualOrder, setShowManualOrder] = useState(false);
+  const [manualOrderMachine, setManualOrderMachine] = useState(null);
   const [orderData, setOrderData] = useState({
     cliente: "",
     artigo: "",

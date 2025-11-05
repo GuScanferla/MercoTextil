@@ -1523,6 +1523,7 @@ const RelatoriosPanel = ({ user }) => {
       carga_fracao_5: "",
       observacoes: ordem.observacao || ""
     });
+    setMachineAllocations([{ machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
     setShowEspulaForm(true);
   };
 

@@ -210,6 +210,12 @@ class OrdemProducaoCreate(BaseModel):
 class OrdemProducaoUpdate(BaseModel):
     status: str
 
+class MachineAllocation(BaseModel):
+    machine_code: str
+    machine_id: str
+    layout_type: str
+    quantidade: str
+
 class Espula(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     # New fields
@@ -218,6 +224,8 @@ class Espula(BaseModel):
     maquina: Optional[str] = ""  # Machine code
     mat_prima: Optional[str] = ""  # Raw material
     qtde_fios: Optional[str] = ""  # Number of threads
+    # Machine allocations - up to 5 machines with quantities
+    machine_allocations: list[MachineAllocation] = Field(default_factory=list)
     # Cargas e fração - 5 optional numeric fields
     carga_fracao_1: Optional[str] = ""
     carga_fracao_2: Optional[str] = ""

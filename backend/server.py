@@ -1000,6 +1000,7 @@ async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(
             maquina=espula_data.maquina,
             mat_prima=espula_data.mat_prima,
             qtde_fios=espula_data.qtde_fios,
+            machine_allocations=espula_data.machine_allocations,
             carga_fracao_1=espula_data.carga_fracao_1,
             carga_fracao_2=espula_data.carga_fracao_2,
             carga_fracao_3=espula_data.carga_fracao_3,

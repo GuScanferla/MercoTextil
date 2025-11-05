@@ -429,11 +429,77 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     }
   };
 
+  const loadMachineQueue = async (machineCode) => {
+    try {
+      const response = await axios.get(`${API}/machines/${machineCode}/orders`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setMachineOrders(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar fila:", error);
+      toast.error("Erro ao carregar fila de pedidos");
+    }
+  };
+
   const handleMachineClick = (machine) => {
     if (user.role === "admin" || user.role === "operador_interno") {
       if (machine.status === "verde") {
         setSelectedMachine(machine);
+      } else if (machine.status === "amarelo") {
+        // Máquina com pedidos pendentes - mostrar fila
+        setQueueMachine(machine);
+        loadMachineQueue(machine.code);
+        setShowQueue(true);
       }
+    } else if (user.role === "operador_externo") {
+      // Operador externo pode ver fila de pedidos pendentes
+      if (machine.status === "amarelo" || machine.status === "vermelho") {
+        setQueueMachine(machine);
+        loadMachineQueue(machine.code);
+        setShowQueue(true);
+      }
+    }
+  };
+
+  const startOrderProduction = async (orderId, machineCode) => {
+    try {
+      await axios.put(`${API}/machines/${machineCode}/orders/${orderId}/start`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Produção iniciada com sucesso!");
+      loadMachineQueue(machineCode);
+      onMachineUpdate();
+      onOrderUpdate();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erro ao iniciar produção");
+    }
+  };
+
+  const openManualOrderDialog = (machine) => {
+    setManualOrderMachine(machine);
+    setOrderData({
+      cliente: "",
+      artigo: "",
+      cor: "",
+      quantidade: "",
+      observacao: ""
+    });
+    setShowManualOrder(true);
+  };
+
+  const createManualOrder = async () => {
+    try {
+      await axios.post(`${API}/machines/${manualOrderMachine.code}/orders`, orderData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Pedido criado na máquina com sucesso!");
+      setShowManualOrder(false);
+      onMachineUpdate();
+      onOrderUpdate();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erro ao criar pedido");
     }
   };
 

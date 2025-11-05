@@ -976,6 +976,167 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de Fila de Pedidos */}
+      <Dialog open={showQueue} onOpenChange={setShowQueue}>
+        <DialogContent className="dialog-merco max-w-4xl">
+          <DialogHeader className="dialog-header">
+            <DialogTitle className="dialog-title">
+              Fila de Pedidos - Máquina {queueMachine?.code}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 p-6 max-h-[70vh] overflow-y-auto">
+            {machineOrders.length === 0 ? (
+              <p className="text-center text-gray-400 py-8">Nenhum pedido na fila</p>
+            ) : (
+              <div className="space-y-3">
+                {machineOrders.map((order, index) => (
+                  <Card key={order.id} className="card-merco">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-white font-bold text-lg">#{index + 1}</span>
+                            {order.numero_os && (
+                              <Badge className="bg-blue-600">OS {order.numero_os}</Badge>
+                            )}
+                            <Badge className={order.origem === "manual" ? "bg-purple-600" : "bg-green-600"}>
+                              {order.origem === "manual" ? "Manual" : "Espulagem"}
+                            </Badge>
+                            <Badge className={
+                              order.status === "pendente" ? "bg-yellow-600" :
+                              order.status === "em_producao" ? "bg-red-600" : "bg-green-600"
+                            }>
+                              {order.status === "pendente" ? "Pendente" : 
+                               order.status === "em_producao" ? "Em Produção" : "Finalizado"}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-4 gap-3 text-sm">
+                            <div>
+                              <span className="text-gray-400">Cliente:</span>
+                              <p className="text-white font-medium">{order.cliente}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Artigo:</span>
+                              <p className="text-white font-medium">{order.artigo}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Cor:</span>
+                              <p className="text-white font-medium">{order.cor}</p>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Quantidade:</span>
+                              <p className="text-white font-medium">{order.quantidade}</p>
+                            </div>
+                          </div>
+                        </div>
+                        {order.status === "pendente" && user.role === "operador_externo" && (
+                          <Button
+                            onClick={() => startOrderProduction(order.id, queueMachine.code)}
+                            className="bg-green-600 hover:bg-green-700 ml-4"
+                          >
+                            Iniciar
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Lançamento Manual */}
+      <Dialog open={showManualOrder} onOpenChange={setShowManualOrder}>
+        <DialogContent className="dialog-merco max-w-2xl">
+          <DialogHeader className="dialog-header">
+            <DialogTitle className="dialog-title">
+              Lançar Pedido Manualmente - {manualOrderMachine?.code}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 p-6 form-merco">
+            <div>
+              <Label>Selecione a Máquina *</Label>
+              <Select 
+                value={manualOrderMachine?.code || ""} 
+                onValueChange={(value) => {
+                  const machine = machines.find(m => m.code === value);
+                  setManualOrderMachine(machine);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a máquina" />
+                </SelectTrigger>
+                <SelectContent>
+                  {machines.filter(m => m.status === "verde").map((machine) => (
+                    <SelectItem key={machine.id} value={machine.code}>
+                      {machine.code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cliente">Cliente *</Label>
+                <Input
+                  id="cliente"
+                  value={orderData.cliente}
+                  onChange={(e) => setOrderData({...orderData, cliente: e.target.value})}
+                  placeholder="Nome do cliente"
+                />
+              </div>
+              <div>
+                <Label htmlFor="artigo">Artigo *</Label>
+                <Input
+                  id="artigo"
+                  value={orderData.artigo}
+                  onChange={(e) => setOrderData({...orderData, artigo: e.target.value})}
+                  placeholder="Artigo"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cor">Cor *</Label>
+                <Input
+                  id="cor"
+                  value={orderData.cor}
+                  onChange={(e) => setOrderData({...orderData, cor: e.target.value})}
+                  placeholder="Cor"
+                />
+              </div>
+              <div>
+                <Label htmlFor="quantidade">Quantidade *</Label>
+                <Input
+                  id="quantidade"
+                  value={orderData.quantidade}
+                  onChange={(e) => setOrderData({...orderData, quantidade: e.target.value})}
+                  placeholder="Quantidade"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="observacao">Observação</Label>
+              <Textarea
+                id="observacao"
+                value={orderData.observacao}
+                onChange={(e) => setOrderData({...orderData, observacao: e.target.value})}
+                placeholder="Observações do pedido"
+              />
+            </div>
+            <Button 
+              onClick={createManualOrder} 
+              className="w-full btn-merco"
+              disabled={!orderData.cliente || !orderData.artigo || !orderData.cor || !orderData.quantidade || !manualOrderMachine}
+            >
+              Criar Pedido na Máquina
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

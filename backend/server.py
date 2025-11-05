@@ -1071,6 +1071,85 @@ async def update_espula(
     
     return {"message": "Espula updated successfully"}
 
+@api_router.post("/espulas/{espula_id}/finalize-with-machines")
+async def finalize_espula_with_machines(
+    espula_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Finalize espulagem and create orders on selected machines"""
+    espula = await db.espulas.find_one({"id": espula_id})
+    if not espula:
+        raise HTTPException(status_code=404, detail="Espula not found")
+    
+    if espula["status"] == "finalizado":
+        raise HTTPException(status_code=400, detail="Espula already finalized")
+    
+    # Get machine allocations
+    machine_allocations = espula.get("machine_allocations", [])
+    
+    if not machine_allocations:
+        raise HTTPException(status_code=400, detail="No machines allocated")
+    
+    # Create orders for each machine
+    created_orders = []
+    for allocation in machine_allocations:
+        # Get next queue position for this machine
+        existing_orders = await db.orders.find({"machine_code": allocation["machine_code"]}).sort("queue_position", -1).limit(1).to_list(1)
+        next_position = (existing_orders[0]["queue_position"] + 1) if existing_orders else 1
+        
+        order = Order(
+            machine_id=allocation["machine_id"],
+            machine_code=allocation["machine_code"],
+            layout_type=allocation["layout_type"],
+            cliente=espula["cliente"],
+            artigo=espula["artigo"],
+            cor=espula["cor"],
+            quantidade=allocation["quantidade"],
+            observacao=espula.get("observacoes", ""),
+            created_by=current_user.username,
+            espulagem_id=espula_id,
+            ordem_producao_id=espula.get("ordem_producao_id"),
+            numero_os=espula.get("numero_os"),
+            origem="espulagem",
+            queue_position=next_position
+        )
+        
+        await db.orders.insert_one(order.dict())
+        created_orders.append(order.id)
+        
+        # Update machine status to amarelo (has pending order)
+        await db.machines.update_one(
+            {"id": allocation["machine_id"]},
+            {"$set": {"status": "amarelo", "updated_at": get_utc_now()}}
+        )
+    
+    # Update espula status to finalizado
+    await db.espulas.update_one(
+        {"id": espula_id},
+        {"$set": {
+            "status": "finalizado",
+            "finalizado_em": get_utc_now(),
+            "updated_at": get_utc_now()
+        }}
+    )
+    
+    # If espula is linked to an ordem de producao, update the ordem status to finalizado
+    if espula.get("ordem_producao_id"):
+        await db.ordens_producao.update_one(
+            {"id": espula["ordem_producao_id"]},
+            {"$set": {
+                "status": "finalizado",
+                "finalizado_em": get_utc_now(),
+                "updated_at": get_utc_now()
+            }}
+        )
+    
+    return {
+        "message": "Espula finalized and orders created successfully",
+        "orders_created": len(created_orders),
+        "order_ids": created_orders
+    }
+
 # Reports routes
 @api_router.get("/reports/export")
 async def export_report(layout_type: str, current_user: User = Depends(get_current_user)):

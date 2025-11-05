@@ -834,9 +834,26 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     <div className="space-y-6">
       <div className="fusos-container card-merco">
         <div className="mb-6">
-          <h3 className="text-2xl font-bold mb-6 text-white">
-            Layout {layout === "16_fusos" ? "16" : "32"} Fusos
-          </h3>
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-white">
+              Layout {layout === "16_fusos" ? "16" : "32"} Fusos
+            </h3>
+            {(user.role === "admin" || user.role === "operador_interno") && (
+              <Button 
+                onClick={() => {
+                  const freeMachines = machines.filter(m => m.status === "verde");
+                  if (freeMachines.length > 0) {
+                    openManualOrderDialog(freeMachines[0]);
+                  } else {
+                    toast.error("Nenhuma máquina livre disponível");
+                  }
+                }} 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                + Lançar Pedido Manualmente
+              </Button>
+            )}
+          </div>
           <div className="status-legend">
             <div className="status-item">
               <div className="status-dot verde"></div>

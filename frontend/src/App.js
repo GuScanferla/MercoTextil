@@ -1401,6 +1401,10 @@ const RelatoriosPanel = ({ user }) => {
   const [ordensPendentes, setOrdensPendentes] = useState([]);
   const [selectedOrdem, setSelectedOrdem] = useState(null);
   const [showEspulaForm, setShowEspulaForm] = useState(false);
+  const [machines, setMachines] = useState([]);
+  const [machineAllocations, setMachineAllocations] = useState([
+    { machine_code: "", machine_id: "", layout_type: "", quantidade: "" }
+  ]);
   const [espulaData, setEspulaData] = useState({
     numero_os: "",
     maquina: "",

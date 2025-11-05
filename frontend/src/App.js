@@ -1422,9 +1422,67 @@ const RelatoriosPanel = ({ user }) => {
 
   useEffect(() => {
     loadOrdensPendentes();
+    loadMachines();
     const interval = setInterval(loadOrdensPendentes, 5000); // Auto-refresh every 5 seconds
     return () => clearInterval(interval);
   }, []);
+
+  const loadMachines = async () => {
+    try {
+      const [machines16, machines32] = await Promise.all([
+        axios.get(`${API}/machines/16_fusos`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }),
+        axios.get(`${API}/machines/32_fusos`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        })
+      ]);
+      const allMachines = [...machines16.data, ...machines32.data];
+      setMachines(allMachines);
+    } catch (error) {
+      console.error("Erro ao carregar máquinas:", error);
+    }
+  };
+
+  const addMachineAllocation = () => {
+    if (machineAllocations.length < 5) {
+      setMachineAllocations([...machineAllocations, { machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
+    }
+  };
+
+  const removeMachineAllocation = (index) => {
+    const newAllocations = machineAllocations.filter((_, i) => i !== index);
+    setMachineAllocations(newAllocations);
+  };
+
+  const updateMachineAllocation = (index, field, value) => {
+    const newAllocations = [...machineAllocations];
+    
+    if (field === 'machine') {
+      const selectedMachine = machines.find(m => m.code === value);
+      if (selectedMachine) {
+        newAllocations[index] = {
+          ...newAllocations[index],
+          machine_code: selectedMachine.code,
+          machine_id: selectedMachine.id,
+          layout_type: selectedMachine.layout_type
+        };
+      }
+    } else if (field === 'quantidade') {
+      // Format number
+      const formatted = formatNumber(value);
+      newAllocations[index].quantidade = formatted;
+    }
+    
+    setMachineAllocations(newAllocations);
+  };
+
+  const getTotalQuantidade = () => {
+    return machineAllocations.reduce((total, alloc) => {
+      const qty = parseInt(alloc.quantidade.replace(/\D/g, '') || '0');
+      return total + qty;
+    }, 0);
+  };
 
   const loadOrdensPendentes = async () => {
     try {

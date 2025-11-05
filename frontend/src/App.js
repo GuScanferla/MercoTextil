@@ -1686,17 +1686,7 @@ const RelatoriosPanel = ({ user }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="maquina">Máquina *</Label>
-                <Input
-                  id="maquina"
-                  value={espulaData.maquina}
-                  onChange={(e) => setEspulaData({...espulaData, maquina: e.target.value})}
-                  placeholder="Ex: CD1, F2"
-                  required
-                />
-              </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="mat_prima">Matéria Prima *</Label>
                 <Input

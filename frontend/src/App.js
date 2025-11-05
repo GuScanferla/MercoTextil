@@ -476,6 +476,21 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     }
   };
 
+  const finishOrderProduction = async (orderId, machineCode) => {
+    try {
+      await axios.put(`${API}/machines/${machineCode}/orders/${orderId}/finish`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      
+      toast.success("Pedido finalizado com sucesso!");
+      loadMachineQueue(machineCode);
+      onMachineUpdate();
+      onOrderUpdate();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Erro ao finalizar pedido");
+    }
+  };
+
   const openManualOrderDialog = (machine) => {
     setManualOrderMachine(machine);
     setOrderData({

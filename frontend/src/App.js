@@ -1070,9 +1070,9 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
                   <SelectValue placeholder="Selecione a máquina" />
                 </SelectTrigger>
                 <SelectContent>
-                  {machines.filter(m => m.status === "verde").map((machine) => (
+                  {machines.filter(m => m.status === "verde" || m.status === "amarelo").map((machine) => (
                     <SelectItem key={machine.id} value={machine.code}>
-                      {machine.code}
+                      {machine.code} - {machine.layout_type === '16_fusos' ? '16 Fusos' : '32 Fusos'}
                     </SelectItem>
                   ))}
                 </SelectContent>

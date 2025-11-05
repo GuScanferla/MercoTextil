@@ -795,6 +795,100 @@ async def update_order(
     
     return {"message": "Order updated successfully"}
 
+# Machine-specific order routes
+@api_router.get("/machines/{machine_code}/orders", response_model=List[Order])
+async def get_machine_orders(machine_code: str, current_user: User = Depends(get_current_user)):
+    """Get all orders for a specific machine, sorted by queue position"""
+    orders = await db.orders.find({"machine_code": machine_code}).sort("queue_position", 1).to_list(1000)
+    return [Order(**order) for order in orders]
+
+@api_router.post("/machines/{machine_code}/orders", response_model=Order)
+async def create_machine_order(
+    machine_code: str,
+    order_data: OrderCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create order directly on machine (manual)"""
+    if current_user.role not in ["admin", "operador_interno"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get machine
+    machine = await db.machines.find_one({"code": machine_code})
+    if not machine:
+        raise HTTPException(status_code=404, detail="Machine not found")
+    
+    # Get next queue position for this machine
+    existing_orders = await db.orders.find({"machine_code": machine_code}).sort("queue_position", -1).limit(1).to_list(1)
+    next_position = (existing_orders[0]["queue_position"] + 1) if existing_orders else 1
+    
+    order = Order(
+        machine_id=machine["id"],
+        machine_code=machine_code,
+        layout_type=machine["layout_type"],
+        cliente=order_data.cliente,
+        artigo=order_data.artigo,
+        cor=order_data.cor,
+        quantidade=order_data.quantidade,
+        observacao=order_data.observacao,
+        created_by=current_user.username,
+        origem="manual",
+        queue_position=next_position
+    )
+    
+    await db.orders.insert_one(order.dict())
+    
+    # Update machine status to amarelo (has pending order)
+    await db.machines.update_one(
+        {"id": machine["id"]},
+        {"$set": {"status": "amarelo", "updated_at": get_utc_now()}}
+    )
+    
+    return order
+
+@api_router.put("/machines/{machine_code}/orders/{order_id}/start")
+async def start_machine_order(
+    machine_code: str,
+    order_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Start production of a specific order in machine queue"""
+    if current_user.role not in ["admin", "operador_externo"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Check if machine already has an order in production
+    existing_production = await db.orders.find_one({
+        "machine_code": machine_code,
+        "status": "em_producao"
+    })
+    
+    if existing_production:
+        raise HTTPException(status_code=400, detail="Machine already has an order in production")
+    
+    # Get the order
+    order = await db.orders.find_one({"id": order_id, "machine_code": machine_code})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    if order["status"] != "pendente":
+        raise HTTPException(status_code=400, detail="Order is not pending")
+    
+    # Update order to em_producao
+    await db.orders.update_one(
+        {"id": order_id},
+        {"$set": {
+            "status": "em_producao",
+            "started_at": get_utc_now()
+        }}
+    )
+    
+    # Update machine status to vermelho (in production)
+    await db.machines.update_one(
+        {"code": machine_code},
+        {"$set": {"status": "vermelho", "updated_at": get_utc_now()}}
+    )
+    
+    return {"message": "Order production started successfully"}
+
 # Ordem de Producao routes
 @api_router.get("/ordens-producao/next-number")
 async def get_next_ordem_number(current_user: User = Depends(get_current_user)):

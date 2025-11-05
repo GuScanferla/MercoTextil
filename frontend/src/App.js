@@ -1378,13 +1378,13 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
                 </p>
               )}
               
-              {(user.role === "admin" || user.role === "operador_externo") && order.status !== "finalizado" && (
+              {order.status !== "finalizado" && (
                 <div className="flex space-x-3">
-                  {order.status === "pendente" && (
+                  {order.status === "pendente" && (user.role === "admin" || user.role === "operador_externo" || user.role === "operador_interno") && (
                     <Button
                       size="lg"
                       className="btn-merco"
-                      onClick={() => updateOrder(order.id, "em_producao")}
+                      onClick={() => startOrderFromList(order)}
                     >
                       Iniciar Produção
                     </Button>
@@ -1393,7 +1393,7 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
                     <Button
                       size="lg"
                       className="bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => setSelectedOrder(order)}
+                      onClick={() => finishOrderFromList(order)}
                     >
                       Finalizar Produção
                     </Button>

@@ -1045,14 +1045,24 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
                             </div>
                           </div>
                         </div>
-                        {order.status === "pendente" && (user.role === "operador_externo" || user.role === "admin" || user.role === "operador_interno") && (
-                          <Button
-                            onClick={() => startOrderProduction(order.id, queueMachine.code)}
-                            className="bg-green-600 hover:bg-green-700 ml-4"
-                          >
-                            Iniciar
-                          </Button>
-                        )}
+                        <div className="flex gap-2 ml-4">
+                          {order.status === "pendente" && (user.role === "operador_externo" || user.role === "admin" || user.role === "operador_interno") && (
+                            <Button
+                              onClick={() => startOrderProduction(order.id, queueMachine.code)}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              Iniciar
+                            </Button>
+                          )}
+                          {order.status === "em_producao" && (
+                            <Button
+                              onClick={() => finishOrderProduction(order.id, queueMachine.code)}
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
+                              Finalizar
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

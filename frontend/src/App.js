@@ -445,14 +445,14 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
     if (user.role === "admin" || user.role === "operador_interno") {
       if (machine.status === "verde") {
         setSelectedMachine(machine);
-      } else if (machine.status === "amarelo") {
-        // Máquina com pedidos pendentes - mostrar fila
+      } else if (machine.status === "amarelo" || machine.status === "vermelho") {
+        // Máquina com pedidos (pendentes ou em produção) - mostrar fila
         setQueueMachine(machine);
         loadMachineQueue(machine.code);
         setShowQueue(true);
       }
     } else if (user.role === "operador_externo") {
-      // Operador externo pode ver fila de pedidos pendentes
+      // Operador externo pode ver fila de pedidos pendentes ou em produção
       if (machine.status === "amarelo" || machine.status === "vermelho") {
         setQueueMachine(machine);
         loadMachineQueue(machine.code);

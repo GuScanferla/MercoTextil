@@ -102,7 +102,11 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Adicionar duas novas abas: 1) 'Ordem de Produção' ao lado de Espulas com botão +Lançar para criar ordens com cliente, artigo, cor, metragem, data de entrega, observação e número OS sequencial (0001, 0002...). Mostra criado, iniciado e finalizado. 2) 'Relatórios' mostrando apenas ordens pendentes. Ao clicar em ordem pendente, abre painel para criar espula. Quando espula é criada, ordem sai de pendente. Modificar Espulas: novos campos OS, ARTIGO, MAQUINA, COR, MAT PRIMA, QTDE FIOS, DATA ENTREGA, QTDE METROS, e 5 campos de CARGAS E FRAÇÃO (preenchimento manual). Remover 'Ver Histórico Completo'. 'Ver Histórico Espulas' mostra todas (pendentes + finalizadas)."
+user_problem_statement: "Adicionar duas novas abas: 1) 'Ordem de Produção' ao lado de Espulas com botão +Lançar para criar ordens com cliente, artigo, cor, metragem, data de entrega, observação e número OS sequencial (0001, 0002...). Mostra criado, iniciado e finalizado. 2) 'Relatórios' mostrando apenas ordens pendentes. Ao clicar em ordem pendente, abre painel para criar espula. Quando espula é criada, ordem sai de pendente. Modificar Espulas: novos campos OS, ARTIGO, MAQUINA, COR, MAT PRIMA, QTDE FIOS, DATA ENTREGA, QTDE METROS, e 5 campos de CARGAS E FRAÇÃO (preenchimento manual). Remover 'Ver Histórico Completo'. 'Ver Histórico Espulas' mostra todas (pendentes + finalizadas).
+
+NOVAS FUNCIONALIDADES SOLICITADAS:
+1) Botão 'Salvar' na aba Relatórios entre 'Criar Espulagens' e 'Cancelar' para salvar dados temporários sem gerar espulagens. Dados devem ser recuperados quando outro usuário abrir a mesma OS.
+2) BUG FIX: Quando há pedido em produção em uma máquina e novos pedidos são criados para essa máquina, o sistema NÃO deve substituir o pedido em produção. Novos pedidos devem entrar na fila como pendentes, e o pedido em produção deve continuar até finalização."
 
 backend:
   - task: "Create OrdemProducao model and CRUD endpoints"

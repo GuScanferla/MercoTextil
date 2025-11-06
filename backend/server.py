@@ -200,6 +200,7 @@ class OrdemProducao(BaseModel):
     updated_at: datetime = Field(default_factory=get_utc_now)
     # Dados temporários para salvamento parcial no relatórios
     dados_temporarios_maquinas: list = Field(default_factory=list)  # Machine allocations temporários
+    espula_data_temp: dict = Field(default_factory=dict)  # Dados do formulário de espulagem temporários
     editado_por: Optional[str] = None
     editado_em: Optional[datetime] = None
 

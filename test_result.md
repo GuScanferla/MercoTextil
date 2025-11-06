@@ -213,6 +213,30 @@ backend:
         -working: true
         -agent: "testing"
         -comment: "✅ VERIFIED: POST /api/espulas now accepts quantidade_metros (instead of quantidade) and carga field (alphanumeric). GET /api/espulas returns updated field names. All CRUD operations working correctly with new field structure."
+  
+  - task: "Add temporary data save functionality to OrdemProducao"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Added fields to OrdemProducao model: dados_temporarios_maquinas (list), espula_data_temp (dict), editado_por (str), editado_em (datetime). Created PUT endpoint /api/ordens-producao/{id}/salvar-temporarios to save temp data without creating espulagem. Data can be retrieved and edited by any user."
+  
+  - task: "Fix machine queue bug - prevent production order replacement"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Fixed bug in /api/espulas/{espula_id}/finalize-with-machines endpoint. Now checks if machine status is 'vermelho' (in production) before updating to 'amarelo' (pending). This prevents overwriting production status when new orders are added to queue."
 
 frontend:
   - task: "Create Ordem de Produção tab and panel"

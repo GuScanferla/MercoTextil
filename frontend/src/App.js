@@ -2185,7 +2185,14 @@ const RelatoriosPanel = ({ user }) => {
                 className="flex-1 btn-merco"
                 disabled={!espulaData.mat_prima || !espulaData.qtde_fios || !espulaData.quantidade_metros || !espulaData.carga || machineAllocations.filter(a => a.machine_code && a.quantidade).length === 0}
               >
-                Criar Espulagem
+                Criar Espulagens
+              </Button>
+              <Button 
+                onClick={saveTempData} 
+                variant="outline"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Salvar
               </Button>
               <Button variant="outline" onClick={() => setShowEspulaForm(false)} className="flex-1">
                 Cancelar

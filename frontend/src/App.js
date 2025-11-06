@@ -1811,21 +1811,34 @@ const RelatoriosPanel = ({ user }) => {
 
   const handleOrdemClick = (ordem) => {
     setSelectedOrdem(ordem);
-    setEspulaData({
-      numero_os: ordem.numero_os,
-      maquina: "",
-      mat_prima: "",
-      qtde_fios: "",
-      quantidade_metros: formatNumber(ordem.metragem),
-      carga: "",
-      carga_fracao_1: "",
-      carga_fracao_2: "",
-      carga_fracao_3: "",
-      carga_fracao_4: "",
-      carga_fracao_5: "",
-      observacoes: ordem.observacao || ""
-    });
-    setMachineAllocations([{ machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
+    
+    // Se existem dados temporários salvos, carregar eles
+    if (ordem.espula_data_temp && Object.keys(ordem.espula_data_temp).length > 0) {
+      setEspulaData(ordem.espula_data_temp);
+    } else {
+      setEspulaData({
+        numero_os: ordem.numero_os,
+        maquina: "",
+        mat_prima: "",
+        qtde_fios: "",
+        quantidade_metros: formatNumber(ordem.metragem),
+        carga: "",
+        carga_fracao_1: "",
+        carga_fracao_2: "",
+        carga_fracao_3: "",
+        carga_fracao_4: "",
+        carga_fracao_5: "",
+        observacoes: ordem.observacao || ""
+      });
+    }
+    
+    // Se existem alocações de máquina temporárias, carregar elas
+    if (ordem.dados_temporarios_maquinas && ordem.dados_temporarios_maquinas.length > 0) {
+      setMachineAllocations(ordem.dados_temporarios_maquinas);
+    } else {
+      setMachineAllocations([{ machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
+    }
+    
     setShowEspulaForm(true);
   };
 

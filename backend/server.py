@@ -1199,11 +1199,13 @@ async def finalize_espula_with_machines(
         await db.orders.insert_one(order.dict())
         created_orders.append(order.id)
         
-        # Update machine status to amarelo (has pending order)
-        await db.machines.update_one(
-            {"id": allocation["machine_id"]},
-            {"$set": {"status": "amarelo", "updated_at": get_utc_now()}}
-        )
+        # Update machine status to amarelo ONLY if not already in production (vermelho)
+        machine = await db.machines.find_one({"id": allocation["machine_id"]})
+        if machine and machine.get("status") != "vermelho":
+            await db.machines.update_one(
+                {"id": allocation["machine_id"]},
+                {"$set": {"status": "amarelo", "updated_at": get_utc_now()}}
+            )
     
     # Update espula status to finalizado
     await db.espulas.update_one(

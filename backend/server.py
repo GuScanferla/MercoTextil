@@ -198,6 +198,10 @@ class OrdemProducao(BaseModel):
     criado_por: str
     created_at: datetime = Field(default_factory=get_utc_now)
     updated_at: datetime = Field(default_factory=get_utc_now)
+    # Dados temporários para salvamento parcial no relatórios
+    dados_temporarios_maquinas: list = Field(default_factory=list)  # Machine allocations temporários
+    editado_por: Optional[str] = None
+    editado_em: Optional[datetime] = None
 
 class OrdemProducaoCreate(BaseModel):
     cliente: str

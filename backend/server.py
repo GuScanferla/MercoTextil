@@ -1030,6 +1030,29 @@ async def update_ordem_producao(
     
     return {"message": "Ordem de producao updated successfully"}
 
+@api_router.put("/ordens-producao/{ordem_id}/salvar-temporarios")
+async def salvar_temporarios_ordem_producao(
+    ordem_id: str,
+    temp_data: OrdemProducaoSaveTemp,
+    current_user: User = Depends(get_current_user)
+):
+    """Save temporary data for ordem de producao without creating espulagem"""
+    ordem = await db.ordens_producao.find_one({"id": ordem_id})
+    if not ordem:
+        raise HTTPException(status_code=404, detail="Ordem de producao not found")
+    
+    update_data = {
+        "dados_temporarios_maquinas": temp_data.dados_temporarios_maquinas,
+        "espula_data_temp": temp_data.espula_data,
+        "editado_por": current_user.username,
+        "editado_em": get_utc_now(),
+        "updated_at": get_utc_now()
+    }
+    
+    await db.ordens_producao.update_one({"id": ordem_id}, {"$set": update_data})
+    
+    return {"message": "Dados temporários salvos com sucesso"}
+
 # Espulas routes
 @api_router.post("/espulas", response_model=Espula)
 async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(get_current_user)):

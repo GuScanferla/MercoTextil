@@ -1842,6 +1842,31 @@ const RelatoriosPanel = ({ user }) => {
     setShowEspulaForm(true);
   };
 
+  const saveTempData = async () => {
+    try {
+      const tempDataPayload = {
+        dados_temporarios_maquinas: machineAllocations,
+        espula_data: espulaData
+      };
+
+      await axios.put(
+        `${API}/ordens-producao/${selectedOrdem.id}/salvar-temporarios`,
+        tempDataPayload,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }
+      );
+      
+      toast.success("Dados salvos com sucesso! Você pode continuar depois.");
+      setShowEspulaForm(false);
+      setSelectedOrdem(null);
+      loadOrdensPendentes();
+    } catch (error) {
+      console.error("Erro ao salvar dados temporários:", error.response?.data);
+      toast.error(error.response?.data?.detail || "Erro ao salvar dados temporários");
+    }
+  };
+
   const createEspulaFromOrdem = async () => {
     try {
       // Validar alocações de máquinas

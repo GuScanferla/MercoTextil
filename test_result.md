@@ -235,11 +235,14 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         -working: "NA"
         -agent: "main"
         -comment: "Fixed bug in /api/espulas/{espula_id}/finalize-with-machines endpoint. Now checks if machine status is 'vermelho' (in production) before updating to 'amarelo' (pending). This prevents overwriting production status when new orders are added to queue."
+        -working: true
+        -agent: "testing"
+        -comment: "✅ VERIFIED: Machine queue bug fix working correctly. Created order and started production (machine status: vermelho). Created espula with machine allocation for same machine and finalized it. Verified machine status remains 'vermelho' (not changed to 'amarelo'), new orders created with status 'pendente' in queue. After finishing production order, machine status correctly changes to 'amarelo' (has pending orders). All 11/11 queue management tests passed."
 
 frontend:
   - task: "Create Ordem de Produção tab and panel"

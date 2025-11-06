@@ -334,6 +334,18 @@ frontend:
         -working: "NA"
         -agent: "main"
         -comment: "About to implement precise CSS positioning for both layouts"
+  
+  - task: "Add 'Salvar' button in Relatórios panel"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        -working: "NA"
+        -agent: "main"
+        -comment: "Added 'Salvar' button between 'Criar Espulagens' and 'Cancelar' in RelatoriosPanel dialog. Button saves temporary data (machineAllocations and espulaData) to backend via PUT /api/ordens-producao/{id}/salvar-temporarios. Shows success message after save. When opening OS again, loads saved temporary data into form fields automatically."
 
 metadata:
   created_by: "main_agent"

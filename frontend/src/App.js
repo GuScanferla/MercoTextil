@@ -1521,12 +1521,9 @@ const OrdemProducaoPanel = ({ user }) => {
   const formatDateBrazil = (dateString) => {
     if (!dateString) return "-";
     try {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      }).format(date);
+      // Parse date string as local date to avoid timezone issues
+      const [year, month, day] = dateString.split('T')[0].split('-');
+      return `${day}/${month}/${year}`;
     } catch (error) {
       return "-";
     }

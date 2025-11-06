@@ -214,6 +214,10 @@ class OrdemProducaoCreate(BaseModel):
 class OrdemProducaoUpdate(BaseModel):
     status: str
 
+class OrdemProducaoSaveTemp(BaseModel):
+    dados_temporarios_maquinas: list  # Machine allocations temporários
+    espula_data: dict  # Outros dados do formulário de espulagem
+
 class MachineAllocation(BaseModel):
     machine_code: str
     machine_id: str

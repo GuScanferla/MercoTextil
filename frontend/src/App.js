@@ -1856,7 +1856,10 @@ const RelatoriosPanel = ({ user }) => {
     try {
       const tempDataPayload = {
         dados_temporarios_maquinas: machineAllocations,
-        espula_data: espulaData
+        espula_data: {
+          ...espulaData,
+          cargas_fracoes: cargasFracoes
+        }
       };
 
       await axios.put(

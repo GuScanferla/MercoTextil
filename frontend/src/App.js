@@ -2106,12 +2106,10 @@ const RelatoriosPanel = ({ user }) => {
 
             <div className="border-t border-gray-700 pt-4">
               <div className="flex justify-between items-center mb-3">
-                <Label className="text-lg">Seleção de Máquinas (até 5) *</Label>
-                {machineAllocations.length < 5 && (
-                  <Button size="sm" onClick={addMachineAllocation} variant="outline">
-                    + Adicionar Máquina
-                  </Button>
-                )}
+                <Label className="text-lg">Seleção de Máquinas *</Label>
+                <Button size="sm" onClick={addMachineAllocation} variant="outline">
+                  + Adicionar Máquina
+                </Button>
               </div>
               
               {machineAllocations.map((allocation, index) => (

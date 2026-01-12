@@ -1823,6 +1823,12 @@ const RelatoriosPanel = ({ user }) => {
     // Se existem dados temporários salvos, carregar eles
     if (ordem.espula_data_temp && Object.keys(ordem.espula_data_temp).length > 0) {
       setEspulaData(ordem.espula_data_temp);
+      // Carregar cargas/frações dos dados temporários
+      if (ordem.espula_data_temp.cargas_fracoes) {
+        setCargasFracoes(ordem.espula_data_temp.cargas_fracoes);
+      } else {
+        setCargasFracoes([""]);
+      }
     } else {
       setEspulaData({
         numero_os: ordem.numero_os,
@@ -1831,13 +1837,9 @@ const RelatoriosPanel = ({ user }) => {
         qtde_fios: "",
         quantidade_metros: formatNumber(ordem.metragem),
         carga: "",
-        carga_fracao_1: "",
-        carga_fracao_2: "",
-        carga_fracao_3: "",
-        carga_fracao_4: "",
-        carga_fracao_5: "",
         observacoes: ordem.observacao || ""
       });
+      setCargasFracoes([""]);
     }
     
     // Se existem alocações de máquina temporárias, carregar elas

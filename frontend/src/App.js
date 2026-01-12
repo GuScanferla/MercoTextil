@@ -2281,14 +2281,10 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       cor: "",
       quantidade_metros: "",
       carga: "",
-      carga_fracao_1: "",
-      carga_fracao_2: "",
-      carga_fracao_3: "",
-      carga_fracao_4: "",
-      carga_fracao_5: "",
       observacoes: "",
       data_prevista_entrega: ""
     });
+    setCargasFracoes([""]);
     setShowForm(true);
   };
 

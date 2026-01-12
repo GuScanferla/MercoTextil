@@ -2237,6 +2237,24 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     setEspulaData({...espulaData, quantidade_metros: formatted});
   };
 
+  // Funções para gerenciar cargas e frações
+  const addCargaFracao = () => {
+    setCargasFracoes([...cargasFracoes, ""]);
+  };
+
+  const removeCargaFracao = (index) => {
+    if (cargasFracoes.length > 1) {
+      const newCargasFracoes = cargasFracoes.filter((_, i) => i !== index);
+      setCargasFracoes(newCargasFracoes);
+    }
+  };
+
+  const updateCargaFracao = (index, value) => {
+    const newCargasFracoes = [...cargasFracoes];
+    newCargasFracoes[index] = value;
+    setCargasFracoes(newCargasFracoes);
+  };
+
   // Função para buscar próximo número de OS
   const getNextOSNumber = async () => {
     try {

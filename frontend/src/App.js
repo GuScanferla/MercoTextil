@@ -1704,6 +1704,7 @@ const RelatoriosPanel = ({ user }) => {
   const [machineAllocations, setMachineAllocations] = useState([
     { machine_code: "", machine_id: "", layout_type: "", quantidade: "" }
   ]);
+  const [cargasFracoes, setCargasFracoes] = useState([""]);
   const [espulaData, setEspulaData] = useState({
     numero_os: "",
     maquina: "",
@@ -1711,11 +1712,6 @@ const RelatoriosPanel = ({ user }) => {
     qtde_fios: "",
     quantidade_metros: "",
     carga: "",
-    carga_fracao_1: "",
-    carga_fracao_2: "",
-    carga_fracao_3: "",
-    carga_fracao_4: "",
-    carga_fracao_5: "",
     observacoes: ""
   });
 

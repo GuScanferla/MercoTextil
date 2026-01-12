@@ -1075,11 +1075,7 @@ async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(
             mat_prima=espula_data.mat_prima,
             qtde_fios=espula_data.qtde_fios,
             machine_allocations=espula_data.machine_allocations,
-            carga_fracao_1=espula_data.carga_fracao_1,
-            carga_fracao_2=espula_data.carga_fracao_2,
-            carga_fracao_3=espula_data.carga_fracao_3,
-            carga_fracao_4=espula_data.carga_fracao_4,
-            carga_fracao_5=espula_data.carga_fracao_5,
+            cargas_fracoes=espula_data.cargas_fracoes,
             # Existing fields
             cliente=espula_data.cliente,
             artigo=espula_data.artigo,

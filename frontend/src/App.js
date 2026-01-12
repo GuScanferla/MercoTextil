@@ -1777,6 +1777,23 @@ const RelatoriosPanel = ({ user }) => {
     }, 0);
   };
 
+  const addCargaFracao = () => {
+    setCargasFracoes([...cargasFracoes, ""]);
+  };
+
+  const removeCargaFracao = (index) => {
+    if (cargasFracoes.length > 1) {
+      const newCargasFracoes = cargasFracoes.filter((_, i) => i !== index);
+      setCargasFracoes(newCargasFracoes);
+    }
+  };
+
+  const updateCargaFracao = (index, value) => {
+    const newCargasFracoes = [...cargasFracoes];
+    newCargasFracoes[index] = value;
+    setCargasFracoes(newCargasFracoes);
+  };
+
   const loadOrdensPendentes = async () => {
     try {
       const response = await axios.get(`${API}/ordens-producao/pendentes`, {

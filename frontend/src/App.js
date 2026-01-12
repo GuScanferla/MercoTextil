@@ -2083,38 +2083,34 @@ const RelatoriosPanel = ({ user }) => {
             </div>
 
             <div>
-              <Label>Cargas e Fração (até 5 valores - opcional)</Label>
-              <div className="grid grid-cols-5 gap-2 mt-2">
-                <Input
-                  value={espulaData.carga_fracao_1}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_1: e.target.value})}
-                  placeholder="1"
-                  type="text"
-                />
-                <Input
-                  value={espulaData.carga_fracao_2}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_2: e.target.value})}
-                  placeholder="2"
-                  type="text"
-                />
-                <Input
-                  value={espulaData.carga_fracao_3}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_3: e.target.value})}
-                  placeholder="3"
-                  type="text"
-                />
-                <Input
-                  value={espulaData.carga_fracao_4}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_4: e.target.value})}
-                  placeholder="4"
-                  type="text"
-                />
-                <Input
-                  value={espulaData.carga_fracao_5}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_5: e.target.value})}
-                  placeholder="5"
-                  type="text"
-                />
+              <div className="flex justify-between items-center mb-2">
+                <Label>Cargas e Fração (opcional)</Label>
+                <Button size="sm" onClick={addCargaFracao} variant="outline">
+                  + Adicionar Carga/Fração
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {cargasFracoes.map((carga, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <Input
+                      value={carga}
+                      onChange={(e) => updateCargaFracao(index, e.target.value)}
+                      placeholder={`Carga/Fração ${index + 1}`}
+                      type="text"
+                      className="flex-1"
+                    />
+                    {cargasFracoes.length > 1 && (
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-red-400 hover:text-red-300"
+                        onClick={() => removeCargaFracao(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -2607,38 +2603,34 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
             </div>
 
             <div>
-              <Label>Cargas e Fração (até 5 valores - opcional)</Label>
-              <div className="grid grid-cols-5 gap-2 mt-2">
-                <Input
-                  value={espulaData.carga_fracao_1}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_1: e.target.value})}
-                  placeholder="1"
-                  type="text"
-                />
-                <Input
-                  value={espulaData.carga_fracao_2}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_2: e.target.value})}
-                  placeholder="2"
-                  type="text"
-                />
-                <Input
-                  value={espulaData.carga_fracao_3}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_3: e.target.value})}
-                  placeholder="3"
-                  type="text"
-                />
-                <Input
-                  value={espulaData.carga_fracao_4}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_4: e.target.value})}
-                  placeholder="4"
-                  type="text"
-                />
-                <Input
-                  value={espulaData.carga_fracao_5}
-                  onChange={(e) => setEspulaData({...espulaData, carga_fracao_5: e.target.value})}
-                  placeholder="5"
-                  type="text"
-                />
+              <div className="flex justify-between items-center mb-2">
+                <Label>Cargas e Fração (opcional)</Label>
+                <Button size="sm" onClick={addCargaFracao} variant="outline">
+                  + Adicionar Carga/Fração
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {cargasFracoes.map((carga, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <Input
+                      value={carga}
+                      onChange={(e) => updateCargaFracao(index, e.target.value)}
+                      placeholder={`Carga/Fração ${index + 1}`}
+                      type="text"
+                      className="flex-1"
+                    />
+                    {cargasFracoes.length > 1 && (
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-red-400 hover:text-red-300"
+                        onClick={() => removeCargaFracao(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 

@@ -3255,8 +3255,9 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       const ordersWS = XLSX.utils.json_to_sheet(ordersData);
       XLSX.utils.book_append_sheet(wb, ordersWS, "Produção");
 
-      // Sheet 2: Ordens de Produção
-      const ordensData = ordensResponse.data.map(ordem => ({
+      // Sheet 2: Ordens de Produção (apenas pendentes)
+      const ordensPendentes = ordensResponse.data.filter(ordem => ordem.status === 'pendente');
+      const ordensData = ordensPendentes.map(ordem => ({
         'Número OS': ordem.numero_os,
         'Cliente': ordem.cliente,
         'Artigo': ordem.artigo,
@@ -3264,14 +3265,12 @@ const AdminPanel = ({ users, onUserUpdate }) => {
         'Metragem': ordem.metragem,
         'Data Entrega': new Date(ordem.data_entrega).toLocaleDateString('pt-BR'),
         'Observação': ordem.observacao,
-        'Status': ordem.status === 'pendente' ? 'Pendente' : ordem.status === 'em_producao' ? 'Em Produção' : 'Finalizado',
+        'Status': 'Pendente',
         'Criado por': ordem.criado_por,
-        'Criado em': new Date(ordem.criado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
-        'Iniciado em': ordem.iniciado_em ? new Date(ordem.iniciado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
-        'Finalizado em': ordem.finalizado_em ? new Date(ordem.finalizado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : ''
+        'Criado em': new Date(ordem.criado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'})
       }));
       const ordensWS = XLSX.utils.json_to_sheet(ordensData);
-      XLSX.utils.book_append_sheet(wb, ordensWS, "Ordem de Produção");
+      XLSX.utils.book_append_sheet(wb, ordensWS, "Ordens Pendentes");
 
       // Sheet 3: Espulagem
       const espulasData = espulasResponse.data.map(espula => ({

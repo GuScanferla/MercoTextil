@@ -1744,9 +1744,7 @@ const RelatoriosPanel = ({ user }) => {
   };
 
   const addMachineAllocation = () => {
-    if (machineAllocations.length < 5) {
-      setMachineAllocations([...machineAllocations, { machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
-    }
+    setMachineAllocations([...machineAllocations, { machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
   };
 
   const removeMachineAllocation = (index) => {

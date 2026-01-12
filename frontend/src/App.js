@@ -1901,11 +1901,7 @@ const RelatoriosPanel = ({ user }) => {
         qtde_fios: espulaData.qtde_fios,
         quantidade_metros: espulaData.quantidade_metros,
         carga: espulaData.carga,
-        carga_fracao_1: espulaData.carga_fracao_1,
-        carga_fracao_2: espulaData.carga_fracao_2,
-        carga_fracao_3: espulaData.carga_fracao_3,
-        carga_fracao_4: espulaData.carga_fracao_4,
-        carga_fracao_5: espulaData.carga_fracao_5,
+        cargas_fracoes: cargasFracoes.filter(cf => cf.trim() !== ""),
         machine_allocations: validAllocations,
         observacoes: espulaData.observacoes,
         data_prevista_entrega: selectedOrdem.data_entrega

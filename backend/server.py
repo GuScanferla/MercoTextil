@@ -235,12 +235,8 @@ class Espula(BaseModel):
     qtde_fios: Optional[str] = ""  # Number of threads
     # Machine allocations - up to 5 machines with quantities
     machine_allocations: list[MachineAllocation] = Field(default_factory=list)
-    # Cargas e fração - 5 optional numeric fields
-    carga_fracao_1: Optional[str] = ""
-    carga_fracao_2: Optional[str] = ""
-    carga_fracao_3: Optional[str] = ""
-    carga_fracao_4: Optional[str] = ""
-    carga_fracao_5: Optional[str] = ""
+    # Cargas e fração - dynamic list (replaces the 5 fixed fields)
+    cargas_fracoes: list[str] = Field(default_factory=list)
     # Existing fields
     cliente: str
     artigo: str
@@ -266,11 +262,7 @@ class EspulaCreate(BaseModel):
     mat_prima: Optional[str] = ""
     qtde_fios: Optional[str] = ""
     machine_allocations: list[MachineAllocation] = Field(default_factory=list)
-    carga_fracao_1: Optional[str] = ""
-    carga_fracao_2: Optional[str] = ""
-    carga_fracao_3: Optional[str] = ""
-    carga_fracao_4: Optional[str] = ""
-    carga_fracao_5: Optional[str] = ""
+    cargas_fracoes: list[str] = Field(default_factory=list)
     # Existing fields
     cliente: str
     artigo: str

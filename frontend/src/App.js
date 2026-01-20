@@ -2398,29 +2398,79 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       
       const wb = XLSX.utils.book_new();
       
-      const espulasData = finalizedEspulas.map(espula => ({
-        'OS': espula.id.slice(-8),
-        'Cliente': espula.cliente,
-        'Artigo': espula.artigo,
-        'Cor': espula.cor,
-        'Quantidade (m)': espula.quantidade_metros,
-        'Carga': espula.carga,
-        'Observações': espula.observacoes || '-',
-        'Data Lançamento': formatDateTimeBrazil(espula.created_at),
-        'Data Prevista': formatDateBrazil(espula.data_prevista_entrega),
-        'Iniciado em': formatDateTimeBrazil(espula.iniciado_em),
-        'Finalizado em': formatDateTimeBrazil(espula.finalizado_em),
-        'Status': 'FINALIZADO',
-        'Criado por': espula.created_by
-      }));
+      // Preparar dados no formato do modelo
+      const reportData = finalizedEspulas.map(espula => {
+        const row = {
+          'Artigo': espula.artigo || '',
+          'MP': espula.mat_prima || '',
+          'Maq.': espula.maquina || '',
+          'ENGRENAGEM': '',
+          'ENCHIMENTO': '',
+          'CICLOS': '',
+          'Cor 1': '',
+          'Cor 2': '',
+          'Cor 3': '',
+          'Cor 4': '',
+          'Fios': espula.qtde_fios || '',
+          'Carga 1': '',
+          'Carga 2': '',
+          'Carga 3': '',
+          'Carga 4': '',
+          'Carga 5': '',
+          'Carga Total': espula.carga || ''
+        };
+        
+        // Preencher cargas e frações dinamicamente
+        if (espula.cargas_fracoes && espula.cargas_fracoes.length > 0) {
+          espula.cargas_fracoes.forEach((carga, index) => {
+            if (index < 5 && carga) {
+              row[`Carga ${index + 1}`] = carga;
+            }
+          });
+        }
+        
+        return row;
+      });
       
-      const ws = XLSX.utils.json_to_sheet(espulasData);
-      XLSX.utils.book_append_sheet(wb, ws, "Espulagem Finalizada");
+      // Criar worksheet
+      const ws = XLSX.utils.json_to_sheet(reportData);
+      
+      // Adicionar título na primeira linha
+      const today = new Date().toLocaleDateString('pt-BR');
+      XLSX.utils.sheet_add_aoa(ws, [[`PEDIDO DE ESPULAGEM ${today}`]], { origin: 'A1' });
+      
+      // Mesclar células do título (A1:Q1)
+      if (!ws['!merges']) ws['!merges'] = [];
+      ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 16 } });
+      
+      // Ajustar largura das colunas
+      ws['!cols'] = [
+        { wch: 12 }, // Artigo
+        { wch: 12 }, // MP
+        { wch: 10 }, // Maq.
+        { wch: 12 }, // ENGRENAGEM
+        { wch: 12 }, // ENCHIMENTO
+        { wch: 10 }, // CICLOS
+        { wch: 10 }, // Cor 1
+        { wch: 10 }, // Cor 2
+        { wch: 10 }, // Cor 3
+        { wch: 10 }, // Cor 4
+        { wch: 10 }, // Fios
+        { wch: 10 }, // Carga 1
+        { wch: 10 }, // Carga 2
+        { wch: 10 }, // Carga 3
+        { wch: 10 }, // Carga 4
+        { wch: 10 }, // Carga 5
+        { wch: 12 }  // Carga Total
+      ];
+      
+      XLSX.utils.book_append_sheet(wb, ws, "PEDIDO DE ESPULAGEM");
       
       XLSX.writeFile(wb, `espulagem_finalizada_${new Date().toISOString().split('T')[0]}.xlsx`);
       toast.success("Relatório exportado com sucesso!");
       
     } catch (error) {
+      console.error("Erro ao exportar:", error);
       toast.error("Erro ao exportar relatório");
     }
   };

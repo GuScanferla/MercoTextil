@@ -2400,23 +2400,38 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       
       const wb = XLSXStyle.utils.book_new();
       
-      // Criar dados EXATAMENTE como solicitado
+      // Descobrir o número máximo de cargas em todas as espulagens
+      let maxCargas = 0;
+      pendenteEspulas.forEach(espula => {
+        if (espula.cargas_fracoes && espula.cargas_fracoes.length > maxCargas) {
+          maxCargas = espula.cargas_fracoes.length;
+        }
+      });
+      maxCargas = Math.max(5, Math.min(maxCargas, 20)); // Mínimo 5, máximo 20
+      
       const aoa = [];
       
       // Linha 1: Título
       const today = new Date().toLocaleDateString('pt-BR');
       aoa.push([`PEDIDO DE ESPULAGEM ${today}`]);
       
-      // Linha 2: Cabeçalhos
-      aoa.push([
+      // Linha 2: Cabeçalhos DINÂMICOS
+      const headers = [
         'Artigo', 'MP', 'Maq.', 'ENGRENAGEM', 'ENCHIMENTO', 'CICLOS',
-        'Cor 1', 'Cor 2', 'Cor 3', 'Cor 4', 'Fios',
-        'Carga 1', 'Carga 2', 'Carga 3', 'Carga 4', 'Carga 5', 'Carga Total'
-      ]);
+        'Cor 1', 'Cor 2', 'Cor 3', 'Cor 4', 'Fios'
+      ];
       
-      // Para cada espulagem: 2 linhas
+      // Adicionar colunas de Carga dinamicamente
+      for (let i = 1; i <= maxCargas; i++) {
+        headers.push(`Carga ${i}`);
+      }
+      headers.push('Carga Total'); // SEMPRE depois da última carga
+      
+      aoa.push(headers);
+      
+      // UMA LINHA por espulagem (SEM linhas em branco)
       pendenteEspulas.forEach(espula => {
-        // Montar lista de máquinas (pode ter várias)
+        // Montar lista de máquinas
         let maquinasList = '';
         if (espula.machine_allocations && espula.machine_allocations.length > 0) {
           maquinasList = espula.machine_allocations
@@ -2426,7 +2441,15 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           maquinasList = espula.maquina;
         }
         
-        // Calcular Carga Total como SOMA de todas as cargas
+        // Preencher cores dinamicamente (Cor 1, Cor 2, Cor 3, Cor 4)
+        // Nota: Se o sistema tiver apenas um campo "cor", replicar em Cor 1
+        // Se tiver array de cores, preencher cada uma
+        const cor1 = espula.cor || '';
+        const cor2 = ''; // Preencher se existir no sistema
+        const cor3 = '';
+        const cor4 = '';
+        
+        // Calcular Carga Total como SOMA de todas as cargas preenchidas
         let cargaTotal = 0;
         if (espula.cargas_fracoes && espula.cargas_fracoes.length > 0) {
           espula.cargas_fracoes.forEach(carga => {
@@ -2437,62 +2460,34 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           });
         }
         
-        // LINHA 1: Dados principais
-        const row1 = [
+        // Montar linha única
+        const row = [
           espula.artigo || '',
           espula.mat_prima || '',
-          maquinasList, // Todas as máquinas
+          maquinasList,
           '', // ENGRENAGEM
           '', // ENCHIMENTO
           '', // CICLOS
-          '', // Cor 1 - será preenchida se existir
-          '', // Cor 2
-          '', // Cor 3
-          '', // Cor 4
+          cor1, // Cor 1 - preenchida
+          cor2, // Cor 2
+          cor3, // Cor 3
+          cor4, // Cor 4
           espula.qtde_fios || '',
         ];
         
-        // Adicionar quantidades das cargas (até 20)
-        const maxCargas = Math.max(5, espula.cargas_fracoes ? espula.cargas_fracoes.length : 0);
-        for (let i = 0; i < Math.min(maxCargas, 20); i++) {
-          if (espula.cargas_fracoes && espula.cargas_fracoes[i]) {
-            row1.push(espula.cargas_fracoes[i]);
-          } else {
-            row1.push('');
-          }
-        }
-        
-        // Adicionar colunas extras se tiver mais de 5 cargas
-        if (maxCargas > 5) {
-          for (let i = 5; i < maxCargas; i++) {
-            if (i === 5) {
-              // Ajustar cabeçalhos se necessário
-              if (aoa[1].length < 12 + maxCargas) {
-                for (let j = 6; j <= maxCargas; j++) {
-                  aoa[1].splice(11 + j, 0, `Carga ${j}`);
-                }
-              }
-            }
-          }
-        }
-        
-        row1.push(cargaTotal > 0 ? cargaTotal.toString() : espula.carga || ''); // Carga Total CALCULADA
-        
-        aoa.push(row1);
-        
-        // LINHA 2: Dados secundários (datas vazias por enquanto)
-        const row2 = [
-          '', '', '', '', '', '', // Artigo até CICLOS vazios
-          '', '', '', '', '', // Cor 1-4 e Fios vazios
-        ];
-        
-        // Adicionar células vazias para cargas
+        // Adicionar TODAS as cargas (até maxCargas)
         for (let i = 0; i < maxCargas; i++) {
-          row2.push('');
+          if (espula.cargas_fracoes && espula.cargas_fracoes[i]) {
+            row.push(espula.cargas_fracoes[i]);
+          } else {
+            row.push(''); // Vazio se não tiver
+          }
         }
-        row2.push(''); // Carga Total vazia
         
-        aoa.push(row2);
+        // Carga Total CALCULADA - sempre depois da última carga
+        row.push(cargaTotal > 0 ? cargaTotal.toString() : espula.carga || '');
+        
+        aoa.push(row);
       });
       
       // Criar worksheet
@@ -2535,17 +2530,17 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         }
       };
       
-      // Aplicar estilo ao título (A1)
+      // Aplicar estilo ao título
       ws['A1'].s = titleStyle;
       
-      // Descobrir número de colunas
-      const numCols = aoa[1].length;
+      // Número de colunas
+      const numCols = headers.length;
       
       // Mesclar título
       if (!ws['!merges']) ws['!merges'] = [];
       ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: numCols - 1 } });
       
-      // Aplicar estilos aos cabeçalhos (linha 2)
+      // Gerar letras das colunas
       const cols = [];
       for (let i = 0; i < numCols; i++) {
         if (i < 26) {
@@ -2557,6 +2552,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         }
       }
       
+      // Aplicar estilos aos cabeçalhos
       cols.forEach(col => {
         if (ws[`${col}2`]) ws[`${col}2`].s = headerStyle;
       });
@@ -2568,7 +2564,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           const cell = `${col}${row}`;
           if (ws[cell]) {
             ws[cell].s = { ...dataStyle };
-            // Negrito para Artigo (A), MP (B), Maq (C)
+            // Negrito: Artigo (A), MP (B), Maq (C)
             if (idx <= 2 && ws[cell].v) {
               ws[cell].s.font = { ...dataStyle.font, bold: true };
             }

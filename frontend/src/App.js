@@ -2389,17 +2389,18 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
 
   const exportEspulasReport = async () => {
     try {
-      const finalizedEspulas = espulas.filter(e => e.status === "finalizado");
+      // MUDANÇA: Exportar apenas espulagens PENDENTES
+      const pendenteEspulas = espulas.filter(e => e.status === "pendente");
       
-      if (finalizedEspulas.length === 0) {
-        toast.warning("Nenhuma espula finalizada para exportar");
+      if (pendenteEspulas.length === 0) {
+        toast.warning("Nenhuma espulagem pendente para exportar");
         return;
       }
       
       const wb = XLSX.utils.book_new();
       
-      // ABA 1: PEDIDO DE ESPULAGEM
-      const pedidoData = finalizedEspulas.map(espula => {
+      // Preparar dados no formato EXATO da imagem
+      const reportData = pendenteEspulas.map(espula => {
         const row = {
           'Artigo': espula.artigo || '',
           'MP': espula.mat_prima || '',
@@ -2433,51 +2434,42 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       });
       
       // Criar worksheet
-      const wsPedido = XLSX.utils.json_to_sheet(pedidoData);
+      const ws = XLSX.utils.json_to_sheet(reportData);
       
-      // Adicionar título mesclado na primeira linha
+      // Adicionar título mesclado na primeira linha - FORMATO EXATO DA IMAGEM
       const today = new Date().toLocaleDateString('pt-BR');
-      XLSX.utils.sheet_add_aoa(wsPedido, [[`PEDIDO DE ESPULAGEM ${today}`]], { origin: 'A1' });
+      XLSX.utils.sheet_add_aoa(ws, [[`PEDIDO DE ESPULAGEM ${today}`]], { origin: 'A1' });
       
       // Mesclar células do título (A1:Q1)
-      if (!wsPedido['!merges']) wsPedido['!merges'] = [];
-      wsPedido['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 16 } });
+      if (!ws['!merges']) ws['!merges'] = [];
+      ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 16 } });
       
-      // Ajustar largura das colunas
-      wsPedido['!cols'] = [
-        { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, 
-        { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, 
-        { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, 
-        { wch: 10 }, { wch: 12 }
+      // Ajustar largura das colunas - EXATO DA IMAGEM
+      ws['!cols'] = [
+        { wch: 12 }, // Artigo
+        { wch: 12 }, // MP
+        { wch: 10 }, // Maq.
+        { wch: 12 }, // ENGRENAGEM
+        { wch: 12 }, // ENCHIMENTO
+        { wch: 10 }, // CICLOS
+        { wch: 10 }, // Cor 1
+        { wch: 10 }, // Cor 2
+        { wch: 10 }, // Cor 3
+        { wch: 10 }, // Cor 4
+        { wch: 10 }, // Fios
+        { wch: 10 }, // Carga 1
+        { wch: 10 }, // Carga 2
+        { wch: 10 }, // Carga 3
+        { wch: 10 }, // Carga 4
+        { wch: 10 }, // Carga 5
+        { wch: 12 }  // Carga Total
       ];
       
-      XLSX.utils.book_append_sheet(wb, wsPedido, "PEDIDO DE ESPULAGEM");
-      
-      // ABA 2: Planilha1 (Detalhamento)
-      const planilhaData = finalizedEspulas.map(espula => ({
-        'ARTIGO': espula.artigo || '',
-        'COR': espula.cor || '',
-        'MAQUINA': espula.maquina || '',
-        'ENGRENAGEM': '',
-        'METRAGEM': espula.quantidade_metros || '',
-        'ENCHIMENTO': '',
-        'FIOS': espula.qtde_fios || '',
-        'CICLOS': ''
-      }));
-      
-      const wsPlanilha = XLSX.utils.json_to_sheet(planilhaData);
-      
-      // Ajustar largura das colunas
-      wsPlanilha['!cols'] = [
-        { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, 
-        { wch: 10 }, { wch: 12 }, { wch: 8 }, { wch: 10 }
-      ];
-      
-      XLSX.utils.book_append_sheet(wb, wsPlanilha, "Planilha1");
+      XLSX.utils.book_append_sheet(wb, ws, "PEDIDO DE ESPULAGEM");
       
       // Exportar arquivo
-      XLSX.writeFile(wb, `espulagem_finalizada_${new Date().toISOString().split('T')[0]}.xlsx`);
-      toast.success("Relatório exportado com sucesso!");
+      XLSX.writeFile(wb, `pedido_espulagem_${new Date().toISOString().split('T')[0]}.xlsx`);
+      toast.success("Relatório de espulagens pendentes exportado com sucesso!");
       
     } catch (error) {
       console.error("Erro ao exportar:", error);

@@ -2398,8 +2398,8 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       
       const wb = XLSX.utils.book_new();
       
-      // Preparar dados no formato do modelo
-      const reportData = finalizedEspulas.map(espula => {
+      // ABA 1: PEDIDO DE ESPULAGEM
+      const pedidoData = finalizedEspulas.map(espula => {
         const row = {
           'Artigo': espula.artigo || '',
           'MP': espula.mat_prima || '',
@@ -2420,7 +2420,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           'Carga Total': espula.carga || ''
         };
         
-        // Preencher cargas e frações dinamicamente
+        // Preencher cargas e frações (até 5)
         if (espula.cargas_fracoes && espula.cargas_fracoes.length > 0) {
           espula.cargas_fracoes.forEach((carga, index) => {
             if (index < 5 && carga) {
@@ -2433,39 +2433,49 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       });
       
       // Criar worksheet
-      const ws = XLSX.utils.json_to_sheet(reportData);
+      const wsPedido = XLSX.utils.json_to_sheet(pedidoData);
       
-      // Adicionar título na primeira linha
+      // Adicionar título mesclado na primeira linha
       const today = new Date().toLocaleDateString('pt-BR');
-      XLSX.utils.sheet_add_aoa(ws, [[`PEDIDO DE ESPULAGEM ${today}`]], { origin: 'A1' });
+      XLSX.utils.sheet_add_aoa(wsPedido, [[`PEDIDO DE ESPULAGEM ${today}`]], { origin: 'A1' });
       
       // Mesclar células do título (A1:Q1)
-      if (!ws['!merges']) ws['!merges'] = [];
-      ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 16 } });
+      if (!wsPedido['!merges']) wsPedido['!merges'] = [];
+      wsPedido['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 16 } });
       
       // Ajustar largura das colunas
-      ws['!cols'] = [
-        { wch: 12 }, // Artigo
-        { wch: 12 }, // MP
-        { wch: 10 }, // Maq.
-        { wch: 12 }, // ENGRENAGEM
-        { wch: 12 }, // ENCHIMENTO
-        { wch: 10 }, // CICLOS
-        { wch: 10 }, // Cor 1
-        { wch: 10 }, // Cor 2
-        { wch: 10 }, // Cor 3
-        { wch: 10 }, // Cor 4
-        { wch: 10 }, // Fios
-        { wch: 10 }, // Carga 1
-        { wch: 10 }, // Carga 2
-        { wch: 10 }, // Carga 3
-        { wch: 10 }, // Carga 4
-        { wch: 10 }, // Carga 5
-        { wch: 12 }  // Carga Total
+      wsPedido['!cols'] = [
+        { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, 
+        { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, 
+        { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, 
+        { wch: 10 }, { wch: 12 }
       ];
       
-      XLSX.utils.book_append_sheet(wb, ws, "PEDIDO DE ESPULAGEM");
+      XLSX.utils.book_append_sheet(wb, wsPedido, "PEDIDO DE ESPULAGEM");
       
+      // ABA 2: Planilha1 (Detalhamento)
+      const planilhaData = finalizedEspulas.map(espula => ({
+        'ARTIGO': espula.artigo || '',
+        'COR': espula.cor || '',
+        'MAQUINA': espula.maquina || '',
+        'ENGRENAGEM': '',
+        'METRAGEM': espula.quantidade_metros || '',
+        'ENCHIMENTO': '',
+        'FIOS': espula.qtde_fios || '',
+        'CICLOS': ''
+      }));
+      
+      const wsPlanilha = XLSX.utils.json_to_sheet(planilhaData);
+      
+      // Ajustar largura das colunas
+      wsPlanilha['!cols'] = [
+        { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, 
+        { wch: 10 }, { wch: 12 }, { wch: 8 }, { wch: 10 }
+      ];
+      
+      XLSX.utils.book_append_sheet(wb, wsPlanilha, "Planilha1");
+      
+      // Exportar arquivo
       XLSX.writeFile(wb, `espulagem_finalizada_${new Date().toISOString().split('T')[0]}.xlsx`);
       toast.success("Relatório exportado com sucesso!");
       

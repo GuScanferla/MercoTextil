@@ -2400,8 +2400,8 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       
       const wb = XLSXStyle.utils.book_new();
       
-      // Criar dados EXATAMENTE como na imagem
-      const aoa = []; // Array of arrays
+      // Criar dados EXATAMENTE como solicitado
+      const aoa = [];
       
       // Linha 1: Título
       const today = new Date().toLocaleDateString('pt-BR');
@@ -2416,30 +2416,67 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       
       // Para cada espulagem: 2 linhas
       pendenteEspulas.forEach(espula => {
+        // Montar lista de máquinas (pode ter várias)
+        let maquinasList = '';
+        if (espula.machine_allocations && espula.machine_allocations.length > 0) {
+          maquinasList = espula.machine_allocations
+            .map(alloc => alloc.machine_code)
+            .join(', ');
+        } else if (espula.maquina) {
+          maquinasList = espula.maquina;
+        }
+        
+        // Calcular Carga Total como SOMA de todas as cargas
+        let cargaTotal = 0;
+        if (espula.cargas_fracoes && espula.cargas_fracoes.length > 0) {
+          espula.cargas_fracoes.forEach(carga => {
+            const valor = parseFloat(carga);
+            if (!isNaN(valor)) {
+              cargaTotal += valor;
+            }
+          });
+        }
+        
         // LINHA 1: Dados principais
         const row1 = [
           espula.artigo || '',
           espula.mat_prima || '',
-          espula.maquina || '',
+          maquinasList, // Todas as máquinas
           '', // ENGRENAGEM
           '', // ENCHIMENTO
           '', // CICLOS
-          '', // Cor 1
+          '', // Cor 1 - será preenchida se existir
           '', // Cor 2
           '', // Cor 3
           '', // Cor 4
           espula.qtde_fios || '',
         ];
         
-        // Adicionar quantidades das cargas
-        for (let i = 0; i < 5; i++) {
+        // Adicionar quantidades das cargas (até 20)
+        const maxCargas = Math.max(5, espula.cargas_fracoes ? espula.cargas_fracoes.length : 0);
+        for (let i = 0; i < Math.min(maxCargas, 20); i++) {
           if (espula.cargas_fracoes && espula.cargas_fracoes[i]) {
             row1.push(espula.cargas_fracoes[i]);
           } else {
             row1.push('');
           }
         }
-        row1.push(espula.carga || ''); // Carga Total
+        
+        // Adicionar colunas extras se tiver mais de 5 cargas
+        if (maxCargas > 5) {
+          for (let i = 5; i < maxCargas; i++) {
+            if (i === 5) {
+              // Ajustar cabeçalhos se necessário
+              if (aoa[1].length < 12 + maxCargas) {
+                for (let j = 6; j <= maxCargas; j++) {
+                  aoa[1].splice(11 + j, 0, `Carga ${j}`);
+                }
+              }
+            }
+          }
+        }
+        
+        row1.push(cargaTotal > 0 ? cargaTotal.toString() : espula.carga || ''); // Carga Total CALCULADA
         
         aoa.push(row1);
         
@@ -2447,9 +2484,13 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         const row2 = [
           '', '', '', '', '', '', // Artigo até CICLOS vazios
           '', '', '', '', '', // Cor 1-4 e Fios vazios
-          '', '', '', '', '', // Carga 1-5 vazias (podem ser datas)
-          '' // Carga Total vazia
         ];
+        
+        // Adicionar células vazias para cargas
+        for (let i = 0; i < maxCargas; i++) {
+          row2.push('');
+        }
+        row2.push(''); // Carga Total vazia
         
         aoa.push(row2);
       });
@@ -2497,18 +2538,31 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       // Aplicar estilo ao título (A1)
       ws['A1'].s = titleStyle;
       
-      // Mesclar título (A1:Q1)
+      // Descobrir número de colunas
+      const numCols = aoa[1].length;
+      
+      // Mesclar título
       if (!ws['!merges']) ws['!merges'] = [];
-      ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 16 } });
+      ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: numCols - 1 } });
       
       // Aplicar estilos aos cabeçalhos (linha 2)
-      const cols = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q'];
+      const cols = [];
+      for (let i = 0; i < numCols; i++) {
+        if (i < 26) {
+          cols.push(String.fromCharCode(65 + i));
+        } else {
+          const first = String.fromCharCode(65 + Math.floor(i / 26) - 1);
+          const second = String.fromCharCode(65 + (i % 26));
+          cols.push(first + second);
+        }
+      }
+      
       cols.forEach(col => {
         if (ws[`${col}2`]) ws[`${col}2`].s = headerStyle;
       });
       
-      // Aplicar estilos aos dados (a partir da linha 3)
-      const totalRows = 2 + (pendenteEspulas.length * 2); // Título + Header + 2 linhas por espulagem
+      // Aplicar estilos aos dados
+      const totalRows = aoa.length;
       for (let row = 3; row <= totalRows; row++) {
         cols.forEach((col, idx) => {
           const cell = `${col}${row}`;

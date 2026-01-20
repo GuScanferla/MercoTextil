@@ -2389,7 +2389,9 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
 
   const exportEspulasReport = async () => {
     try {
-      // MUDANÇA: Exportar apenas espulagens PENDENTES
+      const XLSX = require('xlsx-js-style');
+      
+      // Exportar apenas espulagens PENDENTES
       const pendenteEspulas = espulas.filter(e => e.status === "pendente");
       
       if (pendenteEspulas.length === 0) {
@@ -2399,7 +2401,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       
       const wb = XLSX.utils.book_new();
       
-      // Preparar dados no formato EXATO da imagem
+      // Preparar dados
       const reportData = pendenteEspulas.map(espula => {
         const row = {
           'Artigo': espula.artigo || '',
@@ -2421,7 +2423,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           'Carga Total': espula.carga || ''
         };
         
-        // Preencher cargas e frações (até 5)
+        // Preencher cargas e frações
         if (espula.cargas_fracoes && espula.cargas_fracoes.length > 0) {
           espula.cargas_fracoes.forEach((carga, index) => {
             if (index < 5 && carga) {
@@ -2436,33 +2438,84 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       // Criar worksheet
       const ws = XLSX.utils.json_to_sheet(reportData);
       
-      // Adicionar título mesclado na primeira linha - FORMATO EXATO DA IMAGEM
+      // Adicionar título na primeira linha
       const today = new Date().toLocaleDateString('pt-BR');
       XLSX.utils.sheet_add_aoa(ws, [[`PEDIDO DE ESPULAGEM ${today}`]], { origin: 'A1' });
+      
+      // Definir estilos
+      const titleStyle = {
+        font: { bold: true, sz: 14, color: { rgb: "000000" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        fill: { fgColor: { rgb: "FFFFFF" } },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+      
+      const headerStyle = {
+        font: { bold: true, sz: 11, color: { rgb: "000000" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        fill: { fgColor: { rgb: "D3D3D3" } }, // Cinza claro
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+      
+      const dataStyle = {
+        font: { sz: 10, color: { rgb: "000000" } },
+        alignment: { horizontal: "left", vertical: "center" },
+        fill: { fgColor: { rgb: "FFFFFF" } },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+      
+      // Aplicar estilo ao título (A1)
+      ws['A1'].s = titleStyle;
+      
+      // Aplicar estilo aos cabeçalhos (linha 2, colunas A-Q)
+      const headers = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q'];
+      headers.forEach(col => {
+        const cell = `${col}2`;
+        if (ws[cell]) {
+          ws[cell].s = headerStyle;
+        }
+      });
+      
+      // Aplicar estilo aos dados (a partir da linha 3)
+      const numRows = pendenteEspulas.length;
+      for (let row = 3; row <= numRows + 2; row++) {
+        headers.forEach(col => {
+          const cell = `${col}${row}`;
+          if (ws[cell]) {
+            ws[cell].s = dataStyle;
+            // Negrito para colunas específicas (Artigo, MP, Maq., Fios)
+            if (col === 'A' || col === 'B' || col === 'C' || col === 'K') {
+              ws[cell].s.font.bold = true;
+            }
+          }
+        });
+      }
       
       // Mesclar células do título (A1:Q1)
       if (!ws['!merges']) ws['!merges'] = [];
       ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 16 } });
       
-      // Ajustar largura das colunas - EXATO DA IMAGEM
+      // Ajustar largura das colunas
       ws['!cols'] = [
-        { wch: 12 }, // Artigo
-        { wch: 12 }, // MP
-        { wch: 10 }, // Maq.
-        { wch: 12 }, // ENGRENAGEM
-        { wch: 12 }, // ENCHIMENTO
-        { wch: 10 }, // CICLOS
-        { wch: 10 }, // Cor 1
-        { wch: 10 }, // Cor 2
-        { wch: 10 }, // Cor 3
-        { wch: 10 }, // Cor 4
-        { wch: 10 }, // Fios
-        { wch: 10 }, // Carga 1
-        { wch: 10 }, // Carga 2
-        { wch: 10 }, // Carga 3
-        { wch: 10 }, // Carga 4
-        { wch: 10 }, // Carga 5
-        { wch: 12 }  // Carga Total
+        { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, 
+        { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, 
+        { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, 
+        { wch: 10 }, { wch: 12 }
       ];
       
       XLSX.utils.book_append_sheet(wb, ws, "PEDIDO DE ESPULAGEM");

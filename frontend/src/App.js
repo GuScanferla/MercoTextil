@@ -3338,26 +3338,41 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       XLSX.utils.book_append_sheet(wb, ordensWS, "Ordens Pendentes");
 
       // Sheet 3: Espulagem
-      const espulasData = espulasResponse.data.map(espula => ({
-        'OS': espula.numero_os || espula.id.slice(-8),
-        'Cliente': espula.cliente,
-        'Artigo': espula.artigo,
-        'Máquina': espula.maquina,
-        'Cor': espula.cor,
-        'Mat. Prima': espula.mat_prima,
-        'Qtde Fios': espula.qtde_fios,
-        'Qtde Metros': espula.quantidade_metros,
-        'Carga': espula.carga,
-        'Fração 1': espula.carga_fracao_1 || '',
-        'Fração 2': espula.carga_fracao_2 || '',
-        'Fração 3': espula.carga_fracao_3 || '',
-        'Fração 4': espula.carga_fracao_4 || '',
-        'Fração 5': espula.carga_fracao_5 || '',
-        'Data Entrega': new Date(espula.data_prevista_entrega).toLocaleDateString('pt-BR'),
-        'Observações': espula.observacoes,
-        'Status': espula.status === 'pendente' ? 'Pendente' : espula.status === 'em_producao_aguardando' ? 'Em Produção (Aguardando)' : espula.status === 'producao' ? 'Produção' : 'Finalizado',
-        'Criado por': espula.created_by,
-        'Lançado em': new Date(espula.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
+      const espulasData = espulasResponse.data.map(espula => {
+        const row = {
+          'OS': espula.numero_os || espula.id.slice(-8),
+          'Cliente': espula.cliente,
+          'Artigo': espula.artigo,
+          'Máquina': espula.maquina,
+          'Cor': espula.cor,
+          'Mat. Prima': espula.mat_prima,
+          'Qtde Fios': espula.qtde_fios,
+          'Qtde Metros': espula.quantidade_metros,
+          'Carga': espula.carga
+        };
+        
+        // Adicionar cargas/frações dinamicamente
+        if (espula.cargas_fracoes && espula.cargas_fracoes.length > 0) {
+          espula.cargas_fracoes.forEach((carga, index) => {
+            row[`Fração ${index + 1}`] = carga || '';
+          });
+        } else {
+          // Para compatibilidade com dados antigos
+          row['Fração 1'] = espula.carga_fracao_1 || '';
+          row['Fração 2'] = espula.carga_fracao_2 || '';
+          row['Fração 3'] = espula.carga_fracao_3 || '';
+          row['Fração 4'] = espula.carga_fracao_4 || '';
+          row['Fração 5'] = espula.carga_fracao_5 || '';
+        }
+        
+        row['Data Entrega'] = new Date(espula.data_prevista_entrega).toLocaleDateString('pt-BR');
+        row['Observações'] = espula.observacoes;
+        row['Status'] = espula.status === 'pendente' ? 'Pendente' : espula.status === 'em_producao_aguardando' ? 'Em Produção (Aguardando)' : espula.status === 'producao' ? 'Produção' : 'Finalizado';
+        row['Criado por'] = espula.created_by;
+        row['Lançado em'] = new Date(espula.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'});
+        
+        return row;
+      });
         'Iniciado em': espula.iniciado_em ? new Date(espula.iniciado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
         'Finalizado em': espula.finalizado_em ? new Date(espula.finalizado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : ''
       }));

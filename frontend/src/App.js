@@ -3370,12 +3370,11 @@ const AdminPanel = ({ users, onUserUpdate }) => {
         row['Status'] = espula.status === 'pendente' ? 'Pendente' : espula.status === 'em_producao_aguardando' ? 'Em Produção (Aguardando)' : espula.status === 'producao' ? 'Produção' : 'Finalizado';
         row['Criado por'] = espula.created_by;
         row['Lançado em'] = new Date(espula.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'});
+        row['Iniciado em'] = espula.iniciado_em ? new Date(espula.iniciado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '';
+        row['Finalizado em'] = espula.finalizado_em ? new Date(espula.finalizado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '';
         
         return row;
       });
-        'Iniciado em': espula.iniciado_em ? new Date(espula.iniciado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
-        'Finalizado em': espula.finalizado_em ? new Date(espula.finalizado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : ''
-      }));
       const espulasWS = XLSX.utils.json_to_sheet(espulasData);
       XLSX.utils.book_append_sheet(wb, espulasWS, "Espulagem");
 

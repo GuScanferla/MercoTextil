@@ -2389,7 +2389,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
 
   const exportEspulasReport = async () => {
     try {
-      const XLSX = require('xlsx-js-style');
+      const XLSXStyle = require('xlsx-js-style');
       
       // Exportar apenas espulagens PENDENTES
       const pendenteEspulas = espulas.filter(e => e.status === "pendente");
@@ -2399,48 +2399,58 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         return;
       }
       
-      const wb = XLSX.utils.book_new();
+      const wb = XLSXStyle.utils.book_new();
       
-      // Preparar dados
-      const reportData = pendenteEspulas.map(espula => {
+      // Preparar dados completos
+      const reportData = [];
+      
+      pendenteEspulas.forEach(espula => {
+        // Pegar alocações de máquinas (se existir)
+        const machineAllocations = espula.machine_allocations || [];
+        const numMaquinas = Math.max(machineAllocations.length, 1);
+        const numCargas = espula.cargas_fracoes ? espula.cargas_fracoes.length : 0;
+        
         const row = {
           'Artigo': espula.artigo || '',
           'MP': espula.mat_prima || '',
-          'Maq.': espula.maquina || '',
-          'ENGRENAGEM': '',
-          'ENCHIMENTO': '',
-          'CICLOS': '',
-          'Cor 1': '',
-          'Cor 2': '',
-          'Cor 3': '',
-          'Cor 4': '',
-          'Fios': espula.qtde_fios || '',
-          'Carga 1': '',
-          'Carga 2': '',
-          'Carga 3': '',
-          'Carga 4': '',
-          'Carga 5': '',
-          'Carga Total': espula.carga || ''
         };
         
-        // Preencher cargas e frações
-        if (espula.cargas_fracoes && espula.cargas_fracoes.length > 0) {
-          espula.cargas_fracoes.forEach((carga, index) => {
-            if (index < 5 && carga) {
-              row[`Carga ${index + 1}`] = carga;
-            }
-          });
+        // Adicionar colunas de máquinas dinamicamente
+        for (let i = 0; i < numMaquinas; i++) {
+          const maq = machineAllocations[i];
+          row[`Maq. ${i + 1}`] = maq ? maq.machine_code : (i === 0 ? espula.maquina : '0');
         }
         
-        return row;
+        // Campos fixos
+        row['ENGRENAGEM'] = '0';
+        row['ENCHIMENTO'] = '0';
+        row['CICLOS'] = '0';
+        row['Cor 1'] = '0';
+        row['Cor 2'] = '0';
+        row['Cor 3'] = '0';
+        row['Cor 4'] = '0';
+        row['Fios'] = espula.qtde_fios || '0';
+        
+        // Adicionar cargas dinamicamente
+        for (let i = 0; i < Math.max(numCargas, 5); i++) {
+          if (espula.cargas_fracoes && espula.cargas_fracoes[i]) {
+            row[`Carga ${i + 1}`] = espula.cargas_fracoes[i];
+          } else {
+            row[`Carga ${i + 1}`] = '0';
+          }
+        }
+        
+        row['Carga Total'] = espula.carga || '0';
+        
+        reportData.push(row);
       });
       
       // Criar worksheet
-      const ws = XLSX.utils.json_to_sheet(reportData);
+      const ws = XLSXStyle.utils.json_to_sheet(reportData);
       
-      // Adicionar título na primeira linha
+      // Adicionar título
       const today = new Date().toLocaleDateString('pt-BR');
-      XLSX.utils.sheet_add_aoa(ws, [[`PEDIDO DE ESPULAGEM ${today}`]], { origin: 'A1' });
+      XLSXStyle.utils.sheet_add_aoa(ws, [[`PEDIDO DE ESPULAGEM ${today}`]], { origin: 'A1' });
       
       // Definir estilos
       const titleStyle = {
@@ -2458,7 +2468,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       const headerStyle = {
         font: { bold: true, sz: 11, color: { rgb: "000000" } },
         alignment: { horizontal: "center", vertical: "center" },
-        fill: { fgColor: { rgb: "D3D3D3" } }, // Cinza claro
+        fill: { fgColor: { rgb: "D3D3D3" } },
         border: {
           top: { style: "thin", color: { rgb: "000000" } },
           bottom: { style: "thin", color: { rgb: "000000" } },
@@ -2479,49 +2489,59 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         }
       };
       
-      // Aplicar estilo ao título (A1)
+      // Descobrir quantas colunas temos
+      const firstRow = reportData[0];
+      const columnKeys = Object.keys(firstRow);
+      const numCols = columnKeys.length;
+      
+      // Aplicar estilo ao título
       ws['A1'].s = titleStyle;
       
-      // Aplicar estilo aos cabeçalhos (linha 2, colunas A-Q)
-      const headers = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q'];
-      headers.forEach(col => {
+      // Mesclar células do título
+      if (!ws['!merges']) ws['!merges'] = [];
+      ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: numCols - 1 } });
+      
+      // Aplicar estilo aos cabeçalhos (linha 2)
+      const colLetters = [];
+      for (let i = 0; i < numCols; i++) {
+        if (i < 26) {
+          colLetters.push(String.fromCharCode(65 + i)); // A-Z
+        } else {
+          const first = String.fromCharCode(65 + Math.floor(i / 26) - 1);
+          const second = String.fromCharCode(65 + (i % 26));
+          colLetters.push(first + second); // AA, AB, etc.
+        }
+      }
+      
+      colLetters.forEach(col => {
         const cell = `${col}2`;
         if (ws[cell]) {
           ws[cell].s = headerStyle;
         }
       });
       
-      // Aplicar estilo aos dados (a partir da linha 3)
+      // Aplicar estilo aos dados
       const numRows = pendenteEspulas.length;
       for (let row = 3; row <= numRows + 2; row++) {
-        headers.forEach(col => {
+        colLetters.forEach((col, idx) => {
           const cell = `${col}${row}`;
           if (ws[cell]) {
-            ws[cell].s = dataStyle;
-            // Negrito para colunas específicas (Artigo, MP, Maq., Fios)
-            if (col === 'A' || col === 'B' || col === 'C' || col === 'K') {
-              ws[cell].s.font.bold = true;
+            ws[cell].s = { ...dataStyle };
+            // Negrito nas primeiras 2 colunas (Artigo, MP)
+            if (idx < 2) {
+              ws[cell].s.font = { ...dataStyle.font, bold: true };
             }
           }
         });
       }
       
-      // Mesclar células do título (A1:Q1)
-      if (!ws['!merges']) ws['!merges'] = [];
-      ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 16 } });
-      
       // Ajustar largura das colunas
-      ws['!cols'] = [
-        { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, 
-        { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, 
-        { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, 
-        { wch: 10 }, { wch: 12 }
-      ];
+      ws['!cols'] = columnKeys.map(() => ({ wch: 12 }));
       
-      XLSX.utils.book_append_sheet(wb, ws, "PEDIDO DE ESPULAGEM");
+      XLSXStyle.utils.book_append_sheet(wb, ws, "PEDIDO DE ESPULAGEM");
       
-      // Exportar arquivo
-      XLSX.writeFile(wb, `pedido_espulagem_${new Date().toISOString().split('T')[0]}.xlsx`);
+      // Exportar
+      XLSXStyle.writeFile(wb, `pedido_espulagem_${new Date().toISOString().split('T')[0]}.xlsx`);
       toast.success("Relatório de espulagens pendentes exportado com sucesso!");
       
     } catch (error) {

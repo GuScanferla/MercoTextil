@@ -2722,15 +2722,13 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                 </div>
 
                 {/* Cargas e Fração */}
-                {(espula.carga_fracao_1 || espula.carga_fracao_2 || espula.carga_fracao_3 || espula.carga_fracao_4 || espula.carga_fracao_5) && (
+                {(espula.cargas_fracoes && espula.cargas_fracoes.length > 0 && espula.cargas_fracoes.some(cf => cf)) && (
                   <div className="mb-4 p-3 bg-gray-800/50 rounded">
                     <span className="font-medium text-gray-400">Cargas e Fração:</span>
-                    <div className="flex gap-3 mt-2">
-                      {espula.carga_fracao_1 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_1}</span>}
-                      {espula.carga_fracao_2 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_2}</span>}
-                      {espula.carga_fracao_3 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_3}</span>}
-                      {espula.carga_fracao_4 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_4}</span>}
-                      {espula.carga_fracao_5 && <span className="text-white px-3 py-1 bg-gray-700 rounded">{espula.carga_fracao_5}</span>}
+                    <div className="flex gap-3 mt-2 flex-wrap">
+                      {espula.cargas_fracoes.map((carga, index) => (
+                        carga && <span key={index} className="text-white px-3 py-1 bg-gray-700 rounded">{carga}</span>
+                      ))}
                     </div>
                   </div>
                 )}

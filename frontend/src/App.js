@@ -287,6 +287,7 @@ const Dashboard = ({ user, onLogout }) => {
             {user.permissions?.relatorios !== false && <TabsTrigger value="relatorios" className="tab-merco">Relatórios</TabsTrigger>}
             {user.permissions?.espulagem !== false && <TabsTrigger value="espulas" className="tab-merco">Espulagem</TabsTrigger>}
             {user.permissions?.manutencao !== false && <TabsTrigger value="maintenance" className="tab-merco">Manutenção</TabsTrigger>}
+            {(user.role === "admin" || user.permissions?.administracao === true) && <TabsTrigger value="bancodados" className="tab-merco">Banco de Dados</TabsTrigger>}
             {(user.role === "admin" || user.permissions?.administracao === true) && <TabsTrigger value="admin" className="tab-merco">Administração</TabsTrigger>}
           </TabsList>
 

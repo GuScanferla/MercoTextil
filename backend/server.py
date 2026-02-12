@@ -191,6 +191,10 @@ class OrdemProducao(BaseModel):
     metragem: str
     data_entrega: str  # ISO date string
     observacao: str = ""
+    # Novos campos do banco de dados
+    engrenagem: str = ""
+    fios: str = ""
+    maquinas: str = ""
     status: str = "pendente"  # pendente, em_producao, finalizado
     criado_em: datetime = Field(default_factory=get_utc_now)
     iniciado_em: Optional[datetime] = None
@@ -211,6 +215,9 @@ class OrdemProducaoCreate(BaseModel):
     metragem: str
     data_entrega: str
     observacao: str = ""
+    engrenagem: str = ""
+    fios: str = ""
+    maquinas: str = ""
 
 class OrdemProducaoUpdate(BaseModel):
     status: str

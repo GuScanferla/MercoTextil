@@ -1075,6 +1075,90 @@ async def salvar_temporarios_ordem_producao(
     
     return {"message": "Dados temporários salvos com sucesso"}
 
+
+# Banco de Dados - Artigos Routes
+@api_router.post("/banco-dados", response_model=ArtigoBancoDados)
+async def create_artigo_banco_dados(
+    artigo_data: ArtigoBancoDadosCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create new artigo in banco de dados"""
+    try:
+        artigo = ArtigoBancoDados(
+            artigo=artigo_data.artigo,
+            engrenagem=artigo_data.engrenagem,
+            fios=artigo_data.fios,
+            maquinas=artigo_data.maquinas
+        )
+        
+        await db.banco_dados.insert_one(artigo.dict())
+        return artigo
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error creating artigo: {str(e)}")
+
+@api_router.get("/banco-dados", response_model=List[ArtigoBancoDados])
+async def get_artigos_banco_dados(current_user: User = Depends(get_current_user)):
+    """Get all artigos from banco de dados"""
+    artigos = await db.banco_dados.find().sort("created_at", -1).to_list(1000)
+    return [ArtigoBancoDados(**artigo) for artigo in artigos]
+
+@api_router.get("/banco-dados/search")
+async def search_artigos_banco_dados(
+    q: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Search artigos by name (autocomplete)"""
+    try:
+        # Case-insensitive regex search
+        artigos = await db.banco_dados.find({
+            "artigo": {"$regex": q, "$options": "i"}
+        }).limit(10).to_list(10)
+        
+        return [ArtigoBancoDados(**artigo) for artigo in artigos]
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error searching artigos: {str(e)}")
+
+@api_router.put("/banco-dados/{artigo_id}", response_model=ArtigoBancoDados)
+async def update_artigo_banco_dados(
+    artigo_id: str,
+    artigo_update: ArtigoBancoDadosUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update artigo in banco de dados"""
+    artigo = await db.banco_dados.find_one({"id": artigo_id})
+    if not artigo:
+        raise HTTPException(status_code=404, detail="Artigo not found")
+    
+    update_data = {}
+    if artigo_update.artigo is not None:
+        update_data["artigo"] = artigo_update.artigo
+    if artigo_update.engrenagem is not None:
+        update_data["engrenagem"] = artigo_update.engrenagem
+    if artigo_update.fios is not None:
+        update_data["fios"] = artigo_update.fios
+    if artigo_update.maquinas is not None:
+        update_data["maquinas"] = artigo_update.maquinas
+    
+    update_data["updated_at"] = get_utc_now()
+    
+    await db.banco_dados.update_one({"id": artigo_id}, {"$set": update_data})
+    
+    updated_artigo = await db.banco_dados.find_one({"id": artigo_id})
+    return ArtigoBancoDados(**updated_artigo)
+
+@api_router.delete("/banco-dados/{artigo_id}")
+async def delete_artigo_banco_dados(
+    artigo_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete artigo from banco de dados"""
+    result = await db.banco_dados.delete_one({"id": artigo_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Artigo not found")
+    
+    return {"message": "Artigo deleted successfully"}
+
+
 # Espulas routes
 @api_router.post("/espulas", response_model=Espula)
 async def create_espula(espula_data: EspulaCreate, current_user: User = Depends(get_current_user)):

@@ -3206,6 +3206,194 @@ const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUp
   );
 };
 
+// Banco de Dados Panel
+const BancoDadosPanel = ({ user }) => {
+  const [artigos, setArtigos] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingArtigo, setEditingArtigo] = useState(null);
+  const [formData, setFormData] = useState({
+    artigo: '',
+    engrenagem: '',
+    fios: '',
+    maquinas: ''
+  });
+
+  useEffect(() => {
+    loadArtigos();
+  }, []);
+
+  const loadArtigos = async () => {
+    try {
+      const response = await axios.get(`${API}/banco-dados`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setArtigos(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar artigos:", error);
+    }
+  };
+
+  const openForm = (artigo = null) => {
+    if (artigo) {
+      setEditingArtigo(artigo);
+      setFormData({
+        artigo: artigo.artigo,
+        engrenagem: artigo.engrenagem,
+        fios: artigo.fios,
+        maquinas: artigo.maquinas
+      });
+    } else {
+      setEditingArtigo(null);
+      setFormData({
+        artigo: '',
+        engrenagem: '',
+        fios: '',
+        maquinas: ''
+      });
+    }
+    setShowForm(true);
+  };
+
+  const saveArtigo = async () => {
+    try {
+      if (editingArtigo) {
+        // Editar
+        await axios.put(
+          `${API}/banco-dados/${editingArtigo.id}`,
+          formData,
+          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        );
+        toast.success("Artigo atualizado com sucesso!");
+      } else {
+        // Criar
+        await axios.post(
+          `${API}/banco-dados`,
+          formData,
+          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        );
+        toast.success("Artigo criado com sucesso!");
+      }
+      setShowForm(false);
+      loadArtigos();
+    } catch (error) {
+      console.error("Erro ao salvar artigo:", error);
+      toast.error("Erro ao salvar artigo");
+    }
+  };
+
+  const deleteArtigo = async (id) => {
+    if (window.confirm("Tem certeza que deseja excluir este artigo?")) {
+      try {
+        await axios.delete(`${API}/banco-dados/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        toast.success("Artigo excluído com sucesso!");
+        loadArtigos();
+      } catch (error) {
+        console.error("Erro ao excluir artigo:", error);
+        toast.error("Erro ao excluir artigo");
+      }
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold text-white">Banco de Dados - Artigos</h2>
+        <Button onClick={() => openForm()} className="btn-merco">
+          + Lançar Artigo
+        </Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {artigos.map(artigo => (
+          <Card key={artigo.id} className="card-merco">
+            <CardHeader>
+              <CardTitle className="text-white">{artigo.artigo}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div>
+                <span className="text-gray-400">Engrenagem:</span>
+                <span className="text-white ml-2">{artigo.engrenagem || '-'}</span>
+              </div>
+              <div>
+                <span className="text-gray-400">Fios:</span>
+                <span className="text-white ml-2">{artigo.fios || '-'}</span>
+              </div>
+              <div>
+                <span className="text-gray-400">Máquinas:</span>
+                <span className="text-white ml-2">{artigo.maquinas || '-'}</span>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <Button onClick={() => openForm(artigo)} variant="outline" className="flex-1">
+                  Editar
+                </Button>
+                <Button onClick={() => deleteArtigo(artigo.id)} variant="destructive" className="flex-1">
+                  Excluir
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Dialog para criar/editar */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="dialog-merco">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {editingArtigo ? 'Editar Artigo' : 'Novo Artigo'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Artigo *</Label>
+              <Input
+                value={formData.artigo}
+                onChange={(e) => setFormData({...formData, artigo: e.target.value})}
+                placeholder="Nome ou código do artigo"
+              />
+            </div>
+            <div>
+              <Label>Engrenagem</Label>
+              <Input
+                value={formData.engrenagem}
+                onChange={(e) => setFormData({...formData, engrenagem: e.target.value})}
+                placeholder="Engrenagem"
+              />
+            </div>
+            <div>
+              <Label>Fios</Label>
+              <Input
+                value={formData.fios}
+                onChange={(e) => setFormData({...formData, fios: e.target.value})}
+                placeholder="Quantidade de fios"
+              />
+            </div>
+            <div>
+              <Label>Máquinas</Label>
+              <Input
+                value={formData.maquinas}
+                onChange={(e) => setFormData({...formData, maquinas: e.target.value})}
+                placeholder="Máquinas recomendadas"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={saveArtigo} className="flex-1 btn-merco" disabled={!formData.artigo}>
+                {editingArtigo ? 'Atualizar' : 'Criar'}
+              </Button>
+              <Button onClick={() => setShowForm(false)} variant="outline" className="flex-1">
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+
 const AdminPanel = ({ users, onUserUpdate }) => {
   const [newUser, setNewUser] = useState({
     username: "",

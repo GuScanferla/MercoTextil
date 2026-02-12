@@ -219,6 +219,28 @@ class OrdemProducaoSaveTemp(BaseModel):
     dados_temporarios_maquinas: list  # Machine allocations temporários
     espula_data: dict  # Outros dados do formulário de espulagem
 
+# Banco de Dados - Cadastro de Artigos
+class ArtigoBancoDados(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    artigo: str  # Nome/código do artigo
+    engrenagem: str = ""  # Engrenagem
+    fios: str = ""  # Quantidade de fios
+    maquinas: str = ""  # Máquinas recomendadas
+    created_at: datetime = Field(default_factory=get_utc_now)
+    updated_at: datetime = Field(default_factory=get_utc_now)
+
+class ArtigoBancoDadosCreate(BaseModel):
+    artigo: str
+    engrenagem: str = ""
+    fios: str = ""
+    maquinas: str = ""
+
+class ArtigoBancoDadosUpdate(BaseModel):
+    artigo: Optional[str] = None
+    engrenagem: Optional[str] = None
+    fios: Optional[str] = None
+    maquinas: Optional[str] = None
+
 class MachineAllocation(BaseModel):
     machine_code: str
     machine_id: str

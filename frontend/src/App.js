@@ -341,6 +341,11 @@ const Dashboard = ({ user, onLogout }) => {
           </TabsContent>
 
           {user.role === "admin" && (
+
+            <TabsContent value="bancodados">
+              <BancoDadosPanel user={user} />
+            </TabsContent>
+
             <TabsContent value="admin">
               <AdminPanel users={users} onUserUpdate={loadUsers} />
             </TabsContent>

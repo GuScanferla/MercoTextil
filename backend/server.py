@@ -1005,6 +1005,9 @@ async def create_ordem_producao(ordem_data: OrdemProducaoCreate, current_user: U
             metragem=ordem_data.metragem,
             data_entrega=ordem_data.data_entrega,
             observacao=ordem_data.observacao,
+            engrenagem=ordem_data.engrenagem,
+            fios=ordem_data.fios,
+            maquinas=ordem_data.maquinas,
             criado_por=current_user.username
         )
         

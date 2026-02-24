@@ -939,6 +939,40 @@ async def finish_machine_order(
     machine_code: str,
     order_id: str,
     current_user: User = Depends(get_current_user)
+
+@api_router.delete("/orders/{order_id}")
+async def delete_order(order_id: str, current_user: User = Depends(get_current_user)):
+    """Delete order from machine queue"""
+    try:
+        order = await db.orders.find_one({"id": order_id})
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        # Deletar ordem
+        await db.orders.delete_one({"id": order_id})
+        
+        # Atualizar status da máquina se não tiver mais pedidos
+        remaining_orders = await db.orders.find({"machine_code": order["machine_code"]}).to_list(100)
+        
+        if len(remaining_orders) == 0:
+            # Sem pedidos - voltar para verde
+            await db.machines.update_one(
+                {"code": order["machine_code"]},
+                {"$set": {"status": "verde", "updated_at": get_utc_now()}}
+            )
+        elif not any(o["status"] == "em_producao" for o in remaining_orders):
+            # Tem pedidos mas nenhum em produção - amarelo
+            await db.machines.update_one(
+                {"code": order["machine_code"]},
+                {"$set": {"status": "amarelo", "updated_at": get_utc_now()}}
+            )
+        
+        return {"message": "Order deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error deleting order: {str(e)}")
+
 ):
     """Finish production of a specific order"""
     # Get the order

@@ -233,6 +233,8 @@ class ArtigoBancoDados(BaseModel):
     engrenagem: str = ""  # Engrenagem
     fios: str = ""  # Quantidade de fios
     maquinas: str = ""  # Máquinas recomendadas
+    ciclos: str  # Ciclos - obrigatório
+    carga: str  # Carga - obrigatório
     created_at: datetime = Field(default_factory=get_utc_now)
     updated_at: datetime = Field(default_factory=get_utc_now)
 
@@ -241,12 +243,16 @@ class ArtigoBancoDadosCreate(BaseModel):
     engrenagem: str = ""
     fios: str = ""
     maquinas: str = ""
+    ciclos: str
+    carga: str
 
 class ArtigoBancoDadosUpdate(BaseModel):
     artigo: Optional[str] = None
     engrenagem: Optional[str] = None
     fios: Optional[str] = None
     maquinas: Optional[str] = None
+    ciclos: Optional[str] = None
+    carga: Optional[str] = None
 
 class MachineAllocation(BaseModel):
     machine_code: str

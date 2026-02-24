@@ -2299,6 +2299,76 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       });
       return response.data.numero_os;
     } catch (error) {
+
+  // Carregar máquinas
+  useEffect(() => {
+    loadMachines();
+  }, []);
+
+  const loadMachines = async () => {
+    try {
+      const response = await axios.get(`${API}/machines`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setMachines(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar máquinas:", error);
+    }
+  };
+
+  // Funções para gerenciar alocações de máquinas
+  const addMachineAllocation = () => {
+    setMachineAllocations([...machineAllocations, { machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
+  };
+
+  const removeMachineAllocation = (index) => {
+    if (machineAllocations.length > 1) {
+      const newAllocations = machineAllocations.filter((_, i) => i !== index);
+      setMachineAllocations(newAllocations);
+    }
+  };
+
+  const updateMachineAllocation = (index, field, value) => {
+    const newAllocations = [...machineAllocations];
+    
+    if (field === 'machine') {
+      const selectedMachine = machines.find(m => m.code === value);
+      if (selectedMachine) {
+        newAllocations[index].machine_code = selectedMachine.code;
+        newAllocations[index].machine_id = selectedMachine.id;
+        newAllocations[index].layout_type = selectedMachine.layout_type;
+      }
+    } else if (field === 'quantidade') {
+      newAllocations[index].quantidade = formatNumber(value);
+    }
+    
+    setMachineAllocations(newAllocations);
+  };
+
+  // Abrir dialog para editar máquinas de uma espulagem
+  const openEditMachines = (espula) => {
+    setEditingMachines(espula);
+    setMachineAllocations(espula.machine_allocations || []);
+  };
+
+  // Salvar as alterações de máquinas
+  const saveMachineAllocations = async () => {
+    try {
+      await axios.put(
+        `${API}/espulas/${editingMachines.id}`,
+        { machine_allocations: machineAllocations },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      
+      toast.success("Máquinas atualizadas com sucesso!");
+      setEditingMachines(null);
+      onEspulaUpdate();
+    } catch (error) {
+      console.error("Erro ao atualizar máquinas:", error);
+      toast.error("Erro ao atualizar máquinas");
+    }
+  };
+
       console.error("Erro ao buscar próximo número:", error);
       return "";
     }

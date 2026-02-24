@@ -3330,8 +3330,16 @@ const BancoDadosPanel = ({ user }) => {
                 <span className="text-gray-400">Máquinas:</span>
                 <span className="text-white ml-2">{artigo.maquinas || '-'}</span>
               </div>
+              <div>
+                <span className="text-gray-400">Ciclos:</span>
+                <span className="text-white ml-2">{artigo.ciclos || '-'}</span>
+              </div>
+              <div>
+                <span className="text-gray-400">Carga:</span>
+                <span className="text-white ml-2">{artigo.carga || '-'}</span>
+              </div>
               <div className="flex gap-2 mt-4">
-                <Button onClick={() => openForm(artigo)} variant="outline" className="flex-1">
+                <Button onClick={() => openForm(artigo)} variant="outline" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white border-blue-600">
                   Editar
                 </Button>
                 <Button onClick={() => deleteArtigo(artigo.id)} variant="destructive" className="flex-1">

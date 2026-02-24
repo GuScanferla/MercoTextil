@@ -1097,7 +1097,9 @@ async def create_artigo_banco_dados(
             artigo=artigo_data.artigo,
             engrenagem=artigo_data.engrenagem,
             fios=artigo_data.fios,
-            maquinas=artigo_data.maquinas
+            maquinas=artigo_data.maquinas,
+            ciclos=artigo_data.ciclos,
+            carga=artigo_data.carga
         )
         
         await db.banco_dados.insert_one(artigo.dict())

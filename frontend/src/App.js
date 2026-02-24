@@ -3242,7 +3242,9 @@ const BancoDadosPanel = ({ user }) => {
         artigo: artigo.artigo,
         engrenagem: artigo.engrenagem,
         fios: artigo.fios,
-        maquinas: artigo.maquinas
+        maquinas: artigo.maquinas,
+        ciclos: artigo.ciclos || '',
+        carga: artigo.carga || ''
       });
     } else {
       setEditingArtigo(null);
@@ -3250,7 +3252,9 @@ const BancoDadosPanel = ({ user }) => {
         artigo: '',
         engrenagem: '',
         fios: '',
-        maquinas: ''
+        maquinas: '',
+        ciclos: '',
+        carga: ''
       });
     }
     setShowForm(true);

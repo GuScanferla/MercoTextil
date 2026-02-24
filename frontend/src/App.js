@@ -3215,7 +3215,9 @@ const BancoDadosPanel = ({ user }) => {
     artigo: '',
     engrenagem: '',
     fios: '',
-    maquinas: ''
+    maquinas: '',
+    ciclos: '',
+    carga: ''
   });
 
   useEffect(() => {

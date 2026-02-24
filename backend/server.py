@@ -1149,6 +1149,10 @@ async def update_artigo_banco_dados(
         update_data["fios"] = artigo_update.fios
     if artigo_update.maquinas is not None:
         update_data["maquinas"] = artigo_update.maquinas
+    if artigo_update.ciclos is not None:
+        update_data["ciclos"] = artigo_update.ciclos
+    if artigo_update.carga is not None:
+        update_data["carga"] = artigo_update.carga
     
     update_data["updated_at"] = get_utc_now()
     

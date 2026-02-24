@@ -1405,13 +1405,22 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
               {order.status !== "finalizado" && (
                 <div className="flex space-x-3">
                   {order.status === "pendente" && (user.role === "admin" || user.role === "operador_externo" || user.role === "operador_interno") && (
-                    <Button
-                      size="lg"
-                      className="btn-merco"
-                      onClick={() => startOrderFromList(order)}
-                    >
-                      Iniciar Produção
-                    </Button>
+                    <>
+                      <Button
+                        size="lg"
+                        className="btn-merco"
+                        onClick={() => startOrderFromList(order)}
+                      >
+                        Iniciar Produção
+                      </Button>
+                      <Button
+                        size="lg"
+                        variant="destructive"
+                        onClick={() => deleteOrder(order)}
+                      >
+                        Excluir
+                      </Button>
+                    </>
                   )}
                   {order.status === "em_producao" && (
                     <Button

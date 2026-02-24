@@ -843,8 +843,8 @@ async def update_order(
 # Machine-specific order routes
 @api_router.get("/machines/{machine_code}/orders", response_model=List[Order])
 async def get_machine_orders(machine_code: str, current_user: User = Depends(get_current_user)):
-    """Get all orders for a specific machine, sorted by queue position"""
-    orders = await db.orders.find({"machine_code": machine_code}).sort("queue_position", 1).to_list(1000)
+    """Get all orders for a specific machine, sorted by most recent first"""
+    orders = await db.orders.find({"machine_code": machine_code}).sort("created_at", -1).to_list(1000)
     return [Order(**order) for order in orders]
 
 @api_router.post("/machines/{machine_code}/orders", response_model=Order)

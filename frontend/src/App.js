@@ -356,7 +356,7 @@ const Dashboard = ({ user, onLogout }) => {
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-gray-700 text-center">
           <p className="text-gray-400 text-sm">
-            © 2025 MercoTêxtil - Todos os direitos reservados | Desenvolvido por CodeliumCompany
+            © 2026 MercoTêxtil - Todos os direitos reservados | Desenvolvido por CodeliumCompany
           </p>
         </footer>
       </main>

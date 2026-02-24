@@ -1485,13 +1485,21 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
 const OrdemProducaoPanel = ({ user }) => {
   const [ordens, setOrdens] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [artigos, setArtigos] = useState([]);
+  const [artigoSuggestions, setArtigoSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [ordemData, setOrdemData] = useState({
     cliente: "",
     artigo: "",
     cor: "",
     metragem: "",
     data_entrega: "",
-    observacao: ""
+    observacao: "",
+    engrenagem: "",
+    fios: "",
+    maquinas: "",
+    ciclos: "",
+    carga: ""
   });
 
   useEffect(() => {

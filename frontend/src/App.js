@@ -3392,8 +3392,26 @@ const BancoDadosPanel = ({ user }) => {
                 placeholder="Máquinas recomendadas"
               />
             </div>
+            <div>
+              <Label>Ciclos *</Label>
+              <Input
+                value={formData.ciclos}
+                onChange={(e) => setFormData({...formData, ciclos: e.target.value})}
+                placeholder="Ciclos"
+                required
+              />
+            </div>
+            <div>
+              <Label>Carga *</Label>
+              <Input
+                value={formData.carga}
+                onChange={(e) => setFormData({...formData, carga: e.target.value})}
+                placeholder="Carga"
+                required
+              />
+            </div>
             <div className="flex gap-2">
-              <Button onClick={saveArtigo} className="flex-1 btn-merco" disabled={!formData.artigo}>
+              <Button onClick={saveArtigo} className="flex-1 btn-merco" disabled={!formData.artigo || !formData.ciclos || !formData.carga}>
                 {editingArtigo ? 'Atualizar' : 'Criar'}
               </Button>
               <Button onClick={() => setShowForm(false)} variant="outline" className="flex-1">

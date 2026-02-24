@@ -1208,6 +1208,23 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
     }
   };
 
+  const deleteOrder = async (order) => {
+    if (window.confirm(`Tem certeza que deseja excluir o pedido ${order.client || 'sem cliente'}?`)) {
+      try {
+        await axios.delete(`${API}/orders/${order.id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        
+        toast.success("Pedido excluído com sucesso!");
+        onOrderUpdate();
+        onMachineUpdate();
+      } catch (error) {
+        toast.error(error.response?.data?.detail || "Erro ao excluir pedido");
+      }
+    }
+  };
+
+
   const updateOrder = async (orderId, status, observacao = "", laudo = "") => {
     try {
       await axios.put(`${API}/orders/${orderId}`, {

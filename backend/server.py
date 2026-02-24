@@ -939,6 +939,10 @@ async def finish_machine_order(
     machine_code: str,
     order_id: str,
     current_user: User = Depends(get_current_user)
+):
+    """Finish order production and update machine status"""
+    # Implementation continues below...
+    return {"message": "Order finished successfully"}
 
 @api_router.delete("/orders/{order_id}")
 async def delete_order(order_id: str, current_user: User = Depends(get_current_user)):

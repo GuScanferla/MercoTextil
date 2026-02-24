@@ -2242,6 +2242,9 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   const [showForm, setShowForm] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [cargasFracoes, setCargasFracoes] = useState([""]);
+  const [editingMachines, setEditingMachines] = useState(null);
+  const [machineAllocations, setMachineAllocations] = useState([]);
+  const [machines, setMachines] = useState([]);
   const [espulaData, setEspulaData] = useState({
     numero_os: "",
     maquina: "",

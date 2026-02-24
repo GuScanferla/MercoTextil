@@ -3212,6 +3212,81 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       )}
     </div>
   );
+
+      {/* Dialog para editar máquinas alocadas */}
+      <Dialog open={editingMachines !== null} onOpenChange={() => setEditingMachines(null)}>
+        <DialogContent className="dialog-merco max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              Editar Máquinas Alocadas - OS {editingMachines?.numero_os}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-3">
+              <Label className="text-lg text-white">Máquinas Alocadas</Label>
+              <Button size="sm" onClick={addMachineAllocation} variant="outline">
+                + Adicionar Máquina
+              </Button>
+            </div>
+            
+            {machineAllocations.map((allocation, index) => (
+              <Card key={index} className="card-merco p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <Label className="text-white">Máquina *</Label>
+                    <Select
+                      value={allocation.machine_code}
+                      onValueChange={(value) => updateMachineAllocation(index, 'machine', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a máquina" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {machines.map(machine => (
+                          <SelectItem key={machine.id} value={machine.code}>
+                            {machine.code} - {machine.layout_type === "16" ? "16 Fusos" : "32 Fusos"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-white">Quantidade (metros) *</Label>
+                    <Input
+                      value={allocation.quantidade}
+                      onChange={(e) => updateMachineAllocation(index, 'quantidade', e.target.value)}
+                      placeholder="Ex: 1.000"
+                      type="text"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    {machineAllocations.length > 1 && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-400 hover:text-red-300"
+                        onClick={() => removeMachineAllocation(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ))}
+            
+            <div className="flex gap-2 mt-6">
+              <Button onClick={saveMachineAllocations} className="flex-1 btn-merco">
+                Salvar Alterações
+              </Button>
+              <Button onClick={() => setEditingMachines(null)} variant="outline" className="flex-1">
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 };
 
 const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUpdate }) => {

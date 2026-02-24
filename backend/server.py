@@ -977,42 +977,6 @@ async def delete_order(order_id: str, current_user: User = Depends(get_current_u
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error deleting order: {str(e)}")
 
-):
-    """Finish production of a specific order"""
-    # Get the order
-    order = await db.orders.find_one({"id": order_id, "machine_code": machine_code})
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    
-    if order["status"] != "em_producao":
-        raise HTTPException(status_code=400, detail="Order is not in production")
-    
-    # Update order to finalizado
-    await db.orders.update_one(
-        {"id": order_id},
-        {"$set": {
-            "status": "finalizado",
-            "finished_at": get_utc_now()
-        }}
-    )
-    
-    # Check if there are other pending orders for this machine
-    pending_orders = await db.orders.find({
-        "machine_code": machine_code,
-        "status": "pendente"
-    }).to_list(1)
-    
-    # If there are pending orders, keep machine yellow, otherwise green
-    machine_status = "amarelo" if pending_orders else "verde"
-    
-    # Update machine status
-    await db.machines.update_one(
-        {"code": machine_code},
-        {"$set": {"status": machine_status, "updated_at": get_utc_now()}}
-    )
-    
-    return {"message": "Order finished successfully"}
-
 # Ordem de Producao routes
 @api_router.get("/ordens-producao/next-number")
 async def get_next_ordem_number(current_user: User = Depends(get_current_user)):

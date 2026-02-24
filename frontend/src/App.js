@@ -3037,10 +3037,19 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                 {/* Máquinas Alocadas */}
                 {espula.machine_allocations && espula.machine_allocations.length > 0 && (
                   <div className="mb-4 p-4 bg-blue-900/20 rounded border border-blue-700">
-                    <h4 className="font-bold text-white text-lg mb-3 flex items-center">
-                      <Factory className="h-5 w-5 mr-2" />
-                      Máquinas Alocadas ({espula.machine_allocations.length})
-                    </h4>
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="font-bold text-white text-lg flex items-center">
+                        <Factory className="h-5 w-5 mr-2" />
+                        Máquinas Alocadas ({espula.machine_allocations.length})
+                      </h4>
+                      <Button 
+                        size="sm" 
+                        onClick={() => openEditMachines(espula)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        Editar Máquinas
+                      </Button>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {espula.machine_allocations.map((allocation, index) => (
                         <div key={index} className="p-3 bg-black/40 rounded border border-gray-700">

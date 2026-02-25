@@ -2660,6 +2660,17 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         return;
       }
       
+      // Buscar dados dos artigos do banco de dados para preencher informações
+      let artigosData = [];
+      try {
+        const response = await axios.get(`${API}/banco-dados`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        artigosData = response.data;
+      } catch (err) {
+        console.error("Erro ao carregar artigos:", err);
+      }
+      
       const wb = XLSXStyle.utils.book_new();
       
       // Descobrir o número máximo de cargas em todas as espulagens
@@ -2703,11 +2714,20 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           maquinasList = espula.maquina;
         }
         
+        // Buscar dados do artigo no banco de dados
+        const artigoInfo = artigosData.find(a => 
+          a.artigo && espula.artigo && 
+          a.artigo.toLowerCase() === espula.artigo.toLowerCase()
+        );
+        
+        // Preencher engrenagem, enchimento (carga) e ciclos com dados reais
+        const engrenagem = artigoInfo?.engrenagem || '';
+        const enchimento = artigoInfo?.carga || ''; // carga = enchimento
+        const ciclos = artigoInfo?.ciclos || '';
+        
         // Preencher cores dinamicamente (Cor 1, Cor 2, Cor 3, Cor 4)
-        // Nota: Se o sistema tiver apenas um campo "cor", replicar em Cor 1
-        // Se tiver array de cores, preencher cada uma
         const cor1 = espula.cor || '';
-        const cor2 = ''; // Preencher se existir no sistema
+        const cor2 = '';
         const cor3 = '';
         const cor4 = '';
         
@@ -2727,14 +2747,14 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           espula.artigo || '',
           espula.mat_prima || '',
           maquinasList,
-          '', // ENGRENAGEM
-          '', // ENCHIMENTO
-          '', // CICLOS
+          engrenagem, // ENGRENAGEM - dados reais do banco
+          enchimento, // ENCHIMENTO - dados reais do banco (carga)
+          ciclos, // CICLOS - dados reais do banco
           cor1, // Cor 1 - preenchida
           cor2, // Cor 2
           cor3, // Cor 3
           cor4, // Cor 4
-          espula.qtde_fios || '',
+          espula.qtde_fios || artigoInfo?.fios || '',
         ];
         
         // Adicionar TODAS as cargas (até maxCargas)

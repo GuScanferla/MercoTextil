@@ -1815,6 +1815,28 @@ const OrdemProducaoPanel = ({ user }) => {
                   <p className="text-white font-medium">{ordem.cor}</p>
                 </div>
               </div>
+              {(ordem.engrenagem || ordem.fios || ordem.maquinas) && (
+                <div className="grid grid-cols-3 gap-2">
+                  {ordem.engrenagem && (
+                    <div>
+                      <p className="text-gray-400">Engrenagem</p>
+                      <p className="text-white font-medium text-xs">{ordem.engrenagem}</p>
+                    </div>
+                  )}
+                  {ordem.fios && (
+                    <div>
+                      <p className="text-gray-400">Fios</p>
+                      <p className="text-white font-medium text-xs">{ordem.fios}</p>
+                    </div>
+                  )}
+                  {ordem.maquinas && (
+                    <div>
+                      <p className="text-gray-400">Máquinas</p>
+                      <p className="text-white font-medium text-xs">{ordem.maquinas}</p>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-gray-400">Metragem</p>
@@ -1841,6 +1863,19 @@ const OrdemProducaoPanel = ({ user }) => {
                 )}
                 <p className="text-xs text-gray-400">Por: {ordem.criado_por}</p>
               </div>
+              {ordem.status === "pendente" && (
+                <div className="pt-2">
+                  <Button
+                    onClick={() => deleteOrdem(ordem.id)}
+                    variant="destructive"
+                    size="sm"
+                    className="w-full"
+                    data-testid={`delete-ordem-${ordem.numero_os}`}
+                  >
+                    Excluir Ordem
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}

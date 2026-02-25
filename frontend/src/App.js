@@ -1679,14 +1679,62 @@ const OrdemProducaoPanel = ({ user }) => {
                   required
                 />
               </div>
-              <div>
-                <Label htmlFor="artigo">Artigo *</Label>
+              <div className="relative" ref={suggestionsRef}>
+                <Label htmlFor="artigo">Artigo * (digite para buscar)</Label>
                 <Input
                   id="artigo"
                   value={ordemData.artigo}
-                  onChange={(e) => setOrdemData({...ordemData, artigo: e.target.value})}
-                  placeholder="Artigo"
+                  onChange={handleArtigoChange}
+                  placeholder="Digite para buscar artigo..."
+                  autoComplete="off"
                   required
+                />
+                {showSuggestions && artigoSuggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {artigoSuggestions.map((artigo) => (
+                      <div
+                        key={artigo.id}
+                        className="p-3 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-b-0"
+                        onClick={() => selectArtigo(artigo)}
+                      >
+                        <div className="font-medium text-white">{artigo.artigo}</div>
+                        <div className="text-xs text-gray-400 mt-1">
+                          {artigo.engrenagem && <span>Engr: {artigo.engrenagem} | </span>}
+                          {artigo.fios && <span>Fios: {artigo.fios} | </span>}
+                          {artigo.maquinas && <span>Máq: {artigo.maquinas}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="engrenagem">Engrenagem</Label>
+                <Input
+                  id="engrenagem"
+                  value={ordemData.engrenagem}
+                  onChange={(e) => setOrdemData({...ordemData, engrenagem: e.target.value})}
+                  placeholder="Engrenagem"
+                />
+              </div>
+              <div>
+                <Label htmlFor="fios">Fios</Label>
+                <Input
+                  id="fios"
+                  value={ordemData.fios}
+                  onChange={(e) => setOrdemData({...ordemData, fios: e.target.value})}
+                  placeholder="Quantidade de fios"
+                />
+              </div>
+              <div>
+                <Label htmlFor="maquinas">Máquinas</Label>
+                <Input
+                  id="maquinas"
+                  value={ordemData.maquinas}
+                  onChange={(e) => setOrdemData({...ordemData, maquinas: e.target.value})}
+                  placeholder="Máquinas"
                 />
               </div>
             </div>

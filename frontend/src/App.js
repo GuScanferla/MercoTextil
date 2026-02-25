@@ -3561,6 +3561,9 @@ const BancoDadosPanel = ({ user }) => {
 
   useEffect(() => {
     loadArtigos();
+    // Polling para atualização em tempo real a cada 5 segundos
+    const interval = setInterval(loadArtigos, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const loadArtigos = async () => {

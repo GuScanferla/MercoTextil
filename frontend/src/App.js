@@ -3781,6 +3781,7 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       relatorios: true,
       espulagem: true,
       manutencao: true,
+      banco_dados: true,
       administracao: false
     }
   });
@@ -3800,6 +3801,7 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       relatorios: true,
       espulagem: true,
       manutencao: true,
+      banco_dados: true,
       administracao: false
     }
   });

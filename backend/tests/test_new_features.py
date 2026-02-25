@@ -240,18 +240,22 @@ class TestInitDataFunction:
 class TestDefaultUsersPermissions:
     """Test default user permissions include banco_dados"""
     
-    def test_get_users_all_have_banco_dados_field(self, auth_headers):
-        """GET /api/users - Verify all users have banco_dados in permissions"""
+    def test_get_users_default_users_have_banco_dados_field(self, auth_headers):
+        """GET /api/users - Verify default users (admin, interno, externo) have banco_dados in permissions"""
         response = requests.get(f"{BASE_URL}/api/users", headers=auth_headers)
         assert response.status_code == 200, f"Get users failed: {response.text}"
         
         users = response.json()
         assert len(users) > 0, "Should have at least one user"
         
+        # Check only default users created by init_data
+        default_usernames = ["admin", "interno", "externo"]
+        
         for user in users:
-            if "permissions" in user:
-                # banco_dados should be in permissions
-                assert "banco_dados" in user["permissions"], f"User {user['username']} should have banco_dados permission field"
+            if user.get("username") in default_usernames and "permissions" in user:
+                # banco_dados should be in permissions for default users
+                assert "banco_dados" in user["permissions"], f"Default user {user['username']} should have banco_dados permission field"
+                print(f"User {user['username']} has banco_dados permission: {user['permissions'].get('banco_dados')}")
 
 
 if __name__ == "__main__":

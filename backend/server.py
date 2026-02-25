@@ -233,8 +233,8 @@ class ArtigoBancoDados(BaseModel):
     engrenagem: str = ""  # Engrenagem
     fios: str = ""  # Quantidade de fios
     maquinas: str = ""  # Máquinas recomendadas
-    ciclos: str  # Ciclos - obrigatório
-    carga: str  # Carga - obrigatório
+    ciclos: str = ""  # Ciclos - obrigatório na criação, mas default para suportar dados antigos
+    carga: str = ""  # Carga - obrigatório na criação, mas default para suportar dados antigos
     created_at: datetime = Field(default_factory=get_utc_now)
     updated_at: datetime = Field(default_factory=get_utc_now)
 

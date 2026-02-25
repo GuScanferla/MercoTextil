@@ -3982,7 +3982,7 @@ const AdminPanel = ({ users, onUserUpdate }) => {
   const exportCompleteReport = async () => {
     try {
       // Fetch all data from all endpoints
-      const [ordersResponse, ordensResponse, espulasResponse, maintenanceResponse] = await Promise.all([
+      const [ordersResponse, ordensResponse, espulasResponse, maintenanceResponse, artigosResponse] = await Promise.all([
         axios.get(`${API}/orders`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         }),
@@ -3994,62 +3994,104 @@ const AdminPanel = ({ users, onUserUpdate }) => {
         }),
         axios.get(`${API}/maintenance`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }),
+        axios.get(`${API}/banco-dados`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         })
       ]);
 
+      const artigosData = artigosResponse.data || [];
       const wb = XLSX.utils.book_new();
       
-      // Sheet 1: Produção (Orders)
-      const ordersData = ordersResponse.data.map(order => ({
-        'ID': order.id,
-        'Número OS': order.numero_os || '-',
-        'Origem': order.origem === 'manual' ? 'Manual' : order.origem === 'espulagem' ? 'Espulagem' : 'Ordem',
-        'Posição na Fila': order.queue_position || '-',
-        'Máquina': order.machine_code,
-        'Layout': order.layout_type === '16_fusos' ? '16 Fusos' : '32 Fusos',
-        'Cliente': order.cliente,
-        'Artigo': order.artigo,
-        'Cor': order.cor,
-        'Quantidade': order.quantidade,
-        'Status': order.status === 'pendente' ? 'Pendente' : order.status === 'em_producao' ? 'Em Produção' : 'Finalizado',
-        'Criado por': order.created_by,
-        'Criado em': new Date(order.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
-        'Iniciado em': order.started_at ? new Date(order.started_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
-        'Finalizado em': order.finished_at ? new Date(order.finished_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
-        'Observação': order.observacao,
-        'Obs. Liberação': order.observacao_liberacao,
-        'Laudo Final': order.laudo_final
-      }));
+      // Sheet 1: Produção (Orders) - com dados do artigo
+      const ordersData = ordersResponse.data.map(order => {
+        const artigoInfo = artigosData.find(a => 
+          a.artigo && order.artigo && 
+          a.artigo.toLowerCase() === order.artigo.toLowerCase()
+        );
+        return {
+          'ID': order.id,
+          'Número OS': order.numero_os || '-',
+          'Origem': order.origem === 'manual' ? 'Manual' : order.origem === 'espulagem' ? 'Espulagem' : 'Ordem',
+          'Posição na Fila': order.queue_position || '-',
+          'Máquina': order.machine_code,
+          'Layout': order.layout_type === '16_fusos' ? '16 Fusos' : '32 Fusos',
+          'Cliente': order.cliente,
+          'Artigo': order.artigo,
+          'Engrenagem': artigoInfo?.engrenagem || '',
+          'Fios': artigoInfo?.fios || '',
+          'Ciclos': artigoInfo?.ciclos || '',
+          'Carga': artigoInfo?.carga || '',
+          'Cor': order.cor,
+          'Quantidade': order.quantidade,
+          'Status': order.status === 'pendente' ? 'Pendente' : order.status === 'em_producao' ? 'Em Produção' : 'Finalizado',
+          'Criado por': order.created_by,
+          'Criado em': new Date(order.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}),
+          'Iniciado em': order.started_at ? new Date(order.started_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
+          'Finalizado em': order.finished_at ? new Date(order.finished_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'}) : '',
+          'Observação': order.observacao,
+          'Obs. Liberação': order.observacao_liberacao,
+          'Laudo Final': order.laudo_final
+        };
+      });
       const ordersWS = XLSX.utils.json_to_sheet(ordersData);
       XLSX.utils.book_append_sheet(wb, ordersWS, "Produção");
 
-      // Sheet 2: Ordens de Produção (apenas pendentes)
-      const ordensPendentes = ordensResponse.data.filter(ordem => ordem.status === 'pendente');
-      const ordensData = ordensPendentes.map(ordem => ({
-        'Número OS': ordem.numero_os,
-        'Cliente': ordem.cliente,
-        'Artigo': ordem.artigo,
-        'Cor': ordem.cor,
-        'Metragem': ordem.metragem,
-        'Data Entrega': new Date(ordem.data_entrega).toLocaleDateString('pt-BR'),
-        'Observação': ordem.observacao,
-        'Status': 'Pendente',
-        'Criado por': ordem.criado_por,
-        'Criado em': new Date(ordem.criado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'})
-      }));
+      // Sheet 2: Ordens de Produção (todas) - com dados do artigo
+      const ordensData = ordensResponse.data.map(ordem => {
+        const artigoInfo = artigosData.find(a => 
+          a.artigo && ordem.artigo && 
+          a.artigo.toLowerCase() === ordem.artigo.toLowerCase()
+        );
+        return {
+          'Número OS': ordem.numero_os,
+          'Cliente': ordem.cliente,
+          'Artigo': ordem.artigo,
+          'Engrenagem': ordem.engrenagem || artigoInfo?.engrenagem || '',
+          'Fios': ordem.fios || artigoInfo?.fios || '',
+          'Máquinas': ordem.maquinas || artigoInfo?.maquinas || '',
+          'Ciclos': artigoInfo?.ciclos || '',
+          'Carga/Enchimento': artigoInfo?.carga || '',
+          'Cor': ordem.cor,
+          'Metragem': ordem.metragem,
+          'Data Entrega': new Date(ordem.data_entrega).toLocaleDateString('pt-BR'),
+          'Observação': ordem.observacao,
+          'Status': ordem.status === 'pendente' ? 'Pendente' : ordem.status === 'em_producao' ? 'Em Produção' : 'Finalizado',
+          'Criado por': ordem.criado_por,
+          'Criado em': new Date(ordem.criado_em).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'})
+        };
+      });
       const ordensWS = XLSX.utils.json_to_sheet(ordensData);
-      XLSX.utils.book_append_sheet(wb, ordensWS, "Ordens Pendentes");
+      XLSX.utils.book_append_sheet(wb, ordensWS, "Ordens de Produção");
 
-      // Sheet 3: Espulagem
+      // Sheet 3: Espulagem - com dados do artigo
       const espulasData = espulasResponse.data.map(espula => {
+        const artigoInfo = artigosData.find(a => 
+          a.artigo && espula.artigo && 
+          a.artigo.toLowerCase() === espula.artigo.toLowerCase()
+        );
+        
+        // Lista de máquinas alocadas
+        let maquinasList = '';
+        if (espula.machine_allocations && espula.machine_allocations.length > 0) {
+          maquinasList = espula.machine_allocations
+            .map(alloc => `${alloc.machine_code} (${alloc.quantidade})`)
+            .join(', ');
+        } else if (espula.maquina) {
+          maquinasList = espula.maquina;
+        }
+        
         const row = {
           'OS': espula.numero_os || espula.id.slice(-8),
           'Cliente': espula.cliente,
           'Artigo': espula.artigo,
-          'Máquina': espula.maquina,
+          'Engrenagem': artigoInfo?.engrenagem || '',
+          'Enchimento': artigoInfo?.carga || '',
+          'Ciclos': artigoInfo?.ciclos || '',
+          'Máquinas Alocadas': maquinasList,
           'Cor': espula.cor,
           'Mat. Prima': espula.mat_prima,
-          'Qtde Fios': espula.qtde_fios,
+          'Qtde Fios': espula.qtde_fios || artigoInfo?.fios || '',
           'Qtde Metros': espula.quantidade_metros,
           'Carga': espula.carga
         };
@@ -4059,13 +4101,6 @@ const AdminPanel = ({ users, onUserUpdate }) => {
           espula.cargas_fracoes.forEach((carga, index) => {
             row[`Fração ${index + 1}`] = carga || '';
           });
-        } else {
-          // Para compatibilidade com dados antigos
-          row['Fração 1'] = espula.carga_fracao_1 || '';
-          row['Fração 2'] = espula.carga_fracao_2 || '';
-          row['Fração 3'] = espula.carga_fracao_3 || '';
-          row['Fração 4'] = espula.carga_fracao_4 || '';
-          row['Fração 5'] = espula.carga_fracao_5 || '';
         }
         
         row['Data Entrega'] = new Date(espula.data_prevista_entrega).toLocaleDateString('pt-BR');
@@ -4094,6 +4129,19 @@ const AdminPanel = ({ users, onUserUpdate }) => {
       }));
       const maintenanceWS = XLSX.utils.json_to_sheet(maintenanceData);
       XLSX.utils.book_append_sheet(wb, maintenanceWS, "Manutenção");
+
+      // Sheet 5: Banco de Dados (Artigos)
+      const bancoDadosData = artigosData.map(artigo => ({
+        'Artigo': artigo.artigo,
+        'Engrenagem': artigo.engrenagem || '',
+        'Fios': artigo.fios || '',
+        'Máquinas': artigo.maquinas || '',
+        'Ciclos': artigo.ciclos || '',
+        'Carga': artigo.carga || '',
+        'Criado em': new Date(artigo.created_at).toLocaleString('pt-BR', {timeZone: 'America/Sao_Paulo'})
+      }));
+      const bancoDadosWS = XLSX.utils.json_to_sheet(bancoDadosData);
+      XLSX.utils.book_append_sheet(wb, bancoDadosWS, "Banco de Dados");
       
       const fileName = `relatorio_completo_MercoTextil_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, fileName);

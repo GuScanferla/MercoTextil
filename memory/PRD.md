@@ -26,21 +26,25 @@ Sistema de gerenciamento de produção têxtil que permite controlar máquinas d
 - CRUD completo de artigos
 - Campos: artigo, engrenagem, fios, máquinas, ciclos, carga
 - Busca por nome para autocomplete
+- **Atualização em tempo real** (polling a cada 5 segundos)
 
 ### Espulagem
 - Controle de espulagem com alocação de máquinas
 - Cargas e frações dinâmicas
 - Edição de máquinas alocadas em espulagens ativas
+- **Exportação Excel com dados reais**: Engrenagem, Enchimento (carga) e Ciclos do banco de artigos
 
 ### Relatórios
 - Exportação de relatórios para Excel com formatação avançada
+- **Dados completos**: Todos os relatórios incluem engrenagem, fios, ciclos, carga do banco de artigos
 - Cores e estilos personalizados
 - Remoção de linhas vazias
 
 ### Administração
 - Gerenciamento de usuários
-- Permissões por aba
+- **Permissões por aba** (incluindo "Banco de Dados")
 - Roles: admin, operador_interno, operador_externo
+- **Reset DB** também limpa o banco de dados de artigos
 
 ## Endpoints API Principais
 
@@ -59,23 +63,20 @@ Sistema de gerenciamento de produção têxtil que permite controlar máquinas d
 ### Máquinas
 - `GET /api/machines/{code}/orders` - Fila de pedidos (ordenado por mais novos)
 
-## O Que Foi Implementado (25/02/2026)
+## O Que Foi Implementado
 
-### Correções
+### 25/02/2026 - Sessão 1
 - Corrigido erro de sintaxe no backend (server.py linha 1082)
 - Campos ciclos e carga do modelo ArtigoBancoDados alterados para ter valor default
+- Autocomplete na Ordem de Produção
+- Botão "Excluir Ordem" para ordens pendentes
+- Ordenação da fila de máquinas por mais novos
 
-### Novas Funcionalidades
-1. **Autocomplete na Ordem de Produção**
-   - Campo artigo com sugestões em tempo real
-   - Preenchimento automático de engrenagem, fios e máquinas
-   
-2. **Excluir Ordem de Produção**
-   - Botão "Excluir Ordem" visível apenas em ordens pendentes
-   - Endpoint DELETE /api/ordens-producao/{id}
-
-3. **Ordenação da Fila de Máquinas**
-   - Pedidos ordenados por mais novos primeiro
+### 25/02/2026 - Sessão 2
+- **Reset DB**: Limpa também a coleção `banco_dados`
+- **Polling**: Banco de Dados atualiza automaticamente a cada 5 segundos
+- **Permissão banco_dados**: Adicionada nas permissões de usuário
+- **Relatórios atualizados**: Exportação inclui dados reais de engrenagem, enchimento, ciclos e máquinas do banco de artigos
 
 ## Credenciais de Teste
 - **Admin**: admin / admin123
@@ -84,8 +85,9 @@ Sistema de gerenciamento de produção têxtil que permite controlar máquinas d
 
 ## Arquivos Principais
 - `/app/backend/server.py` - Backend completo
-- `/app/frontend/src/App.js` - Frontend monolítico (necessita refatoração)
+- `/app/frontend/src/App.js` - Frontend monolítico
 
 ## Tarefas Futuras/Backlog
-1. **Refatoração**: Dividir App.js em componentes menores (BancoDadosPanel.js, OrdemProducaoPanel.js, etc.)
+1. **Refatoração**: Dividir App.js em componentes menores
 2. **Acessibilidade**: Adicionar aria-describedby aos DialogContent
+3. **Migração de dados**: Atualizar usuários antigos para incluir permissão banco_dados

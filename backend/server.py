@@ -376,6 +376,7 @@ async def init_data():
                 "relatorios": True,
                 "espulagem": True,
                 "manutencao": True,
+                "banco_dados": True,
                 "administracao": True
             }
         )
@@ -396,6 +397,7 @@ async def init_data():
                 "relatorios": True,
                 "espulagem": True,
                 "manutencao": True,
+                "banco_dados": True,
                 "administracao": False
             }
         )

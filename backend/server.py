@@ -94,6 +94,7 @@ class User(BaseModel):
         "relatorios": True,
         "espulagem": True,
         "manutencao": True,
+        "banco_dados": True,
         "administracao": False
     })
     created_at: datetime = Field(default_factory=get_utc_now)
@@ -359,6 +360,7 @@ async def init_data():
     await db.maintenance.delete_many({})
     await db.status_history.delete_many({})
     await db.machines.delete_many({})
+    await db.banco_dados.delete_many({})  # Reset banco de dados de artigos
     
     # Create default users if they don't exist
     admin_exists = await db.users.find_one({"username": "admin"})

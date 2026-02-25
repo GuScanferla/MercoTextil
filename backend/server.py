@@ -1078,6 +1078,14 @@ async def salvar_temporarios_ordem_producao(
         "dados_temporarios_maquinas": temp_data.dados_temporarios_maquinas,
         "espula_data_temp": temp_data.espula_data,
         "editado_por": current_user.username,
+        "editado_em": get_utc_now(),
+        "updated_at": get_utc_now()
+    }
+    
+    await db.ordens_producao.update_one({"id": ordem_id}, {"$set": update_data})
+    
+    return {"message": "Dados temporários salvos com sucesso"}
+
 
 @api_router.delete("/ordens-producao/{ordem_id}")
 async def delete_ordem_producao(ordem_id: str, current_user: User = Depends(get_current_user)):
@@ -1092,14 +1100,6 @@ async def delete_ordem_producao(ordem_id: str, current_user: User = Depends(get_
         raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error deleting ordem: {str(e)}")
-
-        "editado_em": get_utc_now(),
-        "updated_at": get_utc_now()
-    }
-    
-    await db.ordens_producao.update_one({"id": ordem_id}, {"$set": update_data})
-    
-    return {"message": "Dados temporários salvos com sucesso"}
 
 
 # Banco de Dados - Artigos Routes

@@ -4193,6 +4193,15 @@ const AdminPanel = ({ users, onUserUpdate }) => {
                   />
                   <span className="text-white text-sm">Manutenção</span>
                 </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newUser.permissions.banco_dados}
+                    onChange={() => togglePermission('banco_dados')}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-white text-sm">Banco de Dados</span>
+                </label>
                 <label className="flex items-center space-x-2 cursor-pointer col-span-2">
                   <input
                     type="checkbox"

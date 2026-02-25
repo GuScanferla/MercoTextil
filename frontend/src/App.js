@@ -1485,7 +1485,6 @@ const OrdersPanel = ({ orders, user, onOrderUpdate, onMachineUpdate }) => {
 const OrdemProducaoPanel = ({ user }) => {
   const [ordens, setOrdens] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [artigos, setArtigos] = useState([]);
   const [artigoSuggestions, setArtigoSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [ordemData, setOrdemData] = useState({
@@ -1497,15 +1496,25 @@ const OrdemProducaoPanel = ({ user }) => {
     observacao: "",
     engrenagem: "",
     fios: "",
-    maquinas: "",
-    ciclos: "",
-    carga: ""
+    maquinas: ""
   });
+  const suggestionsRef = useRef(null);
 
   useEffect(() => {
     loadOrdens();
-    const interval = setInterval(loadOrdens, 5000); // Auto-refresh every 5 seconds
+    const interval = setInterval(loadOrdens, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const loadOrdens = async () => {
@@ -1517,6 +1526,44 @@ const OrdemProducaoPanel = ({ user }) => {
     } catch (error) {
       toast.error("Erro ao carregar ordens de produção");
     }
+  };
+
+  // Search artigos for autocomplete
+  const searchArtigos = async (term) => {
+    if (term.length < 2) {
+      setArtigoSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    try {
+      const response = await axios.get(`${API}/banco-dados/search?q=${encodeURIComponent(term)}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setArtigoSuggestions(response.data);
+      setShowSuggestions(response.data.length > 0);
+    } catch (error) {
+      console.error("Erro ao buscar artigos:", error);
+    }
+  };
+
+  // Handle artigo input change
+  const handleArtigoChange = (e) => {
+    const value = e.target.value;
+    setOrdemData({ ...ordemData, artigo: value });
+    searchArtigos(value);
+  };
+
+  // Select artigo from suggestions
+  const selectArtigo = (artigo) => {
+    setOrdemData({
+      ...ordemData,
+      artigo: artigo.artigo,
+      engrenagem: artigo.engrenagem || "",
+      fios: artigo.fios || "",
+      maquinas: artigo.maquinas || ""
+    });
+    setShowSuggestions(false);
+    setArtigoSuggestions([]);
   };
 
   const createOrdem = async () => {
@@ -1532,12 +1579,30 @@ const OrdemProducaoPanel = ({ user }) => {
         cor: "",
         metragem: "",
         data_entrega: "",
-        observacao: ""
+        observacao: "",
+        engrenagem: "",
+        fios: "",
+        maquinas: ""
       });
       setShowForm(false);
       loadOrdens();
     } catch (error) {
       toast.error("Erro ao criar ordem de produção");
+    }
+  };
+
+  // Delete ordem de producao
+  const deleteOrdem = async (ordemId) => {
+    if (window.confirm("Tem certeza que deseja excluir esta ordem de produção?")) {
+      try {
+        await axios.delete(`${API}/ordens-producao/${ordemId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        toast.success("Ordem de produção excluída com sucesso!");
+        loadOrdens();
+      } catch (error) {
+        toast.error("Erro ao excluir ordem de produção");
+      }
     }
   };
 

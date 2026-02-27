@@ -2455,6 +2455,10 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       });
       return response.data.numero_os;
     } catch (error) {
+      console.error("Erro ao buscar próximo número:", error);
+      return "";
+    }
+  };
 
   // Carregar máquinas
   useEffect(() => {

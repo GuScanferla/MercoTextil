@@ -3432,14 +3432,14 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                 <Card key={`alloc-${index}-${allocation.machine_code}`} className="card-merco p-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
-                      <Label className="text-white">Máquina *</Label>
+                      <Label className="text-white">Máquina * (Atual: {allocation.machine_code || 'nenhuma'})</Label>
                       <Select
                         value={allocation.machine_code || ""}
                         onValueChange={(value) => updateMachineAllocation(index, 'machine', value)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-gray-800 text-white">
                           <SelectValue placeholder="Selecione a máquina">
-                            {allocation.machine_code ? `${allocation.machine_code}` : "Selecione a máquina"}
+                            {allocation.machine_code || "Selecione a máquina"}
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
@@ -3452,8 +3452,9 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-white">Quantidade (metros) *</Label>
+                      <Label className="text-white">Quantidade (metros) * (Atual: {allocation.quantidade || 'nenhum'})</Label>
                       <Input
+                        className="bg-gray-800 text-white"
                         value={allocation.quantidade || ""}
                         onChange={(e) => updateMachineAllocation(index, 'quantidade', e.target.value)}
                         placeholder="Ex: 1.000"

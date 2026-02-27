@@ -1297,6 +1297,36 @@ async def update_espula(
     
     return {"message": "Espula updated successfully"}
 
+
+class MachineAllocationsUpdate(BaseModel):
+    machine_allocations: List[MachineAllocation]
+
+
+@api_router.put("/espulas/{espula_id}/machine-allocations")
+async def update_espula_machine_allocations(
+    espula_id: str,
+    update_data: MachineAllocationsUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update machine allocations for an espula"""
+    espula = await db.espulas.find_one({"id": espula_id})
+    if not espula:
+        raise HTTPException(status_code=404, detail="Espula not found")
+    
+    # Convert machine allocations to dict format
+    allocations_dict = [alloc.dict() for alloc in update_data.machine_allocations]
+    
+    await db.espulas.update_one(
+        {"id": espula_id}, 
+        {"$set": {
+            "machine_allocations": allocations_dict,
+            "updated_at": get_utc_now()
+        }}
+    )
+    
+    return {"message": "Machine allocations updated successfully"}
+
+
 @api_router.post("/espulas/{espula_id}/finalize-with-machines")
 async def finalize_espula_with_machines(
     espula_id: str,

@@ -2527,26 +2527,8 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   const openEditMachines = async (espula) => {
     // Garantir que máquinas estão carregadas
     await loadMachines();
-    
-    console.log("Opening edit dialog for espula:", espula);
-    console.log("machine_allocations from espula:", espula.machine_allocations);
-    
+    // Setar editingMachines vai disparar o useEffect que carrega as alocações
     setEditingMachines(espula);
-    // Se não tiver alocações, criar uma vazia para permitir edição
-    if (espula.machine_allocations && espula.machine_allocations.length > 0) {
-      // Deep copy para evitar mutação
-      const copiedAllocations = espula.machine_allocations.map(alloc => ({
-        machine_code: alloc.machine_code || "",
-        machine_id: alloc.machine_id || "",
-        layout_type: alloc.layout_type || "",
-        quantidade: alloc.quantidade || ""
-      }));
-      console.log("Copied allocations:", copiedAllocations);
-      setMachineAllocations(copiedAllocations);
-    } else {
-      console.log("No allocations found, creating empty one");
-      setMachineAllocations([{ machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
-    }
   };
 
   // Salvar as alterações de máquinas

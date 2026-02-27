@@ -2508,7 +2508,12 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   // Abrir dialog para editar máquinas de uma espulagem
   const openEditMachines = (espula) => {
     setEditingMachines(espula);
-    setMachineAllocations(espula.machine_allocations || []);
+    // Se não tiver alocações, criar uma vazia para permitir edição
+    if (espula.machine_allocations && espula.machine_allocations.length > 0) {
+      setMachineAllocations([...espula.machine_allocations]);
+    } else {
+      setMachineAllocations([{ machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
+    }
   };
 
   // Salvar as alterações de máquinas

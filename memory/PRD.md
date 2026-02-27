@@ -31,12 +31,12 @@ Sistema de gerenciamento de produção têxtil que permite controlar máquinas d
 ### Espulagem
 - Controle de espulagem com alocação de máquinas
 - Cargas e frações dinâmicas
-- Edição de máquinas alocadas em espulagens ativas
-- **Exportação Excel com dados reais**: Engrenagem, Enchimento (carga) e Ciclos do banco de artigos
+- **Edição de máquinas alocadas** em espulagens ativas (Dialog funcional)
+- **Exportação Excel com dados reais**: Engrenagem, Enchimento (carga), Ciclos e Máquinas do banco de artigos
 
 ### Relatórios
 - Exportação de relatórios para Excel com formatação avançada
-- **Dados completos**: Todos os relatórios incluem engrenagem, fios, ciclos, carga do banco de artigos
+- **Dados completos**: Todos os relatórios incluem engrenagem, fios, ciclos, carga, máquinas do banco de artigos
 - Cores e estilos personalizados
 - Remoção de linhas vazias
 
@@ -61,6 +61,8 @@ Sistema de gerenciamento de produção têxtil que permite controlar máquinas d
 - `DELETE /api/ordens-producao/{id}` - Excluir ordem
 
 ### Máquinas
+- `GET /api/machines` - Listar todas as máquinas
+- `GET /api/machines/{layout_type}` - Listar máquinas por tipo
 - `GET /api/machines/{code}/orders` - Fila de pedidos (ordenado por mais novos)
 
 ## O Que Foi Implementado
@@ -77,6 +79,11 @@ Sistema de gerenciamento de produção têxtil que permite controlar máquinas d
 - **Polling**: Banco de Dados atualiza automaticamente a cada 5 segundos
 - **Permissão banco_dados**: Adicionada nas permissões de usuário
 - **Relatórios atualizados**: Exportação inclui dados reais de engrenagem, enchimento, ciclos e máquinas do banco de artigos
+
+### 27/02/2026 - Sessão 3
+- **Corrigido erro `openEditMachines is not defined`**: Código do Dialog estava fora do JSX return
+- **Endpoint GET /api/machines**: Adicionado para listar todas as máquinas
+- **Relatório Espulagem**: Agora inclui máquinas do banco de dados quando não há máquinas alocadas
 
 ## Credenciais de Teste
 - **Admin**: admin / admin123

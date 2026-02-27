@@ -2465,6 +2465,24 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     loadMachines();
   }, []);
 
+  // Carregar alocações quando editingMachines muda
+  useEffect(() => {
+    if (editingMachines) {
+      const allocations = editingMachines.machine_allocations;
+      if (allocations && allocations.length > 0) {
+        const copiedAllocations = allocations.map(alloc => ({
+          machine_code: alloc.machine_code || "",
+          machine_id: alloc.machine_id || "",
+          layout_type: alloc.layout_type || "",
+          quantidade: alloc.quantidade || ""
+        }));
+        setMachineAllocations(copiedAllocations);
+      } else {
+        setMachineAllocations([{ machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
+      }
+    }
+  }, [editingMachines]);
+
   const loadMachines = async () => {
     try {
       const response = await axios.get(`${API}/machines`, {

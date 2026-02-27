@@ -3437,7 +3437,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                   <div>
                     <Label className="text-white">Quantidade (metros) *</Label>
                     <Input
-                      value={allocation.quantidade}
+                      value={allocation.quantidade || ""}
                       onChange={(e) => updateMachineAllocation(index, 'quantidade', e.target.value)}
                       placeholder="Ex: 1.000"
                       type="text"

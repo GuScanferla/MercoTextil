@@ -656,6 +656,12 @@ async def delete_user(user_id: str, current_user: User = Depends(get_current_use
     return {"message": "User deleted successfully"}
 
 # Machine routes
+@api_router.get("/machines", response_model=List[Machine])
+async def get_all_machines(current_user: User = Depends(get_current_user)):
+    """Get all machines (all layout types)"""
+    machines = await db.machines.find({}).to_list(1000)
+    return [Machine(**machine) for machine in machines]
+
 @api_router.get("/machines/{layout_type}", response_model=List[Machine])
 async def get_machines(layout_type: str, current_user: User = Depends(get_current_user)):
     machines = await db.machines.find({"layout_type": layout_type}).to_list(1000)

@@ -3388,8 +3388,6 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           )}
         </div>
       )}
-    </div>
-  );
 
       {/* Dialog para editar máquinas alocadas */}
       <Dialog open={editingMachines !== null} onOpenChange={() => setEditingMachines(null)}>
@@ -3464,7 +3462,8 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
           </div>
         </DialogContent>
       </Dialog>
-
+    </div>
+  );
 };
 
 const MaintenancePanel = ({ maintenances, user, onMaintenanceUpdate, onMachineUpdate }) => {

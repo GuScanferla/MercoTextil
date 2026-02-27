@@ -2703,7 +2703,13 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
       
       // UMA LINHA por espulagem (SEM linhas em branco)
       pendenteEspulas.forEach(espula => {
-        // Montar lista de máquinas
+        // Buscar dados do artigo no banco de dados
+        const artigoInfo = artigosData.find(a => 
+          a.artigo && espula.artigo && 
+          a.artigo.toLowerCase() === espula.artigo.toLowerCase()
+        );
+        
+        // Montar lista de máquinas (prioridade: alocadas > espulagem > banco de dados)
         let maquinasList = '';
         if (espula.machine_allocations && espula.machine_allocations.length > 0) {
           maquinasList = espula.machine_allocations
@@ -2711,13 +2717,10 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
             .join(', ');
         } else if (espula.maquina) {
           maquinasList = espula.maquina;
+        } else if (artigoInfo?.maquinas) {
+          // Usar máquinas do banco de dados se não houver máquinas na espulagem
+          maquinasList = artigoInfo.maquinas;
         }
-        
-        // Buscar dados do artigo no banco de dados
-        const artigoInfo = artigosData.find(a => 
-          a.artigo && espula.artigo && 
-          a.artigo.toLowerCase() === espula.artigo.toLowerCase()
-        );
         
         // Preencher engrenagem, enchimento (carga) e ciclos com dados reais
         const engrenagem = artigoInfo?.engrenagem || '';

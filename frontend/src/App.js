@@ -2513,7 +2513,14 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     setEditingMachines(espula);
     // Se não tiver alocações, criar uma vazia para permitir edição
     if (espula.machine_allocations && espula.machine_allocations.length > 0) {
-      setMachineAllocations([...espula.machine_allocations]);
+      // Deep copy para evitar mutação
+      const copiedAllocations = espula.machine_allocations.map(alloc => ({
+        machine_code: alloc.machine_code || "",
+        machine_id: alloc.machine_id || "",
+        layout_type: alloc.layout_type || "",
+        quantidade: alloc.quantidade || ""
+      }));
+      setMachineAllocations(copiedAllocations);
     } else {
       setMachineAllocations([{ machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
     }

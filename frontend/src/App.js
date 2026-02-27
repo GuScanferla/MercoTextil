@@ -2506,7 +2506,10 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   };
 
   // Abrir dialog para editar máquinas de uma espulagem
-  const openEditMachines = (espula) => {
+  const openEditMachines = async (espula) => {
+    // Garantir que máquinas estão carregadas
+    await loadMachines();
+    
     setEditingMachines(espula);
     // Se não tiver alocações, criar uma vazia para permitir edição
     if (espula.machine_allocations && espula.machine_allocations.length > 0) {

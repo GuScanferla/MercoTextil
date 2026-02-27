@@ -2535,7 +2535,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
   const saveMachineAllocations = async () => {
     try {
       await axios.put(
-        `${API}/espulas/${editingMachines.id}`,
+        `${API}/espulas/${editingMachines.id}/machine-allocations`,
         { machine_allocations: machineAllocations },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );

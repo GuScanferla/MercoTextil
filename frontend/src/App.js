@@ -2510,6 +2510,9 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     // Garantir que máquinas estão carregadas
     await loadMachines();
     
+    console.log("Opening edit dialog for espula:", espula);
+    console.log("machine_allocations from espula:", espula.machine_allocations);
+    
     setEditingMachines(espula);
     // Se não tiver alocações, criar uma vazia para permitir edição
     if (espula.machine_allocations && espula.machine_allocations.length > 0) {
@@ -2520,8 +2523,10 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
         layout_type: alloc.layout_type || "",
         quantidade: alloc.quantidade || ""
       }));
+      console.log("Copied allocations:", copiedAllocations);
       setMachineAllocations(copiedAllocations);
     } else {
+      console.log("No allocations found, creating empty one");
       setMachineAllocations([{ machine_code: "", machine_id: "", layout_type: "", quantidade: "" }]);
     }
   };

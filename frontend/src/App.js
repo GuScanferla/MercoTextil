@@ -3425,7 +3425,7 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
                       <SelectContent>
                         {machines.map(machine => (
                           <SelectItem key={machine.id} value={machine.code}>
-                            {machine.code} - {machine.layout_type === "16" ? "16 Fusos" : "32 Fusos"}
+                            {machine.code} - {machine.layout_type === "16_fusos" ? "16 Fusos" : "32 Fusos"}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -2529,11 +2529,6 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
     }
   };
 
-      console.error("Erro ao buscar próximo número:", error);
-      return "";
-    }
-  };
-
   // Abrir formulário com próximo número de OS
   const openForm = async () => {
     const nextNumber = await getNextOSNumber();

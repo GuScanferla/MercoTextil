@@ -3425,51 +3425,57 @@ const EspulasPanel = ({ espulas, user, onEspulaUpdate }) => {
               </Button>
             </div>
             
-            {machineAllocations.map((allocation, index) => (
-              <Card key={index} className="card-merco p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div>
-                    <Label className="text-white">Máquina *</Label>
-                    <Select
-                      value={allocation.machine_code}
-                      onValueChange={(value) => updateMachineAllocation(index, 'machine', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a máquina" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {machines.map(machine => (
-                          <SelectItem key={machine.id} value={machine.code}>
-                            {machine.code} - {machine.layout_type === "16_fusos" ? "16 Fusos" : "32 Fusos"}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-white">Quantidade (metros) *</Label>
-                    <Input
-                      value={allocation.quantidade || ""}
-                      onChange={(e) => updateMachineAllocation(index, 'quantidade', e.target.value)}
-                      placeholder="Ex: 1.000"
-                      type="text"
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    {machineAllocations.length > 1 && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-400 hover:text-red-300"
-                        onClick={() => removeMachineAllocation(index)}
+            {machineAllocations.length === 0 ? (
+              <p className="text-gray-400">Carregando alocações...</p>
+            ) : (
+              machineAllocations.map((allocation, index) => (
+                <Card key={`alloc-${index}-${allocation.machine_code}`} className="card-merco p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                      <Label className="text-white">Máquina *</Label>
+                      <Select
+                        value={allocation.machine_code || ""}
+                        onValueChange={(value) => updateMachineAllocation(index, 'machine', value)}
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a máquina">
+                            {allocation.machine_code ? `${allocation.machine_code}` : "Selecione a máquina"}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {machines.map(machine => (
+                            <SelectItem key={machine.id} value={machine.code}>
+                              {machine.code} - {machine.layout_type === "16_fusos" ? "16 Fusos" : "32 Fusos"}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-white">Quantidade (metros) *</Label>
+                      <Input
+                        value={allocation.quantidade || ""}
+                        onChange={(e) => updateMachineAllocation(index, 'quantidade', e.target.value)}
+                        placeholder="Ex: 1.000"
+                        type="text"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      {machineAllocations.length > 1 && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-400 hover:text-red-300"
+                          onClick={() => removeMachineAllocation(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))
+            )}
             
             <div className="flex gap-2 mt-6">
               <Button onClick={saveMachineAllocations} className="flex-1 btn-merco">

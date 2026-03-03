@@ -675,8 +675,12 @@ async def create_maintenance(maintenance_data: MaintenanceCreate, current_user: 
     if not machine:
         raise HTTPException(status_code=404, detail="Machine not found")
     
-    if machine["status"] != "verde":
-        raise HTTPException(status_code=400, detail="Machine must be available to enter maintenance")
+    # Allow maintenance for any status except already in maintenance
+    if machine["status"] == "azul":
+        raise HTTPException(status_code=400, detail="Máquina já está em manutenção")
+    
+    # Save the previous status to restore later
+    previous_status = machine["status"]
     
     maintenance = Maintenance(
         machine_id=maintenance_data.machine_id,
@@ -685,7 +689,10 @@ async def create_maintenance(maintenance_data: MaintenanceCreate, current_user: 
         created_by=current_user.username
     )
     
-    await db.maintenance.insert_one(maintenance.dict())
+    maintenance_dict = maintenance.dict()
+    maintenance_dict["previous_status"] = previous_status  # Save previous status
+    
+    await db.maintenance.insert_one(maintenance_dict)
     
     # Update machine status to azul (maintenance)
     await db.machines.update_one(
@@ -721,10 +728,34 @@ async def finish_maintenance(maintenance_id: str, current_user: User = Depends(g
         }
     )
     
-    # Update machine status back to verde (available)
+    # Restore previous status or default to verde
+    previous_status = maintenance.get("previous_status", "verde")
+    
+    # Check if there are pending orders for this machine - if so, set to amarelo
+    pending_orders = await db.orders.find({
+        "machine_id": maintenance["machine_id"],
+        "status": "pendente"
+    }).to_list(1)
+    
+    # Check if there's an order in production for this machine
+    in_production = await db.orders.find_one({
+        "machine_id": maintenance["machine_id"],
+        "status": "em_producao"
+    })
+    
+    if in_production:
+        # If there was an order in production, return to vermelho
+        restore_status = "vermelho"
+    elif pending_orders:
+        # If there are pending orders, set to amarelo
+        restore_status = "amarelo"
+    else:
+        # Otherwise, return to verde
+        restore_status = "verde"
+    
     await db.machines.update_one(
         {"id": maintenance["machine_id"]},
-        {"$set": {"status": "verde", "updated_at": get_utc_now()}}
+        {"$set": {"status": restore_status, "updated_at": get_utc_now()}}
     )
     
     return {"message": "Maintenance finished successfully"}

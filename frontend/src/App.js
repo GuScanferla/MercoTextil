@@ -526,8 +526,11 @@ const FusosPanel = ({ layout, machines, user, onMachineUpdate, onOrderUpdate, on
   };
 
   const handleMaintenanceClick = (machine) => {
-    if (machine.status === "verde") {
+    // Permite manutenção em qualquer status exceto se já estiver em manutenção ou desativada
+    if (machine.status !== "azul" && machine.status !== "desativada") {
       setMaintenanceMachine(machine);
+    } else if (machine.status === "azul") {
+      toast.info("Esta máquina já está em manutenção");
     }
   };
 

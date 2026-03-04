@@ -982,7 +982,55 @@ async def finish_machine_order(
     current_user: User = Depends(get_current_user)
 ):
     """Finish order production and update machine status"""
-    # Implementation continues below...
+    # Find the order
+    order = await db.orders.find_one({"id": order_id, "machine_code": machine_code})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    if order["status"] != "em_producao":
+        raise HTTPException(status_code=400, detail="Order is not in production")
+    
+    # Update order status to finalizado
+    await db.orders.update_one(
+        {"id": order_id},
+        {
+            "$set": {
+                "status": "finalizado",
+                "finished_at": get_utc_now(),
+                "finished_by": current_user.username,
+                "updated_at": get_utc_now()
+            }
+        }
+    )
+    
+    # Check for remaining pending orders for this machine
+    pending_orders = await db.orders.find({
+        "machine_code": machine_code,
+        "status": "pendente"
+    }).to_list(100)
+    
+    # Check for any order still in production
+    in_production = await db.orders.find_one({
+        "machine_code": machine_code,
+        "status": "em_producao"
+    })
+    
+    # Update machine status
+    if in_production:
+        # Still has orders in production
+        new_status = "vermelho"
+    elif pending_orders:
+        # Has pending orders
+        new_status = "amarelo"
+    else:
+        # No more orders
+        new_status = "verde"
+    
+    await db.machines.update_one(
+        {"code": machine_code},
+        {"$set": {"status": new_status, "updated_at": get_utc_now()}}
+    )
+    
     return {"message": "Order finished successfully"}
 
 @api_router.delete("/orders/{order_id}")

@@ -287,7 +287,7 @@ const Dashboard = ({ user, onLogout }) => {
             {user.permissions?.relatorios !== false && <TabsTrigger value="relatorios" className="tab-merco">Relatórios</TabsTrigger>}
             {user.permissions?.espulagem !== false && <TabsTrigger value="espulas" className="tab-merco">Espulagem</TabsTrigger>}
             {user.permissions?.manutencao !== false && <TabsTrigger value="maintenance" className="tab-merco">Manutenção</TabsTrigger>}
-            {(user.role === "admin" || user.permissions?.administracao === true) && <TabsTrigger value="bancodados" className="tab-merco">Banco de Dados</TabsTrigger>}
+            {user.permissions?.banco_dados !== false && <TabsTrigger value="bancodados" className="tab-merco">Banco de Dados</TabsTrigger>}
             {(user.role === "admin" || user.permissions?.administracao === true) && <TabsTrigger value="admin" className="tab-merco">Administração</TabsTrigger>}
           </TabsList>
 
@@ -340,16 +340,16 @@ const Dashboard = ({ user, onLogout }) => {
             <MaintenancePanel maintenances={maintenances} user={user} onMaintenanceUpdate={loadMaintenances} onMachineUpdate={loadMachines} />
           </TabsContent>
 
-          {user.role === "admin" && (
-            <>
-              <TabsContent value="bancodados">
-                <BancoDadosPanel user={user} />
-              </TabsContent>
+          {user.permissions?.banco_dados !== false && (
+            <TabsContent value="bancodados">
+              <BancoDadosPanel user={user} />
+            </TabsContent>
+          )}
 
-              <TabsContent value="admin">
-                <AdminPanel users={users} onUserUpdate={loadUsers} />
-              </TabsContent>
-            </>
+          {(user.role === "admin" || user.permissions?.administracao === true) && (
+            <TabsContent value="admin">
+              <AdminPanel users={users} onUserUpdate={loadUsers} />
+            </TabsContent>
           )}
         </Tabs>
 
